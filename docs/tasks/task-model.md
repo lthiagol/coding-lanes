@@ -99,6 +99,24 @@ Actors, roles, ownership, and session boundaries are defined in
 
 ## Transitions
 
+```mermaid
+stateDiagram-v2
+    [*] --> draft : creator
+    draft --> groomed : creator
+    groomed --> approved : creator
+    approved --> executing : runner
+    executing --> code-review : runner
+    code-review --> done : reviewer / verdict ok
+    code-review --> remediating : reviewer / changes-needed
+    remediating --> code-review : runner / findings fixed
+    code-review --> needs-human : reviewer / 5 rounds exhausted
+    needs-human --> executing : creator / human instructed
+    done --> executing : creator / reopen
+```
+
+Overlays (`blocked`, `deferred`, `cancelled`) apply to any phase and are not
+shown in the graph.
+
 | from → to | actor | must hold |
 |---|---|---|
 | — → `draft` | creator | title only |

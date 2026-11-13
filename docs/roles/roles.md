@@ -20,6 +20,23 @@ Task structure, statuses, and transitions live in
 
 ## The roles
 
+```mermaid
+sequenceDiagram
+    participant H as human
+    participant C as creator
+    participant R as runner
+    participant V as reviewer
+    participant T as task file
+    H->>C: discuss and groom
+    C->>T: write task, approve
+    R->>T: claim, execute, attach evidence
+    R->>T: self-review round
+    V->>T: external review round
+    V->>T: findings
+    R->>T: resolve findings
+    V->>T: re-review
+```
+
 | role | owns | autonomy | never |
 |---|---|---|---|
 | `creator` | creates and edits tasks: intent, scope, acceptance criteria, steps, questions, meta; approves `groomed → approved` | human-dependent — its content comes from an interactive session with a human | executes or reviews code |
