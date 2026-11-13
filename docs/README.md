@@ -7,6 +7,3 @@
 
 The two cross-reference each other: the task model names the roles that act,
 the roles doc names the transitions they act on.
-
-Not defined yet: journal event kinds, schema validation, the CLI's operation
-surface, raul screens and views, autopilot.
