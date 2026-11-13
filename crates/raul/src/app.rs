@@ -101,18 +101,23 @@ impl App {
 
     /// The title line: the name of the tool and the folder it reads.
     fn title_line(&self, width: u16) -> Line<'static> {
+        const NAME: &str = " coding-lanes ";
         let title = Span::styled(
-            " coding-lanes ",
+            NAME,
             Style::default()
                 .fg(Color::Black)
                 .bg(Color::Cyan)
                 .add_modifier(Modifier::BOLD),
         );
-        let available = width.saturating_sub(13) as usize;
+        let available = width.saturating_sub(NAME.len() as u16) as usize;
         let path = self.root.display().to_string();
         let path = if path.chars().count() > available {
             // Keep the tail: the folder name matters more than the root.
-            let tail: Vec<char> = path.chars().rev().take(available.saturating_sub(1)).collect();
+            let tail: Vec<char> = path
+                .chars()
+                .rev()
+                .take(available.saturating_sub(1))
+                .collect();
             let tail: String = tail.into_iter().rev().collect();
             format!("…{tail}")
         } else {
@@ -220,10 +225,7 @@ fn render_help(frame: &mut Frame, area: Rect) {
             Span::styled(" shift-tab ", key),
             Span::styled(" previous tab", label),
         ]),
-        Line::from(vec![
-            Span::styled(" q ", key),
-            Span::styled(" quit", label),
-        ]),
+        Line::from(vec![Span::styled(" q ", key), Span::styled(" quit", label)]),
         Line::from(vec![
             Span::styled(" ? ", key),
             Span::styled(" this help", label),
@@ -234,31 +236,4 @@ fn render_help(frame: &mut Frame, area: Rect) {
         Paragraph::new(lines).block(Block::bordered().title("keys")),
         popup,
     );
-}
-
-#[cfg(test)]
-mod dump {
-    use super::*;
-    use crate::data::Work;
-    use ratatui::Terminal;
-    use ratatui::backend::TestBackend;
-    use std::path::Path;
-
-    #[test]
-    fn dump() {
-        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../mock-data/coding-lanes/work");
-        let work = Work::load(&root);
-        let app = App::new(root);
-        let mut terminal = Terminal::new(TestBackend::new(100, 30)).unwrap();
-        let frame = terminal.draw(|f| app.draw(f, &work)).unwrap();
-        let buffer = &frame.buffer;
-        let area = buffer.area();
-        for y in 0..area.height {
-            let mut line = String::new();
-            for x in 0..area.width {
-                line.push_str(buffer.get(x, y).symbol());
-            }
-            println!("{y:>2}|{line}|");
-        }
-    }
 }

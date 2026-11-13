@@ -272,10 +272,7 @@ mod tests {
     use coding_lanes_core::{Claim, Overlay};
 
     fn mock_work() -> Work {
-        Work::load(
-            &Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../mock-data/coding-lanes/work"),
-        )
+        Work::load(&Path::new(env!("CARGO_MANIFEST_DIR")).join("../../mock-data/coding-lanes/work"))
     }
 
     fn work_of(tasks: Vec<Task>) -> Work {

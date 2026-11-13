@@ -20,9 +20,10 @@ use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
 
 use app::{Action, App};
+use coding_lanes_core::Store;
 use data::Work;
 
-const USAGE: &str = "usage: raul <work-folder>";
+const USAGE: &str = "usage: raul [work-folder]";
 
 fn main() -> Result<()> {
     let root = parse_args(std::env::args().skip(1))?;
@@ -33,7 +34,10 @@ fn main() -> Result<()> {
     result
 }
 
-/// The work folder to read, given on the command line.
+/// The work folder to read.
+///
+/// Given on the command line, or discovered from the current directory: the
+/// store is discovered, not configured.
 fn parse_args(args: impl Iterator<Item = String>) -> Result<PathBuf> {
     let mut root: Option<PathBuf> = None;
     for arg in args {
@@ -46,9 +50,17 @@ fn parse_args(args: impl Iterator<Item = String>) -> Result<PathBuf> {
             other => root = Some(PathBuf::from(other)),
         }
     }
-    match root {
-        Some(root) => Ok(root),
-        None => bail!("a work folder is required\n{USAGE}"),
+    Ok(root.unwrap_or_else(discover))
+}
+
+/// The work folder of the project in the current directory.
+fn discover() -> PathBuf {
+    let Ok(current) = std::env::current_dir() else {
+        return PathBuf::new();
+    };
+    match Store::discover(&current) {
+        Ok(store) => store.root().to_path_buf(),
+        Err(_) => current,
     }
 }
 

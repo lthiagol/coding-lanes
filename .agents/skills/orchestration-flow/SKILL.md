@@ -40,6 +40,28 @@ agent's pane.
 Each dispatch is a **fresh opencode session** — fresh context is intentional;
 the repository's docs are the memory, not the conversation.
 
+**Every dispatch is a fresh session: builder and reviewer alike.** Continuity
+is the findings file and the diff — never an agent's memory. A builder that
+wrote the code never fixes it (the session that produced the code is not the
+session that repairs it), and a reviewer that reviews the change from a fresh
+context re-derives it instead of accepting the builder's account of it.
+
+The findings file is the thread between the rounds:
+
+| round | findings file |
+|---|---|
+| 1 | `/tmp/opencode/review1/round1-findings.md` |
+| 2 | `/tmp/opencode/review2/round2-findings.md` |
+| N | `/tmp/opencode/review<N>/round<N>-findings.md` |
+
+The reviewer writes the file; the next builder reads it, and the next reviewer
+reads it to verify every finding was closed. That is better than memory: a
+reviewer with memory can be talked into accepting a rename as a fix, while a
+reviewer reading the finding on disk re-checks it.
+
+For now the findings live in `/tmp`, outside the repository. That is a stopgap:
+when coding-lanes runs its own work, the findings belong inside the task.
+
 ## Herdr mechanics
 
 All multi-agent work runs through Herdr, in the orchestrator's own workspace.
@@ -176,7 +198,8 @@ before anything was built. Only real build-and-review rounds count.
 > Your role: builder.
 > Autonomous: never use the ask tool; if blocked, end with
 > `BLOCKED: <question>; options: ...; recommendation: ...` and report to the orchestrator.
-> Read AGENTS.md and the project's docs it points to.
+> Read AGENTS.md and the project's docs it points to, and the round's
+> findings at `<path-to-findings>`.
 > Your task: `<the unit of work>`. Do not start other work. Run the project's
 > gate before you report. Finish by prompting the orchestrator pane.
 
@@ -186,11 +209,16 @@ before anything was built. Only real build-and-review rounds count.
 > Autonomous: never use the ask tool; if blocked, end with
 > `BLOCKED: <question>; options: ...; recommendation: ...` and report to the orchestrator.
 > Read AGENTS.md and the project's docs it points to. This is review round
-> <N> of at most 5. Review the change against the kickoff and the project's
-> rules — not against the builder's own summary.
+> <N> of at most 5.
+> If there is a previous round, read its findings at `<path-to-previous-findings>`
+> and check that every one of them is closed — a renamed fix is not a closed
+> finding.
+> Review the change against the kickoff and the project's rules — not against
+> the builder's own summary.
 > Try to break it: different inputs, edge cases, adversarial paths. You may
 > run targeted commands to check a claim — not long builds; the orchestrator
 > runs the gate. Findings carry severity and location. Do not modify code.
+> Write the findings to `<path-to-this-round-findings>`.
 > Finish with a verdict (`ok` or `changes-needed`) by prompting the orchestrator
 > pane.
 
@@ -199,7 +227,8 @@ before anything was built. Only real build-and-review rounds count.
 > Your role: builder.
 > Autonomous: never use the ask tool; if blocked, end with
 > `BLOCKED: <question>; options: ...; recommendation: ...` and report to the orchestrator.
-> Read AGENTS.md, the project's docs, and the open findings. Fix every finding.
+> Read AGENTS.md, the project's docs, and the findings at
+> `<path-to-findings>`. Fix every finding — the closed ones stay closed.
 > Re-run the project's gate. Finish by prompting the orchestrator pane.
 
 ## Clarifications and stalls
@@ -235,6 +264,8 @@ ask-the-user prompt stalls the agent forever.
 - No code ships unreviewed: every changed file is covered by a review round
   before the unit is done.
 - The orchestrator commits after a clean review. Agents never commit or push.
+- **Every dispatch is a fresh session.** Continuity is the findings file and the
+  diff. No agent is reused across the rounds of one unit of work.
 
 ## Human workflow
 

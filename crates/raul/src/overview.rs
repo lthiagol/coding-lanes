@@ -12,12 +12,8 @@ use crate::data::{Reason, Work};
 
 const LABEL: Style = Style::new().fg(Color::Gray);
 const DIM: Style = Style::new().fg(Color::DarkGray);
-const VALUE: Style = Style::new()
-    .fg(Color::White)
-    .add_modifier(Modifier::BOLD);
-const HEADING: Style = Style::new()
-    .fg(Color::Cyan)
-    .add_modifier(Modifier::BOLD);
+const VALUE: Style = Style::new().fg(Color::White).add_modifier(Modifier::BOLD);
+const HEADING: Style = Style::new().fg(Color::Cyan).add_modifier(Modifier::BOLD);
 
 /// Draw the tab.
 pub fn render(frame: &mut Frame, area: Rect, work: &Work) {
@@ -26,9 +22,7 @@ pub fn render(frame: &mut Frame, area: Rect, work: &Work) {
             Paragraph::new(vec![
                 Line::from(Span::styled(
                     "no coding-lanes folder found",
-                    Style::new()
-                        .fg(Color::Red)
-                        .add_modifier(Modifier::BOLD),
+                    Style::new().fg(Color::Red).add_modifier(Modifier::BOLD),
                 )),
                 Line::from(Span::styled(
                     format!("looked in {}", work.root.display()),
@@ -64,9 +58,12 @@ pub fn render(frame: &mut Frame, area: Rect, work: &Work) {
         render_errors(frame, left[2], work);
     }
 
-    let right =
-        Layout::vertical([Constraint::Length(6), Constraint::Length(4), Constraint::Min(3)])
-            .split(columns[1]);
+    let right = Layout::vertical([
+        Constraint::Length(6),
+        Constraint::Length(4),
+        Constraint::Min(3),
+    ])
+    .split(columns[1]);
     render_needs_you(frame, right[0], work);
     render_claimable(frame, right[1], work);
     render_next(frame, right[2], work);
@@ -153,10 +150,7 @@ fn render_claimable(frame: &mut Frame, area: Rect, work: &Work) {
             Span::styled(format!("{count} "), VALUE),
             Span::styled("tasks an agent could claim right now", LABEL),
         ]),
-        Line::from(Span::styled(
-            "  approved, free, dependencies done",
-            DIM,
-        )),
+        Line::from(Span::styled("  approved, free, dependencies done", DIM)),
     ];
     frame.render_widget(
         Paragraph::new(lines).block(Block::bordered().title("claimable")),
