@@ -12,8 +12,9 @@ coding-lanes/
   activity.json               # append-only event journal
 ```
 
-Task files live in the managed project's own `coding-lanes/` folder, next to
-its code. No central store. talita writes; raul reads.
+Task files live in the managed project's own `coding-lanes/work/` folder, next
+to its code. No central store. talita writes; raul reads. Smaller tasks live
+in the same folder — see [smaller-tasks.md](smaller-tasks.md).
 
 File naming: `TSK<NN>-<slug>.json`, slug derived from the title.
 
@@ -30,10 +31,12 @@ File naming: `TSK<NN>-<slug>.json`, slug derived from the title.
   "created": "2026-11-13T10:00:00Z",
   "updated": "2026-11-13T12:30:00Z",
 
+  "kind": "task",
   "status": "groomed",
   "overlays": { "blocked": null, "deferred": null, "cancelled": null },
   "claim": null,
   "planned_by": null,
+  "promoted_from": null,
   "meta": { "priority": "normal", "effort": "M", "tags": [] },
 
   "intent": { "outcome": "", "problem": "" },
@@ -129,9 +132,9 @@ shown in the graph.
 |---|---|---|
 | — → `draft` | creator | title only |
 | `draft` → `groomed` | creator | `intent.outcome` set, ≥1 acceptance criterion, ≥1 `out_of_scope` entry |
-| `groomed` → `approved` | creator | no open questions, every acceptance criterion covered by a step, every step has `done_when` |
+| `groomed` → `approved` | creator | no open questions, every acceptance criterion covered by a step, every step has `done_when` — the step rules do not apply to a small task |
 | `approved` → `executing` | runner | task claimed, dependencies satisfied |
-| `executing` → `code-review` | runner | all steps settled, every criterion proven or failed with a reason, evidence attached, ≥1 `self` round filed |
+| `executing` → `code-review` | runner | all steps settled, every criterion proven or failed with a reason, evidence attached, ≥1 `self` round filed — a small task has no steps to settle |
 | `code-review` → `done` | reviewer | verdict `ok`, no open findings, ≤5 external rounds |
 | `code-review` → `remediating` | reviewer | verdict `changes-needed`, <5 external rounds, findings opened |
 | `remediating` → `code-review` | runner | all open findings fixed, remediation session differs from the execution session |
