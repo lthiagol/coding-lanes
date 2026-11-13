@@ -1,50 +1,44 @@
 # coding-lanes
 
-A Cargo workspace for tracking work across coding lanes, with two frontends
-sharing one domain model.
+An agentic todo list with superpowers.
+
+A task management tool for agents. The CLI tool — agent-facing — writes and
+manages tasks. **raul**, the TUI, shows them to humans: review, approve,
+understand the lane.
+
+## Status
+
+Early. The scope right now is raul. The task model and the roles are
+designed in [docs/](docs/); the CLI tool comes later, when it is asked for.
+
+| doc | what |
+|---|---|
+| [docs/tasks/task-model.md](docs/tasks/task-model.md) | the unit of work: format, ids, statuses, transitions, review, evidence |
+| [docs/roles/roles.md](docs/roles/roles.md) | actors, roles, ownership, session boundaries |
 
 ## Layout
 
 ```
 crates/
-  core/   # shared domain model + JSON persistence (coding-lanes-core)
-  cli/    # command line frontend        (binary: coding-lanes)
-  tui/    # terminal UI frontend         (binary: raul)
+  core/   # shared model              (coding-lanes-core)
+  cli/    # CLI tool                  (binary: coding-lanes)
+  tui/    # raul                      (binary: raul)
 ```
 
-## Toolchain
+## Develop
 
 Rust is pinned via `rust-toolchain.toml` (stable, minimal profile, with
-`rustfmt` and `clippy`). Install with [rustup](https://rustup.rs):
+`rustfmt` and `clippy`).
 
 ```sh
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-## Build and test
-
 ```sh
-cargo build
-cargo test
-cargo clippy --all-targets -- -D warnings
-cargo fmt --all
+make help    # list targets
+make check   # the gate: fmt, clippy, tests
+make raul    # run the TUI
 ```
-
-## Usage
-
-```sh
-# CLI
-cargo run -p coding-lanes-cli -- add "implement the parser"
-cargo run -p coding-lanes-cli -- list
-cargo run -p coding-lanes-cli -- done 1
-cargo run -p coding-lanes-cli -- --store /tmp/tasks.json list
-
-# raul (TUI)
-cargo run -p coding-lanes-tui
-```
-
-Tasks are persisted as JSON in `$XDG_DATA_HOME/coding-lanes/tasks.json`
-(default `~/.local/share/coding-lanes/tasks.json`).
 
 ## License
 
