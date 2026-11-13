@@ -537,7 +537,7 @@ when it changes, so an id in a doc is a fact that goes stale.
 | a draft task | title only |
 | a blocked task | a `blocked` overlay with a reason, a `by` and an `at` |
 | an approved task | criteria covered by steps, every step with a `done_when` |
-| an approved task with no dependency | **claimable** — the one thing an agent could take right now |
+| an approved task whose dependencies are done | **claimable** — the one thing an agent could take right now |
 | an executing task | claimed with a lease, evidence attached, a `deviation` on the step, a note |
 | a task with a deferred criterion | `status` `deferred`, a `deferral` with a `follow_up` |
 | a task in code review | a `self` round and one open finding |
@@ -549,7 +549,8 @@ when it changes, so an id in a doc is a fact that goes stale.
 The dependency graph in the fixtures runs backwards only — a task depends on
 tasks with lower ids — so the graph has no cycles and every `depends_on` points
 at a task that exists. The approved tasks wait on tasks that are not done, so
-they are blocked; only the dependency-free approved task can be claimed.
+they are blocked; only the approved task whose dependencies are done can be
+claimed.
 
 `crates/core/tests/mock_data.rs` loads the set and checks that it covers every
 phase and keeps every gate.
