@@ -59,12 +59,21 @@ cargo run -p coding-lanes-tui   # raul
 
 - Do not edit `AGENTS.md` without explicit instruction.
 
+## Task model
+
+- Task structure, statuses, metadata, and lane definitions are not defined yet.
+- They get designed and written down before implementation; until then, do not
+  invent them ad hoc.
+- The design docs live in `docs/` (not yet created).
+
 ## Naming
 
 - The TUI is called **raul**.
 - The CLI stays the **cli tool** until we rename it. Renaming the CLI is out of
   scope for now — do not rename it, its crate, or its binary.
-- Do not introduce other product names or aliases without asking.
+- Use only the names defined here — `coding-lanes` (project), `raul` (TUI),
+  `cli tool` (CLI). Do not invent aliases for the project, its crates, or its
+  binaries without asking.
 
 ## Scope
 
