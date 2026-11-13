@@ -2,6 +2,23 @@
 
 Rules for agents working in this repository.
 
+## Project
+
+coding-lanes is a task management tool for agents — a todo list with
+superpowers.
+
+- Two interfaces:
+  - **CLI tool** — agent-facing, not designed for humans.
+  - **TUI (raul)** — human-facing, for reviewing tasks and understanding the
+    project's flow and status.
+- In an interactive session the human and agent discuss and groom a task;
+  once agreed, the agent calls the CLI tool to write it down. The CLI tool
+  enforces patterns and formats, so direct edits of task files are
+  discouraged.
+- Tasks carry status and metadata, all managed through the CLI tool.
+- `coding-lanes/` at the repo root holds the data: tasks, metadata, code
+  review findings, and everything else the project uses to manage tasks.
+
 ## Communication
 
 - Be concise. No verbosity in docs, code comments, commit messages, or replies.
