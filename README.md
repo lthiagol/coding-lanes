@@ -19,6 +19,7 @@ is asked for.
 |---|---|
 | [docs/tasks/task-model.md](docs/tasks/task-model.md) | the unit of work: format, ids, statuses, transitions, review, evidence |
 | [docs/roles/roles.md](docs/roles/roles.md) | actors, roles, ownership, session boundaries |
+| [mock-data/](mock-data/) | one task per lifecycle stage, plus edge cases |
 
 ## Layout
 

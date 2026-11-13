@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "TSK01",
+  "title": "Lorem ipsum dolor sit amet",
+  "slug": "lorem-ipsum-dolor-sit-amet",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-02T09:00:00Z",
+  "updated": "2026-11-02T09:00:00Z",
+  "status": "draft",
+  "overlays": {},
+  "claim": null,
+  "planned_by": null,
+  "meta": { "priority": "normal", "effort": "M", "tags": [] },
+  "intent": { "outcome": "", "problem": "" },
+  "scope": { "in_scope": [], "out_of_scope": [] },
+  "acceptance_criteria": [],
+  "steps": [],
+  "review": { "max_rounds": 5, "rounds": [], "verdict": null, "findings": [] },
+  "questions": [],
+  "notes": [],
+  "depends_on": []
+}

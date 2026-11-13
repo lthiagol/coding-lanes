@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "id": "TSK07",
+  "title": "Quaerat voluptatem consequatur sunt in culpa",
+  "slug": "quaerat-voluptatem-consequatur-sunt-in-culpa",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-04T10:00:00Z",
+  "updated": "2026-11-06T18:30:00Z",
+  "status": "needs-human",
+  "overlays": {},
+  "claim": {
+    "by": "runner-03",
+    "session": "session-runner-03",
+    "at": "2026-11-04T10:05:00Z",
+    "lease_expires_at": "2026-11-04T18:05:00Z"
+  },
+  "planned_by": "session-creator-03",
+  "meta": { "priority": "high", "effort": "L", "tags": ["mock", "needs-human"] },
+  "intent": {
+    "outcome": "Officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae.",
+    "problem": "Et harum quidem rerum facilis est et expedita distinctio nam libero tempore."
+  },
+  "scope": {
+    "in_scope": [
+      "Soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat."
+    ],
+    "out_of_scope": [
+      "Facere possimus omnis voluptatem assumenda est omnis dolor repellendus temporibus"
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus.",
+      "verification": "cargo test --workspace",
+      "status": "passed",
+      "evidence": [
+        {
+          "command": "cargo test --workspace",
+          "exit_code": 0,
+          "summary": "7 passed; 0 failed",
+          "at": "2026-11-04T17:30:00Z",
+          "by": "runner-03",
+          "session": "session-runner-03"
+        }
+      ],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [
+    {
+      "id": "STP-01",
+      "order": 1,
+      "action": "Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus.",
+      "done_when": "The lorem tests exist and pass.",
+      "files": ["crates/core/tests/task_model.rs"],
+      "status": "done",
+      "covers": ["ACCEPT-01"],
+      "depends_on": [],
+      "deviation": ""
+    }
+  ],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [
+      {
+        "n": 1,
+        "kind": "self",
+        "focus": "spec-compliance",
+        "reviewer": "runner-03",
+        "verdict": "ok",
+        "at": "2026-11-04T17:35:00Z",
+        "notes": "",
+        "findings": []
+      },
+      {
+        "n": 2,
+        "kind": "external",
+        "focus": "edge-cases",
+        "reviewer": "reviewer-01",
+        "verdict": "changes-needed",
+        "at": "2026-11-04T18:00:00Z",
+        "notes": "Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit.",
+        "findings": ["FIND-01"]
+      },
+      {
+        "n": 3,
+        "kind": "external",
+        "focus": "security",
+        "reviewer": "reviewer-02",
+        "verdict": "changes-needed",
+        "at": "2026-11-05T11:00:00Z",
+        "notes": "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil.",
+        "findings": ["FIND-02"]
+      },
+      {
+        "n": 4,
+        "kind": "external",
+        "focus": "empirical",
+        "reviewer": "reviewer-03",
+        "verdict": "changes-needed",
+        "at": "2026-11-06T09:45:00Z",
+        "notes": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe.",
+        "findings": ["FIND-03"]
+      },
+      {
+        "n": 5,
+        "kind": "external",
+        "focus": "design",
+        "reviewer": "reviewer-04",
+        "verdict": "changes-needed",
+        "at": "2026-11-06T18:30:00Z",
+        "notes": "Et harum quidem rerum facilis est et expedita distinctio nam libero tempore.",
+        "findings": ["FIND-04"]
+      },
+      {
+        "n": 6,
+        "kind": "external",
+        "focus": "spec-compliance",
+        "reviewer": "reviewer-05",
+        "verdict": "changes-needed",
+        "at": "2026-11-06T19:10:00Z",
+        "notes": "Sint occaecat cupidatat non provident, sed ut perspiciatis unde omnis iste.",
+        "findings": ["FIND-05"]
+      }
+    ],
+    "verdict": "changes-needed",
+    "findings": [
+      {
+        "id": "FIND-01",
+        "severity": "high",
+        "status": "open",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.",
+        "created": "2026-11-04T18:00:00Z",
+        "resolved": "",
+        "resolution": "",
+        "comments": []
+      },
+      {
+        "id": "FIND-02",
+        "severity": "medium",
+        "status": "open",
+        "description": "Incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam.",
+        "created": "2026-11-05T11:00:00Z",
+        "resolved": "",
+        "resolution": "",
+        "comments": []
+      },
+      {
+        "id": "FIND-03",
+        "severity": "low",
+        "status": "open",
+        "description": "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.",
+        "created": "2026-11-06T09:45:00Z",
+        "resolved": "",
+        "resolution": "",
+        "comments": []
+      },
+      {
+        "id": "FIND-04",
+        "severity": "medium",
+        "status": "open",
+        "description": "Consequat duis aute irure dolor in reprehenderit in voluptate velit esse.",
+        "created": "2026-11-06T18:30:00Z",
+        "resolved": "",
+        "resolution": "",
+        "comments": []
+      },
+      {
+        "id": "FIND-05",
+        "severity": "low",
+        "status": "open",
+        "description": "Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis.",
+        "created": "2026-11-06T19:10:00Z",
+        "resolved": "",
+        "resolution": "",
+        "comments": []
+      }
+    ]
+  },
+  "questions": [],
+  "notes": [
+    {
+      "id": "NOTE-01",
+      "author": "reviewer-04",
+      "body": "Quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores.",
+      "at": "2026-11-06T18:31:00Z"
+    }
+  ],
+  "depends_on": []
+}

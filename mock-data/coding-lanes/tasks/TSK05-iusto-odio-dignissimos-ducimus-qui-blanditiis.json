@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "id": "TSK05",
+  "title": "Iusto odio dignissimos ducimus qui blanditiis",
+  "slug": "iusto-odio-dignissimos-ducimus-qui-blanditiis",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-03T11:00:00Z",
+  "updated": "2026-11-03T16:40:00Z",
+  "status": "code-review",
+  "overlays": {},
+  "claim": {
+    "by": "runner-01",
+    "session": "session-runner-01",
+    "at": "2026-11-03T11:05:00Z",
+    "lease_expires_at": "2026-11-03T19:05:00Z"
+  },
+  "planned_by": "session-creator-01",
+  "meta": { "priority": "normal", "effort": "M", "tags": ["mock", "code-review"] },
+  "intent": {
+    "outcome": "Praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi.",
+    "problem": "Occaecati cupiditate non provident sed ut perspiciatis unde omnis iste natus error."
+  },
+  "scope": {
+    "in_scope": [
+      "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt"
+    ],
+    "out_of_scope": [
+      "Mollit anim id est laborum, sed ut perspiciatis unde omnis iste natus error"
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto.",
+      "verification": "cargo test --workspace",
+      "status": "passed",
+      "evidence": [
+        {
+          "command": "cargo test --workspace",
+          "exit_code": 0,
+          "summary": "12 passed; 0 failed",
+          "at": "2026-11-03T16:10:00Z",
+          "by": "runner-01",
+          "session": "session-runner-01"
+        }
+      ],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [
+    {
+      "id": "STP-01",
+      "order": 1,
+      "action": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur.",
+      "done_when": "The lorem tests exist and pass.",
+      "files": ["crates/core/tests/task_model.rs"],
+      "status": "done",
+      "covers": ["ACCEPT-01"],
+      "depends_on": [],
+      "deviation": ""
+    }
+  ],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [
+      {
+        "n": 1,
+        "kind": "self",
+        "focus": "spec-compliance",
+        "reviewer": "runner-01",
+        "verdict": "changes-needed",
+        "at": "2026-11-03T16:20:00Z",
+        "notes": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+        "findings": ["FIND-01"]
+      }
+    ],
+    "verdict": null,
+    "findings": [
+      {
+        "id": "FIND-01",
+        "severity": "medium",
+        "status": "open",
+        "description": "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "created": "2026-11-03T16:20:00Z",
+        "resolved": "",
+        "resolution": "",
+        "comments": [
+          {
+            "id": "CMT-01",
+            "author": "runner-01",
+            "body": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut.",
+            "at": "2026-11-03T16:22:00Z"
+          }
+        ]
+      }
+    ]
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": []
+}

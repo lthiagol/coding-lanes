@@ -249,10 +249,16 @@ and shows a derived progress indicator. No automatic aggregation.
 - children progress
 - readiness to claim
 
+## Worked examples
+
+`mock-data/coding-lanes/tasks/` holds one task per lifecycle stage, plus
+edge cases (blocked overlay, deferred criterion, child task). Every fixture
+satisfies the gates of the phase it is in. See [mock-data/README.md](../../mock-data/README.md).
+
 ## Not defined yet
 
 - journal event kinds
-- schema validation
+- project config
 - talita's operation surface
 - raul screens and views
 - autopilot

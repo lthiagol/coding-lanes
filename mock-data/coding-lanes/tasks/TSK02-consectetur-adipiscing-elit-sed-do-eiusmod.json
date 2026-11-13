@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "TSK02",
+  "title": "Consectetur adipiscing elit sed do eiusmod",
+  "slug": "consectetur-adipiscing-elit-sed-do-eiusmod",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-02T10:15:00Z",
+  "updated": "2026-11-02T11:40:00Z",
+  "status": "groomed",
+  "overlays": {},
+  "claim": null,
+  "planned_by": "session-creator-01",
+  "meta": { "priority": "high", "effort": "M", "tags": ["mock", "groomed"] },
+  "intent": {
+    "outcome": "Tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam.",
+    "problem": "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+  },
+  "scope": {
+    "in_scope": [
+      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore"
+    ],
+    "out_of_scope": [
+      "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.",
+      "verification": "cargo test -p coding-lanes-core",
+      "status": "pending",
+      "evidence": [],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [],
+  "review": { "max_rounds": 5, "rounds": [], "verdict": null, "findings": [] },
+  "questions": [],
+  "notes": [],
+  "depends_on": []
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "TSK11",
+  "title": "Nam libero tempore cum soluta nobis est",
+  "slug": "nam-libero-tempore-cum-soluta-nobis-est",
+  "parent": "TSK03",
+  "children": [],
+  "created": "2026-11-03T08:00:00Z",
+  "updated": "2026-11-03T08:30:00Z",
+  "status": "draft",
+  "overlays": {},
+  "claim": null,
+  "planned_by": null,
+  "meta": { "priority": "low", "effort": "S", "tags": ["mock", "child"] },
+  "intent": { "outcome": "", "problem": "" },
+  "scope": { "in_scope": [], "out_of_scope": [] },
+  "acceptance_criteria": [],
+  "steps": [],
+  "review": { "max_rounds": 5, "rounds": [], "verdict": null, "findings": [] },
+  "questions": [],
+  "notes": [],
+  "depends_on": []
+}
