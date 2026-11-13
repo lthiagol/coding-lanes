@@ -94,17 +94,8 @@ One canonical status plus orthogonal overlays. Never combined status strings.
 
 ## Actors and roles
 
-An actor is `{id, kind: human|agent, role?, session?}`. Humans carry no role.
-`session` identifies the working session of an agent, so separation between
-planning, execution, remediation, and review is structural rather than a
-matter of discipline.
-
-| role | owns | autonomy |
-|---|---|---|
-| `creator` | creates and edits tasks: intent, scope, acceptance criteria, steps, questions, meta; approves `groomed → approved` | human-dependent — its content comes from an interactive session with a human |
-| `runner` | claims approved tasks, writes steps, executes, attaches evidence, applies fixes | autonomous |
-| `reviewer` | reviews code, opens findings, gives verdicts; never writes code | autonomous |
-| `orchestrator` | autopilot flows | autonomous — later, out of scope for now |
+Actors, roles, ownership, and session boundaries are defined in
+[roles/roles.md](../roles/roles.md). Humans carry no role.
 
 ## Transitions
 
