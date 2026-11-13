@@ -10,5 +10,6 @@ shows them (**R**eview, **A**pprove, **U**nderstand **L**ane).
 | [tasks/task-model.md](tasks/task-model.md) | the unit of work: file format, ids, statuses, transitions, gates, review, evidence |
 | [tasks/smaller-tasks.md](tasks/smaller-tasks.md) | ideas, bugs and small features — the work that is not a task yet |
 | [roles/roles.md](roles/roles.md) | actors, roles, ownership, session boundaries |
+| [tui/screens.md](tui/screens.md) | raul: the window, the tabs, the detail pane, the derived views |
 | [vocabulary.md](vocabulary.md) | the names we use, and the ones we rejected |
 | [decisions/](decisions/) | decision records: what we chose, and why |
