@@ -1,6 +1,6 @@
 //! Shared domain model for `coding-lanes`.
 //!
-//! This crate holds the types used by both the CLI and the TUI so that the
+//! This crate holds the types used by both talita and raul so that the
 //! user-facing frontends stay thin.
 
 pub mod store;

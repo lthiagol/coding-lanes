@@ -8,33 +8,32 @@ coding-lanes is a task management tool for agents — a todo list with
 superpowers.
 
 - Two interfaces:
-  - **CLI tool** — agent-facing, not designed for humans.
-  - **TUI (raul)** — human-facing, for reviewing tasks and understanding the
-    project's flow and status. `raul` = **R**eview, **A**pprove,
-    **U**nderstand **L**ane.
+  - **talita** — the CLI tool. Agent-facing, not designed for humans.
+    **T**ask **A**ccess and **L**ane **I**nteraction **T**erminal **A**pp.
+  - **raul** — the TUI. Human-facing, for reviewing tasks and understanding the
+    project's flow and status. **R**eview, **A**pprove, **U**nderstand
+    **L**ane.
 - In an interactive session the human and agent groom a task; once agreed, the
-  agent calls the CLI tool to write it down.
-- The CLI tool writes and manages tasks; raul shows them.
+  agent calls talita to write it down.
+- talita writes and manages tasks; raul shows them.
 - Tasks live in the managed project's own `coding-lanes/` folder, alongside its
   code. No central store — each project keeps its own data.
 - `coding-lanes/` holds tasks, metadata, code review findings, and everything
   else the project uses to manage tasks.
-- Never hand-edit files under `coding-lanes/`. Use the CLI tool.
+- Never hand-edit files under `coding-lanes/`. Use talita.
 - Dogfooding coding-lanes on this project is future work.
 
 ## Repo
 
 - `crates/core` — shared model.
-- `crates/cli` — CLI tool; binary `coding-lanes`. Off-limits until instructed.
-- `crates/tui` — raul; binary `raul`.
+- `crates/talita` — talita; package `coding-lanes-talita`, binary `talita`.
+  Off-limits until instructed.
+- `crates/raul` — raul; package `coding-lanes-raul`, binary `raul`.
 - `coding-lanes/` — data folder of a managed project (not created here).
 
 ```sh
-cargo build
-cargo test
-cargo clippy --all-targets -- -D warnings
-cargo fmt --all
-cargo run -p coding-lanes-tui   # raul
+make check
+make raul
 ```
 
 ## Communication
@@ -61,24 +60,22 @@ cargo run -p coding-lanes-tui   # raul
 
 ## Task model
 
-- Task structure, statuses, metadata, and lane definitions are not defined yet.
-- They get designed and written down before implementation; until then, do not
-  invent them ad hoc.
-- The design docs live in `docs/` (not yet created).
+- Task structure, statuses, metadata, and lane definitions are designed in
+  `docs/tasks/task-model.md`; roles in `docs/roles/roles.md`.
+- Do not invent them ad hoc — follow the docs.
 
 ## Naming
 
 - The TUI is called **raul**.
-- The CLI stays the **cli tool** until we rename it. Renaming the CLI is out of
-  scope for now — do not rename it, its crate, or its binary.
+- The CLI tool is called **talita**.
 - Use only the names defined here — `coding-lanes` (project), `raul` (TUI),
-  `cli tool` (CLI). Do not invent aliases for the project, its crates, or its
-  binaries without asking.
+  `talita` (CLI tool). Do not invent aliases for the project, its crates, or
+  its binaries without asking.
 
 ## Scope
 
-- Scope is the TUI (raul). Do not write CLI tool code until explicitly told.
+- Scope is the TUI (raul). Do not write talita code until explicitly told.
 - Work order: design raul's screens and data flow, then implement raul.
-- The CLI tool is written only when explicitly instructed — never
-  automatically because raul looks finished or mature enough.
+- talita is written only when explicitly instructed — never automatically
+  because raul looks finished or mature enough.
 - `crates/core` stays editable; it is shared with raul.

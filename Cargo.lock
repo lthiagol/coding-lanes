@@ -238,15 +238,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1c133bc6a41be0d194c306b5506d15e6feeea7b1d6604bd3f8310dfb2ca96486"
 
 [[package]]
-name = "coding-lanes-cli"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "coding-lanes-core",
-]
-
-[[package]]
 name = "coding-lanes-core"
 version = "0.1.0"
 dependencies = [
@@ -256,13 +247,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "coding-lanes-tui"
+name = "coding-lanes-raul"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "coding-lanes-core",
  "crossterm",
  "ratatui",
+]
+
+[[package]]
+name = "coding-lanes-talita"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "coding-lanes-core",
 ]
 
 [[package]]

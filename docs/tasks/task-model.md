@@ -13,7 +13,7 @@ coding-lanes/
 ```
 
 Task files live in the managed project's own `coding-lanes/` folder, next to
-its code. No central store. The CLI tool writes; raul reads.
+its code. No central store. talita writes; raul reads.
 
 File naming: `TSK<NN>-<slug>.json`, slug derived from the title.
 
@@ -245,6 +245,6 @@ and shows a derived progress indicator. No automatic aggregation.
 
 - journal event kinds
 - schema validation
-- the CLI's operation surface
+- talita's operation surface
 - raul screens and views
 - autopilot

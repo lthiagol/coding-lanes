@@ -5,8 +5,8 @@ use std::path::{Path, PathBuf};
 
 /// Manage coding lanes and the tasks inside them.
 #[derive(Debug, Parser)]
-#[command(name = "coding-lanes", version, about)]
-struct Cli {
+#[command(name = "talita", version, about)]
+struct Talita {
     /// Path of the task store (defaults to the XDG data directory).
     #[arg(short, long, global = true)]
     store: Option<PathBuf>,
@@ -32,12 +32,12 @@ enum Command {
 }
 
 fn main() -> Result<()> {
-    let cli = Cli::parse();
-    let path = cli.store.unwrap_or_else(Store::default_path);
+    let talita = Talita::parse();
+    let path = talita.store.unwrap_or_else(Store::default_path);
 
     let mut store = Store::load(&path).context("loading task store")?;
 
-    match cli.command {
+    match talita.command {
         Command::Add { title } => {
             let task = store.add(title);
             persist(&store, &path)?;

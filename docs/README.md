@@ -1,5 +1,10 @@
 # Design docs
 
+**coding-lanes** — an agentic todo list with superpowers. Two interfaces:
+**talita**, the CLI tool that writes and manages tasks (**T**ask **A**ccess and
+**L**ane **I**nteraction **T**erminal **A**pp), and **raul**, the TUI that
+shows them (**R**eview, **A**pprove, **U**nderstand **L**ane).
+
 | doc | what |
 |---|---|
 | [tasks/task-model.md](tasks/task-model.md) | the unit of work: file format, ids, statuses, transitions, review, evidence, steps |

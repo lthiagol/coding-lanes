@@ -1,6 +1,6 @@
 [package]
-name = "coding-lanes-cli"
-description = "Command line interface for coding-lanes"
+name = "coding-lanes-raul"
+description = "Review, Approve, Understand Lane — the TUI of coding-lanes"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -8,10 +8,11 @@ authors.workspace = true
 license.workspace = true
 
 [[bin]]
-name = "coding-lanes"
+name = "raul"
 path = "src/main.rs"
 
 [dependencies]
 coding-lanes-core.workspace = true
 anyhow.workspace = true
-clap.workspace = true
+crossterm.workspace = true
+ratatui.workspace = true

@@ -2,10 +2,10 @@
 #
 # The gate is one command: make check
 #
-# The CLI tool is out of scope for now; there are no targets for it.
+# talita is out of scope for now; there are no targets for it.
 
 CARGO ?= $(shell command -v cargo 2>/dev/null || echo $(HOME)/.cargo/bin/cargo)
-RAUL_PKG := coding-lanes-tui
+RAUL_PKG := coding-lanes-raul
 
 .DEFAULT_GOAL := help
 

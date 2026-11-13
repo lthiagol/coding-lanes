@@ -2,14 +2,17 @@
 
 An agentic todo list with superpowers.
 
-A task management tool for agents. The CLI tool — agent-facing — writes and
-manages tasks. **raul**, the TUI, shows them to humans: review, approve,
-understand the lane.
+A task management tool for agents. Two interfaces:
+
+- **talita** — the CLI tool. Agent-facing. **T**ask **A**ccess and **L**ane
+  **I**nteraction **T**erminal **A**pp. Writes and manages tasks.
+- **raul** — the TUI. Human-facing. **R**eview, **A**pprove, **U**nderstand
+  **L**ane. Shows them.
 
 ## Status
 
 Early. The scope right now is raul. The task model and the roles are
-designed in [docs/](docs/); the CLI tool comes later, when it is asked for.
+designed in [docs/](docs/); talita comes later, when it is asked for.
 
 | doc | what |
 |---|---|
@@ -20,9 +23,9 @@ designed in [docs/](docs/); the CLI tool comes later, when it is asked for.
 
 ```
 crates/
-  core/   # shared model              (coding-lanes-core)
-  cli/    # CLI tool                  (binary: coding-lanes)
-  tui/    # raul                      (binary: raul)
+  core/    # shared model   (coding-lanes-core)
+  talita/  # CLI tool       (coding-lanes-talita, binary talita)
+  raul/    # TUI            (coding-lanes-raul, binary raul)
 ```
 
 ## Develop
