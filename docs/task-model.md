@@ -40,11 +40,11 @@ File naming: `TSK<NN>-<slug>.json`, slug derived from the title.
 
   "acceptance_criteria": [
     { "id": "ACCEPT-01", "description": "", "verification": "",
-      "status": "pending", "evidence": [] }
+      "status": "pending", "evidence": [], "deferral": null }
   ],
   "steps": [
     { "id": "STP-01", "order": 1, "action": "", "done_when": "", "files": [],
-      "status": "pending", "covers": [], "depends_on": [] }
+      "status": "pending", "covers": [], "depends_on": [], "deviation": "" }
   ],
 
   "review": {
@@ -55,6 +55,7 @@ File naming: `TSK<NN>-<slug>.json`, slug derived from the title.
   },
 
   "questions": [],
+  "notes": [],
   "depends_on": []
 }
 ```
@@ -69,7 +70,8 @@ File naming: `TSK<NN>-<slug>.json`, slug derived from the title.
 | question | `QST-01` | task |
 | finding | `FIND-01` | task |
 | comment | `CMT-01` | task |
-| review round | `1..5` | task |
+| note | `NOTE-01` | task |
+| review round | `1..5` (external rounds) | task |
 
 ## Vocabulary
 
@@ -78,10 +80,12 @@ File naming: `TSK<NN>-<slug>.json`, slug derived from the title.
 | `status` | `draft` `groomed` `approved` `executing` `code-review` `remediating` `needs-human` `done` |
 | `overlays` | `blocked` `deferred` `cancelled`, each `{reason, by, at}` |
 | `step.status` | `pending` `in-progress` `done` `skipped` `failed` |
-| `acceptance_criteria[].status` | `pending` `passed` `failed` `unproven` (derived) |
+| `acceptance_criteria[].status` | `pending` `passed` `failed` `unproven` `deferred` (derived) |
 | `finding.status` | `open` `fixed` `dismissed` |
 | `finding.severity` | `low` `medium` `high` |
 | `review.verdict` / round verdict | `ok` `changes-needed` |
+| `review.rounds[].kind` | `self` `external` |
+| `review.rounds[].focus` | `spec-compliance` `edge-cases` `security` `empirical` `design` |
 | `questions[].status` | `open` `resolved` |
 | `meta.priority` | `urgent` `high` `normal` `low` |
 | `meta.effort` | `S` `M` `L` |
@@ -90,7 +94,10 @@ One canonical status plus orthogonal overlays. Never combined status strings.
 
 ## Actors and roles
 
-An actor is `{id, kind: human|agent, role?}`. Humans carry no role.
+An actor is `{id, kind: human|agent, role?, session?}`. Humans carry no role.
+`session` identifies the working session of an agent, so separation between
+planning, execution, remediation, and review is structural rather than a
+matter of discipline.
 
 | role | owns | autonomy |
 |---|---|---|
@@ -107,26 +114,40 @@ An actor is `{id, kind: human|agent, role?}`. Humans carry no role.
 | `draft` → `groomed` | creator | `intent.outcome` set, ≥1 acceptance criterion, ≥1 `out_of_scope` entry |
 | `groomed` → `approved` | creator | no open questions, every acceptance criterion covered by a step, every step has `done_when` |
 | `approved` → `executing` | runner | task claimed, dependencies satisfied |
-| `executing` → `code-review` | runner | all steps settled, every criterion proven or failed with a reason, evidence attached |
-| `code-review` → `done` | reviewer | verdict `ok`, no open findings, rounds ≤ 5 |
-| `code-review` → `remediating` | reviewer | verdict `changes-needed`, rounds < 5, findings opened |
-| `remediating` → `code-review` | runner | all open findings fixed |
-| `code-review` → `needs-human` | reviewer | 5 rounds exhausted and still `changes-needed` |
+| `executing` → `code-review` | runner | all steps settled, every criterion proven or failed with a reason, evidence attached, ≥1 `self` round filed |
+| `code-review` → `done` | reviewer | verdict `ok`, no open findings, ≤5 external rounds |
+| `code-review` → `remediating` | reviewer | verdict `changes-needed`, <5 external rounds, findings opened |
+| `remediating` → `code-review` | runner | all open findings fixed, remediation session differs from the execution session |
+| `code-review` → `needs-human` | reviewer | 5 external rounds exhausted and still `changes-needed` |
 | `needs-human` → `executing` | creator | a human instructed it |
 | `done` → `executing` | creator | reopen |
 | any → blocked / deferred / cancelled | any | reason required |
 
-A task never completes itself out of repeated review. After 5 autonomous review
-rounds with work still outstanding, it stops cycling and escalates to
-`needs-human`.
+A task never completes itself out of repeated review. After 5 autonomous
+external review rounds with work still outstanding, it stops cycling and
+escalates to `needs-human`.
 
 ## Review
+
+Two kinds of round, in order:
+
+- `self` — the runner reviews its own work before handing off. It catches
+  obvious issues but is biased; it is a pre-screen, not the verdict.
+- `external` — an independent agent reviews the implementation. It must not
+  be the session that wrote the code, and ideally runs a different model.
+
+Each round carries a `focus`, so successive rounds look at the change through
+different lenses instead of repeating the same check.
 
 ```json
 "review": {
   "max_rounds": 5,
   "rounds": [
-    { "n": 1, "reviewer": "reviewer-1", "verdict": "changes-needed",
+    { "n": 1, "kind": "self", "focus": "spec-compliance",
+      "reviewer": "runner-1", "verdict": "changes-needed",
+      "at": "", "notes": "", "findings": ["FIND-01"] },
+    { "n": 2, "kind": "external", "focus": "edge-cases",
+      "reviewer": "reviewer-1", "verdict": "changes-needed",
       "at": "", "notes": "", "findings": ["FIND-01"] }
   ],
   "verdict": null,
@@ -138,6 +159,9 @@ rounds with work still outstanding, it stops cycling and escalates to
 }
 ```
 
+The 5-round cap counts external rounds. Self-review is a pre-screen and does
+not consume the budget.
+
 ## Evidence
 
 Evidence is appended to an acceptance criterion and its status is derived from
@@ -145,12 +169,13 @@ the latest entry.
 
 ```json
 { "command": "cargo test", "exit_code": 0, "summary": "3 passed",
-  "at": "2026-11-13T12:00:00Z", "by": "runner-1" }
+  "at": "2026-11-13T12:00:00Z", "by": "runner-1", "session": "s-42" }
 ```
 
 `exit_code` 0 with a non-empty summary means `passed`; a non-zero exit means
 `failed`. A criterion with no evidence is `pending`. An agent may override the
-derived status, but the override is recorded as evidence.
+derived status, but the override is recorded as evidence — a bypass is
+explicit debt, never a silent one.
 
 ## Steps and criteria
 
@@ -160,6 +185,39 @@ derived status, but the override is recorded as evidence.
   `covers` (acceptance criteria ids), `depends_on` (other step ids).
 - Steps are required before approval, but the runner may add or split steps
   while executing.
+- Steps are guidance, not a blueprint. When the runner takes a different
+  path, the note goes on the step: `deviation`. It stays on the task as part
+  of the audit trail and feeds future task crafting.
+
+## Scope-down visibility
+
+Partial scope is legitimate; hidden scope is not. A criterion that will not be
+delivered records why, and where the work went instead:
+
+```json
+"deferral": { "reason": "needs upstream API change", "follow_up": "TSK07" }
+```
+
+A deferred criterion does not block completion, but it stays visible in raul.
+
+## Notes
+
+The task carries what the execution learned, so it remains the single place
+to look for where the work stands:
+
+```json
+"notes": [ { "id": "NOTE-01", "author": "runner-1", "body": "", "at": "" } ]
+```
+
+## Immutability after approval
+
+Once approved, `intent`, `scope`, and the acceptance criteria are frozen. The
+execution approach stays open: steps, evidence, findings, and notes keep
+changing.
+
+A refinement is not a silent edit. Small adjustments become child tasks
+(`TSK03.1`) — each with its own brief, criteria, evidence, and review — so
+the original task stays the record of the original intent.
 
 ## Subtasks
 
@@ -178,6 +236,6 @@ and shows a derived progress indicator. No automatic aggregation.
 
 - journal event kinds
 - schema validation
-- the CLI tool's operation surface
+- the CLI's operation surface
 - raul screens and views
 - autopilot
