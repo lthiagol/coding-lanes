@@ -9,7 +9,7 @@ sharing one domain model.
 crates/
   core/   # shared domain model + JSON persistence (coding-lanes-core)
   cli/    # command line frontend        (binary: coding-lanes)
-  tui/    # terminal UI frontend         (binary: coding-lanes-tui)
+  tui/    # terminal UI frontend         (binary: raul)
 ```
 
 ## Toolchain
@@ -39,7 +39,7 @@ cargo run -p coding-lanes-cli -- list
 cargo run -p coding-lanes-cli -- done 1
 cargo run -p coding-lanes-cli -- --store /tmp/tasks.json list
 
-# TUI
+# raul (TUI)
 cargo run -p coding-lanes-tui
 ```
 
