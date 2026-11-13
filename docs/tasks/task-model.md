@@ -548,9 +548,8 @@ when it changes, so an id in a doc is a fact that goes stale.
 
 The dependency graph in the fixtures runs backwards only — a task depends on
 tasks with lower ids — so the graph has no cycles and every `depends_on` points
-at a task that exists. The approved tasks wait on tasks that are not done, so
-they are blocked; only the approved task whose dependencies are done can be
-claimed.
+at a task that exists. The tasks that wait on tasks that are not done are
+blocked; the approved task whose dependency is done can be claimed.
 
 `crates/core/tests/mock_data.rs` loads the set and checks that it covers every
 phase and keeps every gate.
