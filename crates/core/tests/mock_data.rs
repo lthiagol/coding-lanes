@@ -20,7 +20,7 @@ fn by_status(status: Status) -> Vec<Task> {
 #[test]
 fn every_fixture_loads() {
     let tasks = tasks();
-    assert_eq!(tasks.len(), 27);
+    assert_eq!(tasks.len(), 28);
 
     let ids: HashSet<&str> = tasks.iter().map(|t| t.id.as_str()).collect();
     assert_eq!(ids.len(), tasks.len(), "task ids must be unique");
@@ -56,8 +56,8 @@ fn phase_counts_are_three_and_five_done() {
     assert_eq!(by_status(Status::Done).len(), 5);
     assert_eq!(
         by_status(Status::Draft).len(),
-        4,
-        "three drafts plus one child"
+        5,
+        "three drafts, one child, one promoted bug"
     );
 }
 
@@ -237,4 +237,31 @@ fn one_fixture_is_blocked() {
         .filter(|t| t.overlays.blocked.is_some())
         .count();
     assert_eq!(blocked, 1);
+}
+
+#[test]
+fn smaller_tasks_are_fixtures_too() {
+    let store = mock_store();
+    let items = store.list_items().expect("listing the mock items");
+    assert_eq!(items.len(), 5);
+
+    let kinds: HashSet<&str> = items.iter().map(|i| i.kind.as_str()).collect();
+    for kind in ["idea", "feature", "bug"] {
+        assert!(kinds.contains(kind), "no item of kind {kind}");
+    }
+
+    let promoted = items
+        .iter()
+        .find(|i| i.status == coding_lanes_core::ItemStatus::Promoted);
+    let promoted = promoted.expect("a promoted item");
+    let task_id = promoted.promoted_to.clone().expect("the task it became");
+    let task = store.load(&task_id).expect("the promoted task");
+    assert_eq!(task.promoted_from.as_deref(), Some(promoted.id.as_str()));
+    assert!(task.is_small_task());
+
+    let dismissed = items
+        .iter()
+        .find(|i| i.status == coding_lanes_core::ItemStatus::Dismissed);
+    let dismissed = dismissed.expect("a dismissed item");
+    assert!(!dismissed.dismissed_reason.is_empty());
 }

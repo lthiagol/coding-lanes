@@ -520,6 +520,70 @@ def build():
             position = done_ids.index(item["id"])
             item["depends_on"] = done_dependencies[position]
 
+    # smaller tasks — ideas, bugs and small features, plus the trail of one
+    # that became a task.
+    def item(item_id, title, kind, status, body="", scope=None, promoted_to=None,
+             dismissed_reason=""):
+        return {
+            "schema_version": 1,
+            "id": item_id,
+            "title": title,
+            "slug": slugify(title),
+            "kind": kind,
+            "status": status,
+            "body": body,
+            "scope": scope or [],
+            "tags": ["mock"],
+            "created": ts(2, 8),
+            "updated": ts(6, 15),
+            "promoted_to": promoted_to,
+            "dismissed_reason": dismissed_reason,
+        }
+
+    items = [
+        item("ITM01", "Lorem ipsum dolor sit amet", "idea", "open",
+             body="Consectetur adipiscing elit, sed do eiusmod tempor incididunt."),
+        item("ITM02", "Tempor incididunt ut labore et dolore", "feature", "open",
+             body="Magna aliqua, ut enim ad minim veniam.",
+             scope=["the lorem pane"]),
+        item("ITM03", "Quis nostrud exercitation ullamco laboris", "bug", "open",
+             body="Nisi ut aliquip ex ea commodo consequat.",
+             scope=["the lorem list"]),
+        item("ITM04", "Sed do eiusmod tempor incididunt", "feature", "dismissed",
+             body="Ut labore et dolore magna aliqua.",
+             dismissed_reason="Lorem ipsum dolor sit amet, consectetur."),
+    ]
+
+    # A bug that was promoted: the task it became is a small task.
+    promoted_title = "Duis aute irure dolor in reprehenderit"
+    promoted_id = next_id()
+    promoted_task = task(promoted_id, promoted_title, "draft", 4)
+    promoted_task["kind"] = "bug"
+    promoted_task["promoted_from"] = "ITM05"
+    promoted_task["intent"] = {
+        "outcome": promoted_title,
+        "problem": "Velit esse cillum dolore eu fugiat.",
+    }
+    promoted_task["scope"] = {"in_scope": ["the lorem button"], "out_of_scope": []}
+    promoted_task["acceptance_criteria"] = [
+        {
+            "id": "ACCEPT-01",
+            "description": promoted_title,
+            "verification": "",
+            "status": "pending",
+            "evidence": [],
+            "deferral": None,
+            "failure_reason": "",
+        }
+    ]
+    tasks.append(promoted_task)
+    items.append(
+        item("ITM05", promoted_title, "bug", "promoted",
+             body="Velit esse cillum dolore eu fugiat.",
+             scope=["the lorem button"],
+             promoted_to=promoted_id)
+    )
+
     # parent / child: the first approved task owns a draft child.
     child = next_id()
     ids.setdefault("draft", []).append(child)
@@ -530,16 +594,17 @@ def build():
         if item["id"] == ids["approved"][0]:
             item["children"] = [child]
 
-    return tasks
+    return tasks, items
 
 
 def main():
     if TASKS.exists():
         shutil.rmtree(TASKS)
     TASKS.mkdir(parents=True)
-    for item in build():
-        path = TASKS / f"{item['id']}-{item['slug']}.json"
-        path.write_text(json.dumps(item, indent=2, ensure_ascii=False) + "\n")
+    tasks, items = build()
+    for record in tasks + items:
+        path = TASKS / f"{record['id']}-{record['slug']}.json"
+        path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n")
         print(path.relative_to(ROOT))
 
 

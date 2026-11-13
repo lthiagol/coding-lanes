@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "ITM04",
+  "title": "Sed do eiusmod tempor incididunt",
+  "slug": "sed-do-eiusmod-tempor-incididunt",
+  "kind": "feature",
+  "status": "dismissed",
+  "body": "Ut labore et dolore magna aliqua.",
+  "scope": [],
+  "tags": [
+    "mock"
+  ],
+  "created": "2026-11-02T08:00Z",
+  "updated": "2026-11-06T15:00Z",
+  "promoted_to": null,
+  "dismissed_reason": "Lorem ipsum dolor sit amet, consectetur."
+}

@@ -19,6 +19,12 @@ pub struct Task {
     pub parent: Option<String>,
     #[serde(default)]
     pub children: Vec<String>,
+    /// What kind of work this is. `bug` and `feature` are small tasks.
+    #[serde(default)]
+    pub kind: TaskKind,
+    /// The smaller task this task became.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub promoted_from: Option<String>,
     #[serde(default)]
     pub created: String,
     #[serde(default)]
@@ -67,6 +73,8 @@ impl Task {
             title,
             parent: None,
             children: Vec::new(),
+            kind: TaskKind::Task,
+            promoted_from: None,
             created: crate::now_rfc3339(),
             updated: crate::now_rfc3339(),
             status: Status::Draft,
@@ -152,6 +160,38 @@ impl Task {
     pub fn steps_have_done_when(&self) -> bool {
         self.steps.iter().all(|s| !s.done_when.trim().is_empty())
     }
+
+    /// A small task is one the step rules do not gate.
+    ///
+    /// The exemption lives here so every gate applies it the same way.
+    pub fn is_small_task(&self) -> bool {
+        self.kind.is_small_task()
+    }
+}
+
+/// What kind of work a task is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "kebab-case")]
+pub enum TaskKind {
+    #[default]
+    Task,
+    Bug,
+    Feature,
+}
+
+impl TaskKind {
+    /// `bug` and `feature` are small tasks: the step rules do not apply.
+    pub fn is_small_task(&self) -> bool {
+        matches!(self, TaskKind::Bug | TaskKind::Feature)
+    }
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            TaskKind::Task => "task",
+            TaskKind::Bug => "bug",
+            TaskKind::Feature => "feature",
+        }
+    }
 }
 
 /// Lowercase, hyphenated form of a title.
@@ -180,6 +220,16 @@ pub struct Claim {
     pub at: String,
     #[serde(default)]
     pub lease_expires_at: String,
+}
+
+impl Claim {
+    /// Whether the lease has expired at `now`.
+    ///
+    /// Timestamps are UTC, fixed width and RFC 3339, so they compare as
+    /// strings. An empty lease never expires.
+    pub fn lease_expired(&self, now: &str) -> bool {
+        !self.lease_expires_at.is_empty() && self.lease_expires_at.as_str() < now
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

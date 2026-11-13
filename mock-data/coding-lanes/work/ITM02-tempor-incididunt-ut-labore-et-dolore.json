@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "ITM02",
+  "title": "Tempor incididunt ut labore et dolore",
+  "slug": "tempor-incididunt-ut-labore-et-dolore",
+  "kind": "feature",
+  "status": "open",
+  "body": "Magna aliqua, ut enim ad minim veniam.",
+  "scope": [
+    "the lorem pane"
+  ],
+  "tags": [
+    "mock"
+  ],
+  "created": "2026-11-02T08:00Z",
+  "updated": "2026-11-06T15:00Z",
+  "promoted_to": null,
+  "dismissed_reason": ""
+}

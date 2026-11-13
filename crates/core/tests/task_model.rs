@@ -323,3 +323,124 @@ fn store_round_trips_tasks() {
 
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn a_small_task_skips_the_step_rules() {
+    let mut task = Task::new("TSK01", "Fix the lorem pane");
+    task.kind = coding_lanes_core::TaskKind::Bug;
+    task.intent.outcome = "the lorem pane works".to_string();
+    task.scope.out_of_scope = vec!["no unrelated refactors".to_string()];
+    task.acceptance_criteria = vec![AcceptanceCriterion {
+        id: "ACCEPT-01".to_string(),
+        description: "the lorem pane works".to_string(),
+        verification: "cargo test".to_string(),
+        ..AcceptanceCriterion::default()
+    }];
+
+    transition(
+        &mut task,
+        Event::Groom,
+        &creator(),
+        &TransitionContext::default(),
+    )
+    .unwrap();
+    // No steps, no coverage, no done_when: a small task approves anyway.
+    transition(
+        &mut task,
+        Event::Approve,
+        &creator(),
+        &TransitionContext::default(),
+    )
+    .unwrap();
+    assert_eq!(task.status, coding_lanes_core::Status::Approved);
+}
+
+#[test]
+fn a_full_task_still_needs_its_steps() {
+    let mut task = groomed_task();
+    transition(
+        &mut task,
+        Event::Groom,
+        &creator(),
+        &TransitionContext::default(),
+    )
+    .unwrap();
+    task.steps[0].done_when = String::new();
+    assert!(
+        transition(
+            &mut task,
+            Event::Approve,
+            &creator(),
+            &TransitionContext::default()
+        )
+        .is_err()
+    );
+}
+
+#[test]
+fn an_expired_lease_cannot_start() {
+    let mut task = groomed_task();
+    transition(
+        &mut task,
+        Event::Groom,
+        &creator(),
+        &TransitionContext::default(),
+    )
+    .unwrap();
+    transition(
+        &mut task,
+        Event::Approve,
+        &creator(),
+        &TransitionContext::default(),
+    )
+    .unwrap();
+
+    task.claim = Some(coding_lanes_core::Claim {
+        by: "runner-1".to_string(),
+        session: Some("s-runner".to_string()),
+        at: "2020-01-01T00:00:00Z".to_string(),
+        lease_expires_at: "2020-01-01T01:00:00Z".to_string(),
+    });
+    let error = transition(
+        &mut task,
+        Event::Start,
+        &runner(),
+        &TransitionContext::default(),
+    )
+    .expect_err("the lease expired");
+    assert!(error.to_string().contains("lease"));
+}
+
+#[test]
+fn a_live_lease_starts_the_task() {
+    let mut task = groomed_task();
+    transition(
+        &mut task,
+        Event::Groom,
+        &creator(),
+        &TransitionContext::default(),
+    )
+    .unwrap();
+    transition(
+        &mut task,
+        Event::Approve,
+        &creator(),
+        &TransitionContext::default(),
+    )
+    .unwrap();
+
+    task.claim = Some(coding_lanes_core::Claim {
+        by: "runner-1".to_string(),
+        session: Some("s-runner".to_string()),
+        at: "now".to_string(),
+        lease_expires_at: "2999-01-01T00:00:00Z".to_string(),
+    });
+    transition(
+        &mut task,
+        Event::Start,
+        &runner(),
+        &TransitionContext::default(),
+    )
+    .unwrap();
+    assert_eq!(task.status, coding_lanes_core::Status::Executing);
+}

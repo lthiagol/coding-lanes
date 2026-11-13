@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 
 use thiserror::Error;
 
+use crate::item::Item;
 use crate::task::{Task, slugify};
 
 /// Name of the data folder inside a managed project.
@@ -22,6 +23,8 @@ pub enum StoreError {
     NotFound(String),
     #[error("no coding-lanes folder found")]
     NoDataFolder,
+    #[error("{0}")]
+    Item(String),
 }
 
 /// The work files of one project.
@@ -83,7 +86,10 @@ impl Store {
             if path.extension().and_then(|e| e.to_str()) != Some("json") {
                 continue;
             }
-            match load_path(&path) {
+            if !file_starts_with(&path, "TSK") {
+                continue;
+            }
+            match load_task_path(&path) {
                 Ok(task) => tasks.push(task),
                 // A file that does not parse is skipped, not fatal.
                 Err(_) => continue,
@@ -106,8 +112,9 @@ impl Store {
             }
             if let Some(name) = path.file_name().and_then(|n| n.to_str())
                 && name.starts_with(id)
+                && file_starts_with(&path, "TSK")
             {
-                return load_path(&path);
+                return load_task_path(&path);
             }
         }
         Err(StoreError::NotFound(id.to_string()))
@@ -155,6 +162,102 @@ impl Store {
         Ok(task)
     }
 
+    /// All smaller tasks, ordered by id.
+    pub fn list_items(&self) -> Result<Vec<Item>, StoreError> {
+        let dir = self.root.clone();
+        if !dir.is_dir() {
+            return Ok(Vec::new());
+        }
+        let mut items: Vec<Item> = Vec::new();
+        for entry in fs::read_dir(&dir)? {
+            let path = entry?.path();
+            if path.extension().and_then(|e| e.to_str()) != Some("json") {
+                continue;
+            }
+            if !file_starts_with(&path, "ITM") {
+                continue;
+            }
+            match load_item_path(&path) {
+                Ok(item) => items.push(item),
+                Err(_) => continue,
+            }
+        }
+        items.sort_by(|a, b| a.id.cmp(&b.id));
+        Ok(items)
+    }
+
+    /// One smaller task by id.
+    pub fn load_item(&self, id: &str) -> Result<Item, StoreError> {
+        let dir = self.root.clone();
+        if !dir.is_dir() {
+            return Err(StoreError::NotFound(id.to_string()));
+        }
+        for entry in fs::read_dir(&dir)? {
+            let path = entry?.path();
+            if path.extension().and_then(|e| e.to_str()) != Some("json") {
+                continue;
+            }
+            if file_starts_with(&path, "ITM")
+                && let Some(name) = path.file_name().and_then(|n| n.to_str())
+                && name.starts_with(id)
+            {
+                return load_item_path(&path);
+            }
+        }
+        Err(StoreError::NotFound(id.to_string()))
+    }
+
+    /// Write a smaller task file, atomically.
+    pub fn save_item(&self, item: &Item) -> Result<(), StoreError> {
+        fs::create_dir_all(&self.root)?;
+        let path = self.root.join(format!("{}-{}.json", item.id, item.slug));
+        let json = serde_json::to_string_pretty(item)?;
+        let tmp = path.with_extension("json.tmp");
+        {
+            let mut file = fs::File::create(&tmp)?;
+            file.write_all(json.as_bytes())?;
+            file.write_all(b"\n")?;
+            file.sync_all()?;
+        }
+        fs::rename(&tmp, &path)?;
+        Ok(())
+    }
+
+    /// Create a smaller task. The kind starts as an idea.
+    pub fn create_item(&self, title: &str) -> Result<Item, StoreError> {
+        let item = Item::new(self.next_item_id()?, title);
+        self.save_item(&item)?;
+        Ok(item)
+    }
+
+    /// Next free smaller-task id, scanning what exists.
+    pub fn next_item_id(&self) -> Result<String, StoreError> {
+        let mut highest: u32 = 0;
+        for item in self.list_items()? {
+            if let Some(number) = item.id.strip_prefix("ITM")
+                && let Ok(number) = number.parse::<u32>()
+            {
+                highest = highest.max(number);
+            }
+        }
+        Ok(format!("ITM{:02}", highest + 1))
+    }
+
+    /// Promote a smaller task into a task.
+    ///
+    /// The item is written first, so a crash cannot produce two tasks from
+    /// one item.
+    pub fn promote_item(&self, id: &str) -> Result<Task, StoreError> {
+        let mut item = self.load_item(id)?;
+        let task_id = self.next_id()?;
+        let task = item
+            .promote(task_id)
+            .map_err(|error| StoreError::Item(error.to_string()))?;
+        self.save_item(&item)?;
+        self.save(&task)?;
+        Ok(task)
+    }
+
     /// Next free task id, scanning what exists.
     pub fn next_id(&self) -> Result<String, StoreError> {
         let mut highest: u32 = 0;
@@ -169,9 +272,21 @@ impl Store {
     }
 }
 
-fn load_path(path: &Path) -> Result<Task, StoreError> {
+fn load_task_path(path: &Path) -> Result<Task, StoreError> {
     let contents = fs::read_to_string(path)?;
     Ok(serde_json::from_str(&contents)?)
+}
+
+fn load_item_path(path: &Path) -> Result<Item, StoreError> {
+    let contents = fs::read_to_string(path)?;
+    Ok(serde_json::from_str(&contents)?)
+}
+
+/// Whether a file's name starts with an id prefix.
+fn file_starts_with(path: &Path, prefix: &str) -> bool {
+    path.file_name()
+        .and_then(|n| n.to_str())
+        .is_some_and(|name| name.starts_with(prefix))
 }
 
 /// The file name a task would get.

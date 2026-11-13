@@ -172,11 +172,14 @@ pub fn transition(
                 task.open_questions() == 0,
                 "open questions must be resolved",
             )?;
-            gate(
-                task.criteria_covered(),
-                "every criterion needs a covering step",
-            )?;
-            gate(task.steps_have_done_when(), "every step needs a done_when")?;
+            // The step rules do not apply to a small task.
+            if !task.is_small_task() {
+                gate(
+                    task.criteria_covered(),
+                    "every criterion needs a covering step",
+                )?;
+                gate(task.steps_have_done_when(), "every step needs a done_when")?;
+            }
             task.status = Status::Approved;
         }
         Event::Start => {
@@ -186,17 +189,24 @@ pub fn transition(
                 .as_ref()
                 .ok_or_else(|| TransitionError::Gate("task is not claimed".into()))?;
             gate(claim.by == actor.id, "the task is claimed by someone else")?;
+            gate(
+                !claim.lease_expired(crate::now_rfc3339().as_str()),
+                "the claim's lease has expired",
+            )?;
             check_dependencies(task, ctx)?;
             task.status = Status::Executing;
         }
         Event::Finish => {
             expect_status(task, Status::Executing, event)?;
-            gate(
-                task.steps
-                    .iter()
-                    .all(|s| matches!(s.status, StepStatus::Done | StepStatus::Skipped)),
-                "every step must be settled",
-            )?;
+            // The step rules do not apply to a small task.
+            if !task.is_small_task() {
+                gate(
+                    task.steps
+                        .iter()
+                        .all(|s| matches!(s.status, StepStatus::Done | StepStatus::Skipped)),
+                    "every step must be settled",
+                )?;
+            }
             for criterion in &task.acceptance_criteria {
                 gate(
                     !criterion.evidence.is_empty(),

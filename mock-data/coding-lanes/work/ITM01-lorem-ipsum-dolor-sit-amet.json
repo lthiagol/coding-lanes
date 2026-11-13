@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "ITM01",
+  "title": "Lorem ipsum dolor sit amet",
+  "slug": "lorem-ipsum-dolor-sit-amet",
+  "kind": "idea",
+  "status": "open",
+  "body": "Consectetur adipiscing elit, sed do eiusmod tempor incididunt.",
+  "scope": [],
+  "tags": [
+    "mock"
+  ],
+  "created": "2026-11-02T08:00Z",
+  "updated": "2026-11-06T15:00Z",
+  "promoted_to": null,
+  "dismissed_reason": ""
+}

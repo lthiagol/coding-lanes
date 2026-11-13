@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "TSK27",
+  "title": "Duis aute irure dolor in reprehenderit",
+  "slug": "duis-aute-irure-dolor-in-reprehenderit",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-06T13:00Z",
+  "updated": "2026-11-08T14:00Z",
+  "status": "draft",
+  "overlays": {},
+  "claim": null,
+  "planned_by": null,
+  "meta": {
+    "priority": "urgent",
+    "effort": "M",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Duis aute irure dolor in reprehenderit",
+    "problem": "Velit esse cillum dolore eu fugiat."
+  },
+  "scope": {
+    "in_scope": [
+      "the lorem button"
+    ],
+    "out_of_scope": []
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Duis aute irure dolor in reprehenderit",
+      "verification": "",
+      "status": "pending",
+      "evidence": [],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [],
+    "verdict": null,
+    "findings": []
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": [],
+  "kind": "bug",
+  "promoted_from": "ITM05"
+}

@@ -572,12 +572,13 @@ phase and keeps every gate.
 - raul's screens and views
 - autopilot
 
-**Specified here, not yet in `crates/core`:**
+**Specified here, now in `crates/core`:**
 
-| gap | |
+| what | where |
 |---|---|
-| `kind` and `promoted_from` on the task | the fields the small-task model needs |
-| the small-task step exemption | `criteria.covered`, `steps.done_when_present` and `steps.settled` are applied to every task today |
-| the claim lease | `lease_expires_at` is stored and never checked |
-| the rename cleanup | `save` writes the new file name; the old file is not removed yet |
-| the work folder path | fixed: the store reads `coding-lanes/work/`, as [ADR 0002](../../decisions/0002-work-folder.md) decides |
+| `kind` and `promoted_from` on the task | `crates/core/src/task.rs` — `TaskKind`, `Task::is_small_task` |
+| the small-task step exemption | `crates/core/src/lifecycle.rs` — `criteria.covered`, `steps.done_when_present` and `steps.settled` are skipped for a small task |
+| the claim lease | `Claim::lease_expired`; the `approved → executing` gate refuses an expired lease |
+| the rename cleanup | `Store::save` removes the file the task had under an older name |
+| the work folder path | the store reads `coding-lanes/work/`, as [ADR 0002](../../decisions/0002-work-folder.md) decides |
+| smaller tasks (`ITM*`) | `crates/core/src/item.rs` — shaping, dismissal, promotion; `Store::promote_item` writes the item first |

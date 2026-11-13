@@ -98,6 +98,17 @@ to code review, and a verdict before it is done.
 - what the human can do with an item now: shape it, promote it, or dismiss it
 - whether a small task is ready to run
 
+## In the code
+
+| what | where |
+|---|---|
+| the item | `crates/core/src/item.rs` — `Item`, `ItemKind`, `ItemStatus` |
+| shaping | `Item::shape` — the kind changes, the id does not |
+| promotion | `Item::promote` — an idea is refused, the remedy is named; `Store::promote_item` writes the item first, then the task |
+| dismissal | `Item::dismiss` — the reason is kept |
+| the store | `Store::list_items`, `load_item`, `save_item`, `next_item_id` — `ITM*` files live beside `TSK*` in the work folder |
+
 ## Not defined yet
 
 - journal event kinds for item moves
+- talita's verbs for items

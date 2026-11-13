@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "ITM03",
+  "title": "Quis nostrud exercitation ullamco laboris",
+  "slug": "quis-nostrud-exercitation-ullamco-laboris",
+  "kind": "bug",
+  "status": "open",
+  "body": "Nisi ut aliquip ex ea commodo consequat.",
+  "scope": [
+    "the lorem list"
+  ],
+  "tags": [
+    "mock"
+  ],
+  "created": "2026-11-02T08:00Z",
+  "updated": "2026-11-06T15:00Z",
+  "promoted_to": null,
+  "dismissed_reason": ""
+}
