@@ -1,6 +1,8 @@
 ---
 name: Orchestration Flow
 description: Three agents, one flow — the orchestrator session takes the human's requests and decides, dispatching builder and reviewer panes through Herdr, each an opencode instance on its own model. Load this when running a build loop in this repository.
+metadata:
+  opencode/autoinvoke: false
 ---
 
 # Orchestration flow
