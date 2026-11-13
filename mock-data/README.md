@@ -15,7 +15,7 @@ project as-is.
 ```
 mock-data/
   coding-lanes/
-    tasks/TSK*.json
+    work/TSK*.json
 ```
 
 ## The set
@@ -49,7 +49,7 @@ Three shapes are covered:
 ## Use in tests
 
 ```rust
-let store = Store::new(repo_root().join("mock-data/coding-lanes"));
+let store = Store::new(repo_root().join("mock-data/coding-lanes/work"));
 let task = store.load("TSK07")?;
 ```
 

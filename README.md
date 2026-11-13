@@ -33,7 +33,7 @@ crates/
 Tasks live in a managed project's own `coding-lanes/` folder:
 
 ```
-<project>/coding-lanes/tasks/TSK01-<slug>.json
+<project>/coding-lanes/work/TSK01-<slug>.json
 ```
 
 ## Develop

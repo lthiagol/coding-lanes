@@ -14,7 +14,7 @@ import pathlib
 import shutil
 
 ROOT = pathlib.Path(__file__).resolve().parent
-TASKS = ROOT / "coding-lanes" / "tasks"
+TASKS = ROOT / "coding-lanes" / "work"
 
 TITLES = [
     "Lorem ipsum dolor sit amet",

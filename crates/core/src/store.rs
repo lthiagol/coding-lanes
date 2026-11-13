@@ -9,6 +9,9 @@ use crate::task::{Task, slugify};
 /// Name of the data folder inside a managed project.
 pub const DATA_DIR: &str = "coding-lanes";
 
+/// Name of the work folder inside the data folder.
+pub const WORK_DIR: &str = "work";
+
 #[derive(Debug, Error)]
 pub enum StoreError {
     #[error("failed to read: {0}")]
@@ -21,21 +24,28 @@ pub enum StoreError {
     NoDataFolder,
 }
 
-/// Task files of one project.
+/// The work files of one project.
 ///
 /// Layout:
 /// ```text
-/// <project>/coding-lanes/tasks/TSK01-<slug>.json
+/// <project>/coding-lanes/work/TSK01-<slug>.json
 /// ```
+///
+/// One folder holds tasks (`TSK*`) and smaller tasks (`ITM*`).
 #[derive(Debug, Clone)]
 pub struct Store {
     root: PathBuf,
 }
 
 impl Store {
-    /// Store rooted at a `coding-lanes` folder.
+    /// Store rooted at a work folder.
     pub fn new(root: impl Into<PathBuf>) -> Self {
         Self { root: root.into() }
+    }
+
+    /// Store of a project, by its root.
+    pub fn for_project(project: &Path) -> Self {
+        Self::new(project.join(DATA_DIR).join(WORK_DIR))
     }
 
     /// Find the store of the project containing `start`, walking up.
@@ -44,7 +54,7 @@ impl Store {
         loop {
             let candidate = dir.join(DATA_DIR);
             if candidate.is_dir() {
-                return Ok(Self::new(candidate));
+                return Ok(Self::new(candidate.join(WORK_DIR)));
             }
             if !dir.pop() {
                 return Err(StoreError::NoDataFolder);
@@ -56,19 +66,14 @@ impl Store {
         &self.root
     }
 
-    pub fn tasks_dir(&self) -> PathBuf {
-        self.root.join("tasks")
-    }
-
     /// Path of a task file.
     pub fn task_path(&self, task: &Task) -> PathBuf {
-        self.tasks_dir()
-            .join(format!("{}-{}.json", task.id, task.slug))
+        self.root.join(format!("{}-{}.json", task.id, task.slug))
     }
 
     /// All tasks, ordered by id.
     pub fn list(&self) -> Result<Vec<Task>, StoreError> {
-        let dir = self.tasks_dir();
+        let dir = self.root.clone();
         if !dir.is_dir() {
             return Ok(Vec::new());
         }
@@ -90,7 +95,7 @@ impl Store {
 
     /// One task by id.
     pub fn load(&self, id: &str) -> Result<Task, StoreError> {
-        let dir = self.tasks_dir();
+        let dir = self.root.clone();
         if !dir.is_dir() {
             return Err(StoreError::NotFound(id.to_string()));
         }
@@ -108,10 +113,10 @@ impl Store {
         Err(StoreError::NotFound(id.to_string()))
     }
 
-    /// Write a task file, atomically.
+    /// Write a task file, atomically. A file the same task had under another
+    /// name is removed, so one task is one file.
     pub fn save(&self, task: &Task) -> Result<(), StoreError> {
-        let dir = self.tasks_dir();
-        fs::create_dir_all(&dir)?;
+        fs::create_dir_all(&self.root)?;
         let path = self.task_path(task);
         let json = serde_json::to_string_pretty(task)?;
         let tmp = path.with_extension("json.tmp");
@@ -122,6 +127,24 @@ impl Store {
             file.sync_all()?;
         }
         fs::rename(&tmp, &path)?;
+        self.remove_other_copies(task, &path)?;
+        Ok(())
+    }
+
+    /// Remove files of the same task left under an older name.
+    fn remove_other_copies(&self, task: &Task, keep: &Path) -> Result<(), StoreError> {
+        for entry in fs::read_dir(&self.root)? {
+            let path = entry?.path();
+            if path == keep {
+                continue;
+            }
+            let Some(name) = path.file_name().and_then(|n| n.to_str()) else {
+                continue;
+            };
+            if name.starts_with(&task.id) && name.ends_with(".json") {
+                fs::remove_file(&path)?;
+            }
+        }
         Ok(())
     }
 

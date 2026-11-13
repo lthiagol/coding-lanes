@@ -59,14 +59,14 @@ fn main() -> Result<()> {
 /// current directory; without it, the folder must exist.
 fn store_for(project: Option<&Path>, create: bool) -> Result<Store> {
     if let Some(dir) = project {
-        return Ok(Store::new(dir.join(coding_lanes_core::store::DATA_DIR)));
+        return Ok(Store::for_project(dir));
     }
     let cwd = std::env::current_dir().context("reading the current directory")?;
     match Store::discover(&cwd) {
         Ok(store) => Ok(store),
         Err(error) if create => {
             let _ = error;
-            Ok(Store::new(cwd.join(coding_lanes_core::store::DATA_DIR)))
+            Ok(Store::for_project(&cwd))
         }
         Err(error) => Err(error).context("finding the coding-lanes folder"),
     }

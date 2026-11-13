@@ -5,7 +5,7 @@ use std::path::PathBuf;
 fn mock_store() -> Store {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../..")
-        .join("mock-data/coding-lanes");
+        .join("mock-data/coding-lanes/work");
     Store::new(root)
 }
 
