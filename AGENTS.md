@@ -10,7 +10,8 @@ superpowers.
 - Two interfaces:
   - **CLI tool** — agent-facing, not designed for humans.
   - **TUI (raul)** — human-facing, for reviewing tasks and understanding the
-    project's flow and status.
+    project's flow and status. `raul` = **R**eview, **A**pprove,
+    **U**nderstand **L**ane.
 - In an interactive session the human and agent discuss and groom a task;
   once agreed, the agent calls the CLI tool to write it down. The CLI tool
   enforces patterns and formats, so direct edits of task files are
@@ -18,6 +19,8 @@ superpowers.
 - Tasks carry status and metadata, all managed through the CLI tool.
 - `coding-lanes/` at the repo root holds the data: tasks, metadata, code
   review findings, and everything else the project uses to manage tasks.
+  The CLI tool writes it, raul reads it.
+- Dogfooding coding-lanes on this project is future work.
 
 ## Communication
 
