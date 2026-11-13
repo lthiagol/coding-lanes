@@ -12,22 +12,22 @@ superpowers.
   - **TUI (raul)** — human-facing, for reviewing tasks and understanding the
     project's flow and status. `raul` = **R**eview, **A**pprove,
     **U**nderstand **L**ane.
-- In an interactive session the human and agent discuss and groom a task;
-  once agreed, the agent calls the CLI tool to write it down. The CLI tool
-  enforces patterns and formats, so agents should not hand-edit task files.
-- Tasks carry status and metadata, all managed through the CLI tool.
-- `coding-lanes/` at the repo root holds the data: tasks, metadata, code
-  review findings, and everything else the project uses to manage tasks.
-  The CLI tool writes it, raul reads it.
+- In an interactive session the human and agent groom a task; once agreed, the
+  agent calls the CLI tool to write it down.
+- The CLI tool writes and manages tasks; raul shows them.
+- Tasks live in the managed project's own `coding-lanes/` folder, alongside its
+  code. No central store — each project keeps its own data.
+- `coding-lanes/` holds tasks, metadata, code review findings, and everything
+  else the project uses to manage tasks.
 - Never hand-edit files under `coding-lanes/`. Use the CLI tool.
 - Dogfooding coding-lanes on this project is future work.
 
 ## Repo
 
-- `crates/core` — shared model, editable.
+- `crates/core` — shared model.
 - `crates/cli` — CLI tool; binary `coding-lanes`. Off-limits until instructed.
 - `crates/tui` — raul; binary `raul`.
-- `coding-lanes/` — data folder (not yet created).
+- `coding-lanes/` — data folder of a managed project (not created here).
 
 ```sh
 cargo build
@@ -69,9 +69,7 @@ cargo run -p coding-lanes-tui   # raul
 ## Scope
 
 - Scope is the TUI (raul). Do not write CLI tool code until explicitly told.
-- Work order:
-  1. Design raul's screens and data flow.
-  2. Implement raul.
-  3. The CLI tool is written only when explicitly instructed — never
-     automatically because raul looks finished or mature enough.
+- Work order: design raul's screens and data flow, then implement raul.
+- The CLI tool is written only when explicitly instructed — never
+  automatically because raul looks finished or mature enough.
 - `crates/core` stays editable; it is shared with raul.
