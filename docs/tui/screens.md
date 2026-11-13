@@ -78,7 +78,7 @@ what is waiting. The trunk is the agent lane; the branches are the human lane.
  Path Tree 
  EXECUTION  ready · approved · deps met
  │
- ● TSK27   Lorem ipsum dolor sit amet
+ ● TSK29   Lorem ipsum dolor sit amet
  │
   ╵
  ├─ RUNNING · 6
