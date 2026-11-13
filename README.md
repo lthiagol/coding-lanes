@@ -12,7 +12,8 @@ A task management tool for agents. Two interfaces:
 ## Status
 
 Early. The scope right now is raul. The task model and the roles are
-designed in [docs/](docs/); talita comes later, when it is asked for.
+designed in [docs/](docs/); talita's full command surface comes later, when it
+is asked for.
 
 | doc | what |
 |---|---|
@@ -28,6 +29,12 @@ crates/
   raul/    # TUI            (coding-lanes-raul, binary raul)
 ```
 
+Tasks live in a managed project's own `coding-lanes/` folder:
+
+```
+<project>/coding-lanes/tasks/TSK01-<slug>.json
+```
+
 ## Develop
 
 Rust is pinned via `rust-toolchain.toml` (stable, minimal profile, with
@@ -37,11 +44,22 @@ Rust is pinned via `rust-toolchain.toml` (stable, minimal profile, with
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-```sh
-make help    # list targets
-make check   # the gate: fmt, clippy, tests
-make raul    # run the TUI
-```
+### Make targets
+
+| target | what |
+|---|---|
+| `make help` | list targets |
+| `make check` | the gate: fmt, clippy, tests |
+| `make build` | build the workspace |
+| `make build-raul` | build raul only |
+| `make build-talita` | build talita only |
+| `make build-release` | release binaries |
+| `make raul` | run raul |
+| `make test` | tests |
+| `make fmt` / `make fmt-check` | format / check formatting |
+| `make lint` | clippy with warnings as errors |
+| `make doc` | API docs |
+| `make clean` | remove build artifacts |
 
 ## License
 

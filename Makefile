@@ -6,6 +6,7 @@
 
 CARGO ?= $(shell command -v cargo 2>/dev/null || echo $(HOME)/.cargo/bin/cargo)
 RAUL_PKG := coding-lanes-raul
+TALITA_PKG := coding-lanes-talita
 
 .DEFAULT_GOAL := help
 
@@ -15,12 +16,18 @@ help: ## Show this help
 	@echo ""
 	@grep -E '^[a-zA-Z0-9_.-]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
-.PHONY: build build-release
+.PHONY: build build-release build-raul build-talita
 build: ## Build the workspace
 	$(CARGO) build
 
 build-release: ## Build release binaries
 	$(CARGO) build --release
+
+build-raul: ## Build raul only
+	$(CARGO) build -p $(RAUL_PKG)
+
+build-talita: ## Build talita only
+	$(CARGO) build -p $(TALITA_PKG)
 
 .PHONY: run raul
 run raul: ## Run raul (TUI)

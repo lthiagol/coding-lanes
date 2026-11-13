@@ -263,6 +263,7 @@ dependencies = [
  "anyhow",
  "clap",
  "coding-lanes-core",
+ "serde_json",
 ]
 
 [[package]]

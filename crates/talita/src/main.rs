@@ -1,15 +1,15 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-use coding_lanes_core::Store;
+use coding_lanes_core::{Store, Task};
 use std::path::{Path, PathBuf};
 
-/// Manage coding lanes and the tasks inside them.
+/// Task Access and Lane Interaction Terminal App — the CLI tool of coding-lanes.
 #[derive(Debug, Parser)]
 #[command(name = "talita", version, about)]
 struct Talita {
-    /// Path of the task store (defaults to the XDG data directory).
+    /// Project root. Defaults to the nearest parent holding a coding-lanes folder.
     #[arg(short, long, global = true)]
-    store: Option<PathBuf>,
+    project: Option<PathBuf>,
 
     #[command(subcommand)]
     command: Command,
@@ -17,57 +17,63 @@ struct Talita {
 
 #[derive(Debug, Subcommand)]
 enum Command {
-    /// Add a task to the current lane.
-    Add {
+    /// Create a task in draft.
+    Create {
         /// Title of the task.
         title: String,
     },
-    /// List all tasks.
+    /// List tasks.
     List,
-    /// Mark a task as done.
-    Done {
-        /// Identifier of the task.
-        id: u64,
+    /// Show one task.
+    Show {
+        /// Task id, e.g. TSK01.
+        id: String,
     },
 }
 
 fn main() -> Result<()> {
     let talita = Talita::parse();
-    let path = talita.store.unwrap_or_else(Store::default_path);
-
-    let mut store = Store::load(&path).context("loading task store")?;
-
     match talita.command {
-        Command::Add { title } => {
-            let task = store.add(title);
-            persist(&store, &path)?;
-            println!("added task #{}: {}", task.id, task.title);
+        Command::Create { title } => {
+            let store = store_for(talita.project.as_deref(), true)?;
+            let task = store.create(&title)?;
+            print_task(&task)?;
         }
         Command::List => {
-            if store.tasks.is_empty() {
-                println!("no tasks yet");
-            }
-            for task in &store.tasks {
-                let marker = if task.done { "x" } else { " " };
-                println!("[{marker}] #{:<4} {}", task.id, task.title);
+            let store = store_for(talita.project.as_deref(), false)?;
+            for task in store.list()? {
+                println!("{}  {:<10}  {}", task.id, task.status.as_str(), task.title);
             }
         }
-        Command::Done { id } => {
-            if store.set_done(id) {
-                persist(&store, &path)?;
-                println!("task #{id} done");
-            } else {
-                println!("no task with id {id}");
-            }
+        Command::Show { id } => {
+            let store = store_for(talita.project.as_deref(), false)?;
+            let task = store.load(&id)?;
+            print_task(&task)?;
         }
     }
 
     Ok(())
 }
 
-fn persist(store: &Store, path: &Path) -> Result<()> {
-    store
-        .save(path)
-        .map_err(anyhow::Error::from)
-        .with_context(|| format!("saving task store to {}", path.display()))
+/// The store of the project. With `create`, a missing folder is created in the
+/// current directory; without it, the folder must exist.
+fn store_for(project: Option<&Path>, create: bool) -> Result<Store> {
+    if let Some(dir) = project {
+        return Ok(Store::new(dir.join(coding_lanes_core::store::DATA_DIR)));
+    }
+    let cwd = std::env::current_dir().context("reading the current directory")?;
+    match Store::discover(&cwd) {
+        Ok(store) => Ok(store),
+        Err(error) if create => {
+            let _ = error;
+            Ok(Store::new(cwd.join(coding_lanes_core::store::DATA_DIR)))
+        }
+        Err(error) => Err(error).context("finding the coding-lanes folder"),
+    }
+}
+
+fn print_task(task: &Task) -> Result<()> {
+    let json = serde_json::to_string_pretty(task)?;
+    println!("{json}");
+    Ok(())
 }

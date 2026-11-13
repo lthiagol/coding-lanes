@@ -1,5 +1,5 @@
 use anyhow::Result;
-use coding_lanes_core::Store;
+use coding_lanes_core::{Status, Store, Task};
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use crossterm::execute;
 use crossterm::terminal::{
@@ -12,20 +12,31 @@ use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, List, ListItem, Paragraph};
 
 fn main() -> Result<()> {
-    let store = Store::load(&Store::default_path()).unwrap_or_default();
+    let tasks = load_tasks();
 
     let mut terminal = setup()?;
-    let result = run(&mut terminal, &store);
+    let result = run(&mut terminal, &tasks);
     restore(&mut terminal)?;
     result
 }
 
+/// Tasks of the project in the current directory, empty when there is none.
+fn load_tasks() -> Vec<Task> {
+    let Ok(cwd) = std::env::current_dir() else {
+        return Vec::new();
+    };
+    let Ok(store) = Store::discover(&cwd) else {
+        return Vec::new();
+    };
+    store.list().unwrap_or_default()
+}
+
 fn run(
     terminal: &mut ratatui::Terminal<ratatui::backend::CrosstermBackend<std::io::Stdout>>,
-    store: &Store,
+    tasks: &[Task],
 ) -> Result<()> {
     loop {
-        terminal.draw(|frame| draw(frame, store))?;
+        terminal.draw(|frame| draw(frame, tasks))?;
 
         if let Event::Key(key) = event::read()?
             && key.kind == KeyEventKind::Press
@@ -37,7 +48,7 @@ fn run(
     Ok(())
 }
 
-fn draw(frame: &mut Frame, store: &Store) {
+fn draw(frame: &mut Frame, tasks: &[Task]) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -57,24 +68,23 @@ fn draw(frame: &mut Frame, store: &Store) {
     .block(Block::default().borders(Borders::ALL).title("coding-lanes"));
     frame.render_widget(title, chunks[0]);
 
-    let items: Vec<ListItem> = if store.tasks.is_empty() {
+    let items: Vec<ListItem> = if tasks.is_empty() {
         vec![ListItem::new(Line::from(Span::styled(
             "no tasks yet",
             Style::default().fg(Color::DarkGray),
         )))]
     } else {
-        store
-            .tasks
+        tasks
             .iter()
             .map(|task| {
-                let style = if task.done {
+                let style = if task.status == Status::Done {
                     Style::default().fg(Color::DarkGray)
                 } else {
                     Style::default().fg(Color::White)
                 };
                 ListItem::new(Line::from(vec![
-                    Span::styled(format!("{} ", if task.done { "[x]" } else { "[ ]" }), style),
-                    Span::styled(format!("#{:<4} ", task.id), style),
+                    Span::styled(format!("{:<10} ", task.id), style),
+                    Span::styled(format!("{:<12} ", task.status.as_str()), style),
                     Span::styled(task.title.clone(), style),
                 ]))
             })
@@ -86,8 +96,6 @@ fn draw(frame: &mut Frame, store: &Store) {
 
     let help = Paragraph::new(Line::from(vec![
         Span::styled(" q ", Style::default().fg(Color::Black).bg(Color::Cyan)),
-        Span::raw(" quit    "),
-        Span::styled(" esc ", Style::default().fg(Color::Black).bg(Color::Cyan)),
         Span::raw(" quit"),
     ]));
     frame.render_widget(help, chunks[2]);
