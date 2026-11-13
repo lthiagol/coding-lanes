@@ -82,8 +82,23 @@ All multi-agent work runs through Herdr, in the orchestrator's own workspace.
 orchestrator's own workspace. See the next section.
 
 `herdr pane send-text` types literally: a newline inside the text submits
-early and strands the rest in the input box. Send the prompt as one line, or
-one line per paragraph, then send `enter` separately.
+early and strands the rest in the input box.
+
+### A kickoff that lands
+
+Text types asynchronously, so `enter` can arrive before the text does — the
+kickoff then sits in the input box, unsubmitted. The sequence that lands:
+
+1. Send the **whole kickoff as one `send-text` call**, one line.
+2. **Wait a second.** The text is still typing.
+3. `herdr pane send-keys <PANE> enter`
+4. **Verify**: `herdr pane read <PANE> --lines 8`
+   - the kickoff text is still in the input line → send `enter` again (up to
+     twice)
+   - the pane shows the agent working → it landed
+
+The same check applies to a report: the agent must confirm the text left the
+box before it finishes.
 
 `opencode mini` is the pane interface: interactive, takes `--model`,
 `--agent` and `--prompt`, and is lighter than the full TUI for a pane that
@@ -201,7 +216,11 @@ before anything was built. Only real build-and-review rounds count.
 > Read AGENTS.md and the project's docs it points to, and the round's
 > findings at `<path-to-findings>`.
 > Your task: `<the unit of work>`. Do not start other work. Run the project's
-> gate before you report. Finish by prompting the orchestrator pane.
+> gate before you report. Finish by sending
+> `herdr pane send-text <orchestrator-pane> "done: <one-line summary>"` and then
+> `herdr pane send-keys <orchestrator-pane> enter`, and check with
+> `herdr pane read <orchestrator-pane> --lines 5` that the text left the input
+> box before you finish.
 
 **Reviewer kickoff:**
 
@@ -219,8 +238,11 @@ before anything was built. Only real build-and-review rounds count.
 > run targeted commands to check a claim — not long builds; the orchestrator
 > runs the gate. Findings carry severity and location. Do not modify code.
 > Write the findings to `<path-to-this-round-findings>`.
-> Finish with a verdict (`ok` or `changes-needed`) by prompting the orchestrator
-> pane.
+> Finish with a verdict (`ok` or `changes-needed`) by sending
+> `herdr pane send-text <orchestrator-pane> "VERDICT: <ok|changes-needed> ..."`
+> and then `herdr pane send-keys <orchestrator-pane> enter`, and check with
+> `herdr pane read <orchestrator-pane> --lines 5` that the text left the input
+> box before you finish.
 
 **Fixer kickoff** (a builder on its second round):
 
@@ -229,7 +251,11 @@ before anything was built. Only real build-and-review rounds count.
 > `BLOCKED: <question>; options: ...; recommendation: ...` and report to the orchestrator.
 > Read AGENTS.md, the project's docs, and the findings at
 > `<path-to-findings>`. Fix every finding — the closed ones stay closed.
-> Re-run the project's gate. Finish by prompting the orchestrator pane.
+> Re-run the project's gate. Finish by sending
+> `herdr pane send-text <orchestrator-pane> "done: <one-line summary>"` and then
+> `herdr pane send-keys <orchestrator-pane> enter`, and check with
+> `herdr pane read <orchestrator-pane> --lines 5` that the text left the input
+> box before you finish.
 
 ## Clarifications and stalls
 
@@ -264,6 +290,11 @@ ask-the-user prompt stalls the agent forever.
 - No code ships unreviewed: every changed file is covered by a review round
   before the unit is done.
 - The orchestrator commits after a clean review. Agents never commit or push.
+- **Stage by name.** Never `git add -A`, never `git add .` — a blanket stage
+  sweeps another agent's in-flight work into the commit. Stage the paths the
+  reviewed unit touched, and check `git status` before committing.
+- **The working tree is the review surface.** The orchestrator commits only
+  after a clean verdict, so the change under review is uncommitted.
 - **Every dispatch is a fresh session.** Continuity is the findings file and the
   diff. No agent is reused across the rounds of one unit of work.
 
