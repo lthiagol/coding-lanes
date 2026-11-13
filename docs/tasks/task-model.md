@@ -529,23 +529,27 @@ These are views, and they are recomputed on read.
 `mock-data/coding-lanes/work/` holds one task per lifecycle stage, plus the
 edge cases. Every fixture satisfies the gates of the phase it is in.
 
+The table names the **role** of a fixture, not its id: the generator renumbers
+when it changes, so an id in a doc is a fact that goes stale.
+
 | fixture | what it shows |
 |---|---|
-| `TSK01` | `draft`: title only |
-| `TSK05` | a `blocked` overlay with a reason, a `by` and an `at` |
-| `TSK07` | `approved`, and the parent of `TSK27` |
-| `TSK10` | `executing`: claimed with a lease, evidence attached, a `deviation` on the step, a note |
-| `TSK11` | a **deferred criterion**: `status` `deferred`, a `deferral` with a `follow_up` |
-| `TSK13` | `code-review`: a `self` round and one open finding |
-| `TSK16` | `remediating`: a `self` round (`ok`) then an `external` round (`changes-needed`) |
-| `TSK19` | `needs-human`: five external rounds spent, work still outstanding |
-| `TSK22` | `done`: verdict `ok`, no open findings |
-| `TSK27` | a child task: `parent` set, still `draft` |
+| a draft task | title only |
+| a blocked task | a `blocked` overlay with a reason, a `by` and an `at` |
+| an approved task | criteria covered by steps, every step with a `done_when` |
+| an approved task with no dependency | **claimable** — the one thing an agent could take right now |
+| an executing task | claimed with a lease, evidence attached, a `deviation` on the step, a note |
+| a task with a deferred criterion | `status` `deferred`, a `deferral` with a `follow_up` |
+| a task in code review | a `self` round and one open finding |
+| a task in remediation | a `self` round (`ok`) then an `external` round (`changes-needed`) |
+| a task needing a human | five external rounds spent, work still outstanding |
+| a done task | verdict `ok`, no open findings |
+| a child task | `parent` set, still `draft` |
 
 The dependency graph in the fixtures runs backwards only — a task depends on
 tasks with lower ids — so the graph has no cycles and every `depends_on` points
-at a task that exists. `TSK07` and `TSK08` wait on `TSK05`, which is blocked,
-so they cannot start until it is unblocked.
+at a task that exists. The approved tasks wait on tasks that are not done, so
+they are blocked; only the dependency-free approved task can be claimed.
 
 `crates/core/tests/mock_data.rs` loads the set and checks that it covers every
 phase and keeps every gate.

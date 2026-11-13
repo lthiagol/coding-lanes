@@ -210,6 +210,6 @@ Every view above is computed from the task files.
 
 ## Mock data
 
-raul reads `mock-data/coding-lanes/work/` — 28 tasks across every phase and 5
-smaller tasks — so the screens can be built against real shapes before any
-data exists to manage.
+raul reads `mock-data/coding-lanes/work/` — one task per phase, the edge
+cases, and the smaller tasks — so the screens can be built against real shapes
+before any data exists to manage. `make raul` points at it.
