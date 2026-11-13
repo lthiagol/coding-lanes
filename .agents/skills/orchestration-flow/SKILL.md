@@ -19,7 +19,7 @@ the project: the project has its own docs, and the agents read those.
 |---|---|---|---|
 | **Orchestrator** | the human's session — where the request is typed, and where every agent reports back | Designs; decides every transition; opens the panes; verifies claims by re-running the gate; commits after a clean review | **Edits code, tests or scripts itself** — even small ones. Any code change goes to a builder, then a reviewer. Runs no long builds |
 | **Builder** | its own pane, in its own tab | Implements exactly the kickoff; runs the project's gate; reports to the orchestrator | Commits; starts other work; prompts other agents; decides next steps |
-| **Reviewer** | its own pane, in its own tab | Reviews the change against the kickoff and the project's rules; writes findings; gives a verdict | Modifies code or docs; commits; prompts other agents |
+| **Reviewer** | its own pane, in its own tab | Reviews the change against the kickoff and the project's rules; writes findings; gives a verdict. May run **targeted** commands to check a claim | Modifies code or docs; commits; prompts other agents; runs long builds |
 
 The orchestrator is the only agent the human talks to, and the only one the
 others report to. It is the session that decides what happens next.
@@ -166,6 +166,9 @@ comes back `changes-needed`, the orchestrator stops, keeps the workspace
 open, and asks the human — with the findings, the rounds, and what it would
 change next.
 
+A round the builder ends `BLOCKED` does not spend one of the five: it ended
+before anything was built. Only real build-and-review rounds count.
+
 ## Prompt templates
 
 **Builder kickoff:**
@@ -185,9 +188,11 @@ change next.
 > Read AGENTS.md and the project's docs it points to. This is review round
 > <N> of at most 5. Review the change against the kickoff and the project's
 > rules — not against the builder's own summary.
-> Try to break it: different inputs, edge cases, adversarial paths. Findings
-> carry severity and location. Do not modify code. Finish with a verdict
-> (`ok` or `changes-needed`) by prompting the orchestrator pane.
+> Try to break it: different inputs, edge cases, adversarial paths. You may
+> run targeted commands to check a claim — not long builds; the orchestrator
+> runs the gate. Findings carry severity and location. Do not modify code.
+> Finish with a verdict (`ok` or `changes-needed`) by prompting the orchestrator
+> pane.
 
 **Fixer kickoff** (a builder on its second round):
 
@@ -225,6 +230,8 @@ ask-the-user prompt stalls the agent forever.
   back `changes-needed` → stop and ask the human.
 - **The orchestrator runs the gate itself** before opening a reviewer round. An
   agent's claim that the gate passed is not evidence.
+- **The reviewer may run targeted commands** to check a claim — never long
+  builds, and never edits.
 - No code ships unreviewed: every changed file is covered by a review round
   before the unit is done.
 - The orchestrator commits after a clean review. Agents never commit or push.
