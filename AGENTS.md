@@ -9,6 +9,12 @@ Rules for agents working in this repository.
   summarizing what you just did unless asked.
 - Document only what a reader needs; omit obvious explanations.
 
+## Clarification
+
+- Avoid assumptions. If anything is unclear or a decision is needed, use the
+  ask tool.
+- When asking, always state your recommended option first.
+
 ## Naming
 
 - The TUI is called **raul**.
