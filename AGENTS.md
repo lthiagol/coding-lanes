@@ -14,13 +14,28 @@ superpowers.
     **U**nderstand **L**ane.
 - In an interactive session the human and agent discuss and groom a task;
   once agreed, the agent calls the CLI tool to write it down. The CLI tool
-  enforces patterns and formats, so direct edits of task files are
-  discouraged.
+  enforces patterns and formats, so agents should not hand-edit task files.
 - Tasks carry status and metadata, all managed through the CLI tool.
 - `coding-lanes/` at the repo root holds the data: tasks, metadata, code
   review findings, and everything else the project uses to manage tasks.
   The CLI tool writes it, raul reads it.
+- Never hand-edit files under `coding-lanes/`. Use the CLI tool.
 - Dogfooding coding-lanes on this project is future work.
+
+## Repo
+
+- `crates/core` — shared model, editable.
+- `crates/cli` — CLI tool; binary `coding-lanes`. Off-limits until instructed.
+- `crates/tui` — raul; binary `raul`.
+- `coding-lanes/` — data folder (not yet created).
+
+```sh
+cargo build
+cargo test
+cargo clippy --all-targets -- -D warnings
+cargo fmt --all
+cargo run -p coding-lanes-tui   # raul
+```
 
 ## Communication
 
@@ -34,6 +49,15 @@ superpowers.
 - Avoid assumptions. If anything is unclear or a decision is needed, use the
   ask tool.
 - When asking, always state your recommended option first.
+
+## Git
+
+- Commit messages use conventional commits: `feat:`, `fix:`, `docs:`,
+  `chore:`, `refactor:`, `test:`.
+
+## Rules of this file
+
+- Do not edit `AGENTS.md` without explicit instruction.
 
 ## Naming
 
