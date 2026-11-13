@@ -78,34 +78,41 @@ what is waiting. The trunk is the agent lane; the branches are the human lane.
  Path Tree 
  EXECUTION  ready · approved · deps met
  │
- ● TSK07   Add lane filtering to raul
- │
- ├─ TSK09   Filter tasks by status
+ ● TSK27   Lorem ipsum dolor sit amet
  │
   ╵
- ├─ APPROVAL · 2
- │   └─ TSK04   Consectetur adipiscing elit
+ ├─ RUNNING · 6
+ │   └─ TSK10   Tempor incididunt ut labore et dolore
+ ├─ APPROVAL · 3
+ │   └─ TSK04   Lorem ipsum dolor sit amet
  ├─ REVIEW · 3
  │   └─ TSK13   Praesentium voluptatum deleniti
  ├─ ESCALATED · 3
  │   └─ TSK19   Quaerat voluptatem consequatur
- └─ BLOCKED · 4
+ └─ BLOCKED · 3
      └─ TSK08   waits on TSK05
 ```
+
+The ids above are the ones `mock-data` generates today. The generator
+renumbers when it changes, so the tree is the shape to build — not a fixture
+to assert against.
 
 | part | rule |
 |---|---|
 | trunk | claimable tasks, in dependency order. The first is marked `●` — it is what happens next |
+| RUNNING | `executing` and `remediating`, with the runner holding the claim |
 | APPROVAL | `groomed` — waiting on the human to approve |
 | REVIEW | `code-review` — waiting on the human to review |
 | ESCALATED | `needs-human` — the review budget ran out |
 | BLOCKED | everything else that is not claimable: a dependency that is not done, an overlay, or a claim held elsewhere. Each shows what blocks it, forked under its blocker |
-| order | trunk first, then the branches in the order above |
+| order | trunk first, then the branches in the order above: RUNNING, APPROVAL, REVIEW, ESCALATED, BLOCKED |
 
 Rules:
 
 - The tree holds tasks only. Smaller tasks and drafts are not in it — the
   Backlog tab holds them.
+- A task that is running is not blocked and not claimable: it has its own
+  branch.
 - A blocked task is forked under the task that blocks it, so the human sees
   the chain, not a flat list of stuck work.
 - The trunk is empty when nothing is claimable; the tree then opens straight
