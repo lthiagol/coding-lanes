@@ -24,6 +24,10 @@ Rules for agents working in this repository.
 
 ## Scope
 
-- The current work is the workspace itself: `crates/core` (shared model),
-  `crates/cli` (CLI tool), `crates/tui` (raul). Do not add features unless
-  asked.
+- Scope is the TUI (raul). Do not write CLI tool code until explicitly told.
+- Work order:
+  1. Design raul's screens and data flow.
+  2. Implement raul.
+  3. The CLI tool is written only when explicitly instructed — never
+     automatically because raul looks finished or mature enough.
+- `crates/core` stays editable; it is shared with raul.
