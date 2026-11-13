@@ -1,46 +1,67 @@
-use anyhow::Result;
-use coding_lanes_core::{Status, Store, Task};
-use crossterm::event::{self, Event, KeyCode, KeyEventKind};
+//! raul — the TUI of coding-lanes.
+//!
+//! raul reads a work folder and shows it. It writes nothing.
+
+mod app;
+mod data;
+mod overview;
+mod tabs;
+
+use std::io::Stdout;
+use std::path::PathBuf;
+
+use anyhow::{Result, bail};
+use crossterm::event::{self, Event, KeyEventKind};
 use crossterm::execute;
 use crossterm::terminal::{
     EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode,
 };
-use ratatui::Frame;
-use ratatui::layout::{Constraint, Direction, Layout};
-use ratatui::style::{Color, Modifier, Style};
-use ratatui::text::{Line, Span};
-use ratatui::widgets::{Block, Borders, List, ListItem, Paragraph};
+use ratatui::Terminal;
+use ratatui::backend::CrosstermBackend;
+
+use app::{Action, App};
+use data::Work;
+
+const USAGE: &str = "usage: raul <work-folder>";
 
 fn main() -> Result<()> {
-    let tasks = load_tasks();
+    let root = parse_args(std::env::args().skip(1))?;
 
     let mut terminal = setup()?;
-    let result = run(&mut terminal, &tasks);
+    let result = run(&mut terminal, root);
     restore(&mut terminal)?;
     result
 }
 
-/// Tasks of the project in the current directory, empty when there is none.
-fn load_tasks() -> Vec<Task> {
-    let Ok(cwd) = std::env::current_dir() else {
-        return Vec::new();
-    };
-    let Ok(store) = Store::discover(&cwd) else {
-        return Vec::new();
-    };
-    store.list().unwrap_or_default()
+/// The work folder to read, given on the command line.
+fn parse_args(args: impl Iterator<Item = String>) -> Result<PathBuf> {
+    let mut root: Option<PathBuf> = None;
+    for arg in args {
+        match arg.as_str() {
+            "-h" | "--help" => {
+                println!("{USAGE}");
+                std::process::exit(0);
+            }
+            other if other.starts_with('-') => bail!("unknown option {other}\n{USAGE}"),
+            other => root = Some(PathBuf::from(other)),
+        }
+    }
+    match root {
+        Some(root) => Ok(root),
+        None => bail!("a work folder is required\n{USAGE}"),
+    }
 }
 
-fn run(
-    terminal: &mut ratatui::Terminal<ratatui::backend::CrosstermBackend<std::io::Stdout>>,
-    tasks: &[Task],
-) -> Result<()> {
+/// The window loop. The folder is read again on every redraw.
+fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>, root: PathBuf) -> Result<()> {
+    let mut app = App::new(root);
     loop {
-        terminal.draw(|frame| draw(frame, tasks))?;
+        let work = Work::load(&app.root);
+        terminal.draw(|frame| app.draw(frame, &work))?;
 
         if let Event::Key(key) = event::read()?
             && key.kind == KeyEventKind::Press
-            && matches!(key.code, KeyCode::Char('q') | KeyCode::Esc)
+            && app.on_key(key) == Action::Quit
         {
             break;
         }
@@ -48,71 +69,14 @@ fn run(
     Ok(())
 }
 
-fn draw(frame: &mut Frame, tasks: &[Task]) {
-    let chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Length(3),
-            Constraint::Min(1),
-            Constraint::Length(1),
-        ])
-        .split(frame.area());
-
-    let title = Paragraph::new(Line::from(vec![Span::styled(
-        " coding-lanes ",
-        Style::default()
-            .fg(Color::Black)
-            .bg(Color::Cyan)
-            .add_modifier(Modifier::BOLD),
-    )]))
-    .block(Block::default().borders(Borders::ALL).title("coding-lanes"));
-    frame.render_widget(title, chunks[0]);
-
-    let items: Vec<ListItem> = if tasks.is_empty() {
-        vec![ListItem::new(Line::from(Span::styled(
-            "no tasks yet",
-            Style::default().fg(Color::DarkGray),
-        )))]
-    } else {
-        tasks
-            .iter()
-            .map(|task| {
-                let style = if task.status == Status::Done {
-                    Style::default().fg(Color::DarkGray)
-                } else {
-                    Style::default().fg(Color::White)
-                };
-                ListItem::new(Line::from(vec![
-                    Span::styled(format!("{:<10} ", task.id), style),
-                    Span::styled(format!("{:<12} ", task.status.as_str()), style),
-                    Span::styled(task.title.clone(), style),
-                ]))
-            })
-            .collect()
-    };
-
-    let list = List::new(items).block(Block::default().borders(Borders::ALL).title("tasks"));
-    frame.render_widget(list, chunks[1]);
-
-    let help = Paragraph::new(Line::from(vec![
-        Span::styled(" q ", Style::default().fg(Color::Black).bg(Color::Cyan)),
-        Span::raw(" quit"),
-    ]));
-    frame.render_widget(help, chunks[2]);
-}
-
-fn setup() -> Result<ratatui::Terminal<ratatui::backend::CrosstermBackend<std::io::Stdout>>> {
+fn setup() -> Result<Terminal<CrosstermBackend<Stdout>>> {
     enable_raw_mode()?;
     let mut stdout = std::io::stdout();
     execute!(stdout, EnterAlternateScreen)?;
-    Ok(ratatui::Terminal::new(
-        ratatui::backend::CrosstermBackend::new(stdout),
-    )?)
+    Ok(Terminal::new(CrosstermBackend::new(stdout))?)
 }
 
-fn restore(
-    terminal: &mut ratatui::Terminal<ratatui::backend::CrosstermBackend<std::io::Stdout>>,
-) -> Result<()> {
+fn restore(terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<()> {
     disable_raw_mode()?;
     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
     terminal.show_cursor()?;

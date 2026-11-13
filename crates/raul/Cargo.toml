@@ -16,3 +16,4 @@ coding-lanes-core.workspace = true
 anyhow.workspace = true
 crossterm.workspace = true
 ratatui.workspace = true
+serde_json.workspace = true

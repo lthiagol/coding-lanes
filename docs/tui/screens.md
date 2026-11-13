@@ -71,24 +71,46 @@ not waiting on a human.
 
 ### Path
 
-The queue in execution order. One list, three kinds of row, so the order is
-the answer.
+A tree, not a list: a **trunk** of what can run now, with **branches** for
+what is waiting. The trunk is the agent lane; the branches are the human lane.
 
-| column | shows |
+```
+ Path Tree 
+ EXECUTION  ready · approved · deps met
+ │
+ ● TSK07   Add lane filtering to raul
+ │
+ ├─ TSK09   Filter tasks by status
+ │
+  ╵
+ ├─ APPROVAL · 2
+ │   └─ TSK04   Consectetur adipiscing elit
+ ├─ REVIEW · 3
+ │   └─ TSK13   Praesentium voluptatum deleniti
+ ├─ ESCALATED · 3
+ │   └─ TSK19   Quaerat voluptatem consequatur
+ └─ BLOCKED · 4
+     └─ TSK08   waits on TSK05
+```
+
+| part | rule |
 |---|---|
-| id | `TSK01` |
-| state | `claimable` · `running` · `blocked` |
-| title | the task title |
-| waits on | the ids it depends on, when it is blocked |
-| why | the blocking reason, when it is blocked |
+| trunk | claimable tasks, in dependency order. The first is marked `●` — it is what happens next |
+| APPROVAL | `groomed` — waiting on the human to approve |
+| REVIEW | `code-review` — waiting on the human to review |
+| ESCALATED | `needs-human` — the review budget ran out |
+| BLOCKED | everything else that is not claimable: a dependency that is not done, an overlay, or a claim held elsewhere. Each shows what blocks it, forked under its blocker |
+| order | trunk first, then the branches in the order above |
 
-- **claimable** — `approved`, no overlay, no live claim, every dependency done.
-- **running** — `executing` or `remediating`, with the runner holding the claim.
-- **blocked** — a dependency that is not done, an overlay, or a claim held by
-  someone else.
+Rules:
 
-Ordering: claimable first, by dependency order, then running, then blocked.
-Blocked rows stay visible — a task nobody can see is a task nobody unblocks.
+- The tree holds tasks only. Smaller tasks and drafts are not in it — the
+  Backlog tab holds them.
+- A blocked task is forked under the task that blocks it, so the human sees
+  the chain, not a flat list of stuck work.
+- The trunk is empty when nothing is claimable; the tree then opens straight
+  into the branches, and says so.
+- The tree scrolls; it is rendered as styled lines, not widgets.
 
 ### Backlog
 

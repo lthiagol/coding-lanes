@@ -254,6 +254,7 @@ dependencies = [
  "coding-lanes-core",
  "crossterm",
  "ratatui",
+ "serde_json",
 ]
 
 [[package]]
