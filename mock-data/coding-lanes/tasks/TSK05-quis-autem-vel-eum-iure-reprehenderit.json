@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "TSK05",
+  "title": "Quis autem vel eum iure reprehenderit",
+  "slug": "quis-autem-vel-eum-iure-reprehenderit",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-06T13:00Z",
+  "updated": "2026-11-08T14:00Z",
+  "status": "groomed",
+  "overlays": {
+    "blocked": {
+      "reason": "Incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam, quis nostrud.",
+      "by": "creator-02",
+      "at": "2026-11-08T14:00Z"
+    }
+  },
+  "claim": null,
+  "planned_by": "session-creator-02",
+  "meta": {
+    "priority": "urgent",
+    "effort": "M",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    "problem": "Occaecati cupiditate non provident sed ut perspiciatis unde omnis iste natus error."
+  },
+  "scope": {
+    "in_scope": [
+      "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur."
+    ],
+    "out_of_scope": [
+      "Soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae.",
+      "verification": "cargo test -p coding-lanes-core",
+      "status": "pending",
+      "evidence": [],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [],
+    "verdict": null,
+    "findings": []
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": []
+}

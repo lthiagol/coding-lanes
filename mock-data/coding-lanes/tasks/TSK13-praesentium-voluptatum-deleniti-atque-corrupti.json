@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "id": "TSK13",
+  "title": "Praesentium voluptatum deleniti atque corrupti",
+  "slug": "praesentium-voluptatum-deleniti-atque-corrupti",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-02T13:00Z",
+  "updated": "2026-11-04T14:00Z",
+  "status": "code-review",
+  "overlays": {},
+  "claim": {
+    "by": "runner-01",
+    "session": "session-runner-01",
+    "at": "2026-11-11T09:00Z",
+    "lease_expires_at": "2026-11-11T17:00Z"
+  },
+  "planned_by": "session-creator-01",
+  "meta": {
+    "priority": "urgent",
+    "effort": "S",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Et harum quidem rerum facilis est et expedita distinctio nam libero tempore.",
+    "problem": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet."
+  },
+  "scope": {
+    "in_scope": [
+      "Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis voluptatibus."
+    ],
+    "out_of_scope": [
+      "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque.",
+      "verification": "cargo test --workspace",
+      "status": "pending",
+      "evidence": [
+        {
+          "command": "cargo test --workspace",
+          "exit_code": 0,
+          "summary": "10 passed; 0 failed",
+          "at": "2026-11-11T16:00Z",
+          "by": "runner-01",
+          "session": "session-runner-01"
+        }
+      ],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [
+    {
+      "id": "STP-01",
+      "order": 1,
+      "action": "Sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
+      "done_when": "The lorem module is read and its behaviour is described in the notes.",
+      "files": [
+        "crates/core/tests/task_model.rs"
+      ],
+      "status": "done",
+      "covers": [
+        "ACCEPT-01"
+      ],
+      "depends_on": [],
+      "deviation": ""
+    }
+  ],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [
+      {
+        "n": 1,
+        "kind": "self",
+        "focus": "spec-compliance",
+        "reviewer": "runner-01",
+        "verdict": "changes-needed",
+        "at": "2026-11-09T10:00Z",
+        "notes": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe.",
+        "findings": [
+          "FIND-01"
+        ]
+      }
+    ],
+    "verdict": null,
+    "findings": [
+      {
+        "id": "FIND-01",
+        "severity": "medium",
+        "status": "open",
+        "description": "Incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam, quis nostrud.",
+        "created": "2026-11-08T11:00Z",
+        "resolved": "",
+        "resolution": "",
+        "comments": []
+      }
+    ]
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": [
+    "TSK10"
+  ]
+}

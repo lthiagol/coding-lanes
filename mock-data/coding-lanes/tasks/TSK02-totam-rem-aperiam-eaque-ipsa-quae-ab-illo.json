@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "TSK02",
+  "title": "Totam rem aperiam eaque ipsa quae ab illo",
+  "slug": "totam-rem-aperiam-eaque-ipsa-quae-ab-illo",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-03T10:00Z",
+  "updated": "2026-11-05T11:00Z",
+  "status": "draft",
+  "overlays": {},
+  "claim": null,
+  "planned_by": null,
+  "meta": {
+    "priority": "high",
+    "effort": "M",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "",
+    "problem": ""
+  },
+  "scope": {
+    "in_scope": [],
+    "out_of_scope": []
+  },
+  "acceptance_criteria": [],
+  "steps": [],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [],
+    "verdict": null,
+    "findings": []
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": []
+}

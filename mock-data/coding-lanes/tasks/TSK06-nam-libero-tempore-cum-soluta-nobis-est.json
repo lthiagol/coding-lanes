@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "TSK06",
+  "title": "Nam libero tempore cum soluta nobis est",
+  "slug": "nam-libero-tempore-cum-soluta-nobis-est",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-07T14:00Z",
+  "updated": "2026-11-09T15:00Z",
+  "status": "groomed",
+  "overlays": {},
+  "claim": null,
+  "planned_by": "session-creator-03",
+  "meta": {
+    "priority": "high",
+    "effort": "L",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.",
+    "problem": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium."
+  },
+  "scope": {
+    "in_scope": [
+      "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium."
+    ],
+    "out_of_scope": [
+      "Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis voluptatibus."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit sed quia.",
+      "verification": "cargo clippy --all-targets -- -D warnings",
+      "status": "pending",
+      "evidence": [],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [],
+    "verdict": null,
+    "findings": []
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": []
+}

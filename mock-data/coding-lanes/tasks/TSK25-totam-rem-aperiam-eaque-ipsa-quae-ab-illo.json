@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "id": "TSK25",
+  "title": "Totam rem aperiam eaque ipsa quae ab illo",
+  "slug": "totam-rem-aperiam-eaque-ipsa-quae-ab-illo",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-02T09:00Z",
+  "updated": "2026-11-04T10:00Z",
+  "status": "done",
+  "overlays": {},
+  "claim": {
+    "by": "runner-07",
+    "session": "session-runner-07",
+    "at": "2026-11-15T09:00Z",
+    "lease_expires_at": "2026-11-15T17:00Z"
+  },
+  "planned_by": "session-creator-07",
+  "meta": {
+    "priority": "urgent",
+    "effort": "S",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Ut et voluptates repudiandae sint et molestiae non recusandae itaque earum rerum.",
+    "problem": "Ea voluptate velit esse quam nihil molestiae consequatur vel illum qui dolorem eum."
+  },
+  "scope": {
+    "in_scope": [
+      "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur."
+    ],
+    "out_of_scope": [
+      "Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis voluptatibus."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet.",
+      "verification": "make check",
+      "status": "pending",
+      "evidence": [
+        {
+          "command": "make check",
+          "exit_code": 0,
+          "summary": "13 passed; 0 failed",
+          "at": "2026-11-15T16:00Z",
+          "by": "runner-07",
+          "session": "session-runner-07"
+        }
+      ],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [
+    {
+      "id": "STP-01",
+      "order": 1,
+      "action": "Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis voluptatibus.",
+      "done_when": "The lorem behaviour is verified by the lorem command.",
+      "files": [
+        "crates/core/tests/task_model.rs"
+      ],
+      "status": "done",
+      "covers": [
+        "ACCEPT-01"
+      ],
+      "depends_on": [],
+      "deviation": ""
+    }
+  ],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [
+      {
+        "n": 1,
+        "kind": "self",
+        "focus": "spec-compliance",
+        "reviewer": "runner-07",
+        "verdict": "ok",
+        "at": "2026-11-09T10:00Z",
+        "notes": "Quaerat voluptatem consequatur sunt in culpa qui officia deserunt mollit anim id.",
+        "findings": []
+      },
+      {
+        "n": 2,
+        "kind": "external",
+        "focus": "empirical",
+        "reviewer": "reviewer-08",
+        "verdict": "ok",
+        "at": "2026-11-09T11:00Z",
+        "notes": "Quaerat voluptatem consequatur sunt in culpa qui officia deserunt mollit anim id.",
+        "findings": []
+      }
+    ],
+    "verdict": "ok",
+    "findings": []
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": [
+    "TSK19"
+  ]
+}

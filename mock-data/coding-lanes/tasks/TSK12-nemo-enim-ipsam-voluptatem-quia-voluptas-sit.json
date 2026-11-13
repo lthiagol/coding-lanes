@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "id": "TSK12",
+  "title": "Nemo enim ipsam voluptatem quia voluptas sit",
+  "slug": "nemo-enim-ipsam-voluptatem-quia-voluptas-sit",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-07T12:00Z",
+  "updated": "2026-11-09T13:00Z",
+  "status": "executing",
+  "overlays": {},
+  "claim": {
+    "by": "runner-03",
+    "session": "session-runner-03",
+    "at": "2026-11-10T09:00Z",
+    "lease_expires_at": "2026-11-10T17:00Z"
+  },
+  "planned_by": "session-creator-03",
+  "meta": {
+    "priority": "low",
+    "effort": "L",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Et harum quidem rerum facilis est et expedita distinctio nam libero tempore.",
+    "problem": "Soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat."
+  },
+  "scope": {
+    "in_scope": [
+      "Et harum quidem rerum facilis est et expedita distinctio nam libero tempore cum soluta."
+    ],
+    "out_of_scope": [
+      "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit sed quia.",
+      "verification": "cargo clippy --all-targets -- -D warnings",
+      "status": "pending",
+      "evidence": [
+        {
+          "command": "cargo clippy --all-targets -- -D warnings",
+          "exit_code": 0,
+          "summary": "12 passed; 0 failed",
+          "at": "2026-11-10T12:00Z",
+          "by": "runner-03",
+          "session": "session-runner-03"
+        }
+      ],
+      "deferral": null,
+      "failure_reason": ""
+    },
+    {
+      "id": "ACCEPT-01",
+      "description": "Soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat.",
+      "verification": "cargo test -p coding-lanes-core",
+      "status": "pending",
+      "evidence": [],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [
+    {
+      "id": "STP-01",
+      "order": 1,
+      "action": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium.",
+      "done_when": "The lorem lorem lorem is covered by a lorem test.",
+      "files": [
+        "crates/core/tests/task_model.rs"
+      ],
+      "status": "done",
+      "covers": [
+        "ACCEPT-01"
+      ],
+      "depends_on": [],
+      "deviation": ""
+    }
+  ],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [],
+    "verdict": null,
+    "findings": []
+  },
+  "questions": [],
+  "notes": [
+    {
+      "id": "NOTE-01",
+      "author": "runner-03",
+      "body": "Et harum quidem rerum facilis est et expedita distinctio nam libero tempore cum.",
+      "at": "2026-11-10T13:00Z"
+    }
+  ],
+  "depends_on": [
+    "TSK09"
+  ]
+}

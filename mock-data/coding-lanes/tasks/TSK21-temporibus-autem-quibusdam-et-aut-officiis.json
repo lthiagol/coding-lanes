@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "id": "TSK21",
+  "title": "Temporibus autem quibusdam et aut officiis",
+  "slug": "temporibus-autem-quibusdam-et-aut-officiis",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-04T13:00Z",
+  "updated": "2026-11-06T14:00Z",
+  "status": "needs-human",
+  "overlays": {},
+  "claim": {
+    "by": "runner-05",
+    "session": "session-runner-05",
+    "at": "2026-11-13T09:00Z",
+    "lease_expires_at": "2026-11-13T17:00Z"
+  },
+  "planned_by": "session-creator-05",
+  "meta": {
+    "priority": "urgent",
+    "effort": "L",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.",
+    "problem": "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+  },
+  "scope": {
+    "in_scope": [
+      "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet."
+    ],
+    "out_of_scope": [
+      "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit sed quia.",
+      "verification": "cargo clippy --all-targets -- -D warnings",
+      "status": "pending",
+      "evidence": [
+        {
+          "command": "cargo clippy --all-targets -- -D warnings",
+          "exit_code": 0,
+          "summary": "12 passed; 0 failed",
+          "at": "2026-11-13T17:00Z",
+          "by": "runner-05",
+          "session": "session-runner-05"
+        }
+      ],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [
+    {
+      "id": "STP-01",
+      "order": 1,
+      "action": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium.",
+      "done_when": "The lorem lorem lorem is covered by a lorem test.",
+      "files": [
+        "crates/core/tests/task_model.rs"
+      ],
+      "status": "done",
+      "covers": [
+        "ACCEPT-01"
+      ],
+      "depends_on": [],
+      "deviation": ""
+    }
+  ],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [
+      {
+        "n": 1,
+        "kind": "self",
+        "focus": "spec-compliance",
+        "reviewer": "runner-05",
+        "verdict": "ok",
+        "at": "2026-11-09T10:00Z",
+        "notes": "Et harum quidem rerum facilis est et expedita distinctio nam libero tempore cum.",
+        "findings": []
+      },
+      {
+        "n": 2,
+        "kind": "external",
+        "focus": "security",
+        "reviewer": "reviewer-01",
+        "verdict": "changes-needed",
+        "at": "2026-11-09T11:00Z",
+        "notes": "Et harum quidem rerum facilis est et expedita distinctio nam libero tempore cum.",
+        "findings": [
+          "FIND-01"
+        ]
+      },
+      {
+        "n": 3,
+        "kind": "external",
+        "focus": "empirical",
+        "reviewer": "reviewer-02",
+        "verdict": "changes-needed",
+        "at": "2026-11-09T12:00Z",
+        "notes": "Quaerat voluptatem consequatur sunt in culpa qui officia deserunt mollit anim id.",
+        "findings": [
+          "FIND-02"
+        ]
+      },
+      {
+        "n": 4,
+        "kind": "external",
+        "focus": "design",
+        "reviewer": "reviewer-03",
+        "verdict": "changes-needed",
+        "at": "2026-11-09T13:00Z",
+        "notes": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe.",
+        "findings": [
+          "FIND-03"
+        ]
+      },
+      {
+        "n": 5,
+        "kind": "external",
+        "focus": "spec-compliance",
+        "reviewer": "reviewer-04",
+        "verdict": "changes-needed",
+        "at": "2026-11-09T14:00Z",
+        "notes": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+        "findings": [
+          "FIND-04"
+        ]
+      },
+      {
+        "n": 6,
+        "kind": "external",
+        "focus": "edge-cases",
+        "reviewer": "reviewer-05",
+        "verdict": "changes-needed",
+        "at": "2026-11-09T15:00Z",
+        "notes": "Et harum quidem rerum facilis est et expedita distinctio nam libero tempore cum.",
+        "findings": [
+          "FIND-05"
+        ]
+      }
+    ],
+    "verdict": "changes-needed",
+    "findings": [
+      {
+        "id": "FIND-01",
+        "severity": "medium",
+        "status": "open",
+        "description": "Incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam, quis nostrud.",
+        "created": "2026-11-08T11:00Z",
+        "resolved": "",
+        "resolution": "",
+        "comments": []
+      },
+      {
+        "id": "FIND-02",
+        "severity": "high",
+        "status": "open",
+        "description": "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "created": "2026-11-08T12:00Z",
+        "resolved": "",
+        "resolution": "",
+        "comments": []
+      },
+      {
+        "id": "FIND-03",
+        "severity": "low",
+        "status": "open",
+        "description": "Consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum.",
+        "created": "2026-11-08T13:00Z",
+        "resolved": "",
+        "resolution": "",
+        "comments": []
+      },
+      {
+        "id": "FIND-04",
+        "severity": "medium",
+        "status": "open",
+        "description": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu.",
+        "created": "2026-11-08T14:00Z",
+        "resolved": "",
+        "resolution": "",
+        "comments": []
+      },
+      {
+        "id": "FIND-05",
+        "severity": "high",
+        "status": "open",
+        "description": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit sed.",
+        "created": "2026-11-08T15:00Z",
+        "resolved": "",
+        "resolution": "",
+        "comments": []
+      }
+    ]
+  },
+  "questions": [],
+  "notes": [
+    {
+      "id": "NOTE-01",
+      "author": "reviewer-05",
+      "body": "Et harum quidem rerum facilis est et expedita distinctio nam libero tempore cum.",
+      "at": "2026-11-14T18:00Z"
+    }
+  ],
+  "depends_on": [
+    "TSK18"
+  ]
+}

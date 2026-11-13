@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "id": "TSK08",
+  "title": "Magna aliqua ut enim ad minim veniam",
+  "slug": "magna-aliqua-ut-enim-ad-minim-veniam",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-03T16:00Z",
+  "updated": "2026-11-05T17:00Z",
+  "status": "approved",
+  "overlays": {},
+  "claim": null,
+  "planned_by": "session-creator-02",
+  "meta": {
+    "priority": "low",
+    "effort": "M",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto.",
+    "problem": "Ea voluptate velit esse quam nihil molestiae consequatur vel illum qui dolorem eum."
+  },
+  "scope": {
+    "in_scope": [
+      "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium."
+    ],
+    "out_of_scope": [
+      "Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis voluptatibus."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae.",
+      "verification": "cargo test -p coding-lanes-core",
+      "status": "pending",
+      "evidence": [],
+      "deferral": null,
+      "failure_reason": ""
+    },
+    {
+      "id": "ACCEPT-02",
+      "description": "Ut et voluptates repudiandae sint et molestiae non recusandae itaque earum rerum hic.",
+      "verification": "cargo test --workspace",
+      "status": "pending",
+      "evidence": [],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [
+    {
+      "id": "STP-01",
+      "order": 1,
+      "action": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur.",
+      "done_when": "The lorem tests exist and pass.",
+      "files": [
+        "crates/core/src/task.rs"
+      ],
+      "status": "pending",
+      "covers": [
+        "ACCEPT-01"
+      ],
+      "depends_on": [],
+      "deviation": ""
+    },
+    {
+      "id": "STP-02",
+      "order": 2,
+      "action": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium.",
+      "done_when": "The lorem lorem lorem is covered by a lorem test.",
+      "files": [
+        "crates/core/tests/task_model.rs"
+      ],
+      "status": "pending",
+      "covers": [
+        "ACCEPT-02"
+      ],
+      "depends_on": [
+        "STP-01"
+      ],
+      "deviation": ""
+    }
+  ],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [],
+    "verdict": null,
+    "findings": []
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": [
+    "TSK05"
+  ]
+}

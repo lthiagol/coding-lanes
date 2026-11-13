@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "TSK27",
+  "title": "Temporibus autem quibusdam et aut officiis",
+  "slug": "temporibus-autem-quibusdam-et-aut-officiis",
+  "parent": "TSK07",
+  "children": [],
+  "created": "2026-11-04T11:00Z",
+  "updated": "2026-11-06T12:00Z",
+  "status": "draft",
+  "overlays": {},
+  "claim": null,
+  "planned_by": null,
+  "meta": {
+    "priority": "normal",
+    "effort": "L",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "",
+    "problem": ""
+  },
+  "scope": {
+    "in_scope": [],
+    "out_of_scope": []
+  },
+  "acceptance_criteria": [],
+  "steps": [],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [],
+    "verdict": null,
+    "findings": []
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": []
+}

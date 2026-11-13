@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "id": "TSK09",
+  "title": "Iusto odio dignissimos ducimus qui blanditiis",
+  "slug": "iusto-odio-dignissimos-ducimus-qui-blanditiis",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-04T09:00Z",
+  "updated": "2026-11-06T10:00Z",
+  "status": "approved",
+  "overlays": {},
+  "claim": null,
+  "planned_by": "session-creator-03",
+  "meta": {
+    "priority": "urgent",
+    "effort": "L",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi.",
+    "problem": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet."
+  },
+  "scope": {
+    "in_scope": [
+      "Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis voluptatibus."
+    ],
+    "out_of_scope": [
+      "Nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit sed quia.",
+      "verification": "cargo clippy --all-targets -- -D warnings",
+      "status": "pending",
+      "evidence": [],
+      "deferral": null,
+      "failure_reason": ""
+    },
+    {
+      "id": "ACCEPT-02",
+      "description": "Soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat.",
+      "verification": "cargo test -p coding-lanes-core",
+      "status": "pending",
+      "evidence": [],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [
+    {
+      "id": "STP-01",
+      "order": 1,
+      "action": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium.",
+      "done_when": "The lorem lorem lorem is covered by a lorem test.",
+      "files": [
+        "crates/core/src/task.rs"
+      ],
+      "status": "pending",
+      "covers": [
+        "ACCEPT-01"
+      ],
+      "depends_on": [],
+      "deviation": ""
+    },
+    {
+      "id": "STP-02",
+      "order": 2,
+      "action": "Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis voluptatibus.",
+      "done_when": "The lorem behaviour is verified by the lorem command.",
+      "files": [
+        "crates/core/tests/task_model.rs"
+      ],
+      "status": "pending",
+      "covers": [
+        "ACCEPT-02"
+      ],
+      "depends_on": [
+        "STP-01"
+      ],
+      "deviation": ""
+    }
+  ],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [],
+    "verdict": null,
+    "findings": []
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": [
+    "TSK06"
+  ]
+}

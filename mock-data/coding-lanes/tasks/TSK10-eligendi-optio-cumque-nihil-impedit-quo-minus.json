@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "id": "TSK10",
+  "title": "Eligendi optio cumque nihil impedit quo minus",
+  "slug": "eligendi-optio-cumque-nihil-impedit-quo-minus",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-05T10:00Z",
+  "updated": "2026-11-07T11:00Z",
+  "status": "executing",
+  "overlays": {},
+  "claim": {
+    "by": "runner-01",
+    "session": "session-runner-01",
+    "at": "2026-11-10T09:00Z",
+    "lease_expires_at": "2026-11-10T17:00Z"
+  },
+  "planned_by": "session-creator-01",
+  "meta": {
+    "priority": "high",
+    "effort": "S",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi.",
+    "problem": "Ea voluptate velit esse quam nihil molestiae consequatur vel illum qui dolorem eum."
+  },
+  "scope": {
+    "in_scope": [
+      "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium."
+    ],
+    "out_of_scope": [
+      "Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis voluptatibus."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque.",
+      "verification": "cargo test --workspace",
+      "status": "pending",
+      "evidence": [
+        {
+          "command": "cargo test --workspace",
+          "exit_code": 0,
+          "summary": "10 passed; 0 failed",
+          "at": "2026-11-10T12:00Z",
+          "by": "runner-01",
+          "session": "session-runner-01"
+        }
+      ],
+      "deferral": null,
+      "failure_reason": ""
+    },
+    {
+      "id": "ACCEPT-01",
+      "description": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet.",
+      "verification": "make check",
+      "status": "pending",
+      "evidence": [],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [
+    {
+      "id": "STP-01",
+      "order": 1,
+      "action": "Sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
+      "done_when": "The lorem module is read and its behaviour is described in the notes.",
+      "files": [
+        "crates/core/tests/task_model.rs"
+      ],
+      "status": "in-progress",
+      "covers": [
+        "ACCEPT-01"
+      ],
+      "depends_on": [],
+      "deviation": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe."
+    }
+  ],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [],
+    "verdict": null,
+    "findings": []
+  },
+  "questions": [],
+  "notes": [
+    {
+      "id": "NOTE-01",
+      "author": "runner-01",
+      "body": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe.",
+      "at": "2026-11-10T13:00Z"
+    }
+  ],
+  "depends_on": [
+    "TSK07"
+  ]
+}

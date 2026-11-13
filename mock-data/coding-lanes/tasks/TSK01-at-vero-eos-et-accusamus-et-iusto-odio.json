@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "TSK01",
+  "title": "At vero eos et accusamus et iusto odio",
+  "slug": "at-vero-eos-et-accusamus-et-iusto-odio",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-02T09:00Z",
+  "updated": "2026-11-04T10:00Z",
+  "status": "draft",
+  "overlays": {},
+  "claim": null,
+  "planned_by": null,
+  "meta": {
+    "priority": "urgent",
+    "effort": "S",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "",
+    "problem": ""
+  },
+  "scope": {
+    "in_scope": [],
+    "out_of_scope": []
+  },
+  "acceptance_criteria": [],
+  "steps": [],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [],
+    "verdict": null,
+    "findings": []
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": []
+}

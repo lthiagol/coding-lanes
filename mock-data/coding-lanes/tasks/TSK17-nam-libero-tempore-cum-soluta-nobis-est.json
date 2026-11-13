@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "id": "TSK17",
+  "title": "Nam libero tempore cum soluta nobis est",
+  "slug": "nam-libero-tempore-cum-soluta-nobis-est",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-06T09:00Z",
+  "updated": "2026-11-08T10:00Z",
+  "status": "remediating",
+  "overlays": {},
+  "claim": {
+    "by": "runner-03",
+    "session": "session-runner-03",
+    "at": "2026-11-12T09:00Z",
+    "lease_expires_at": "2026-11-12T17:00Z"
+  },
+  "planned_by": "session-creator-03",
+  "meta": {
+    "priority": "urgent",
+    "effort": "M",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque.",
+    "problem": "Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis voluptatibus."
+  },
+  "scope": {
+    "in_scope": [
+      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat."
+    ],
+    "out_of_scope": [
+      "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae.",
+      "verification": "cargo test -p coding-lanes-core",
+      "status": "pending",
+      "evidence": [
+        {
+          "command": "cargo test -p coding-lanes-core",
+          "exit_code": 0,
+          "summary": "11 passed; 0 failed",
+          "at": "2026-11-12T13:00Z",
+          "by": "runner-03",
+          "session": "session-runner-03"
+        }
+      ],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [
+    {
+      "id": "STP-01",
+      "order": 1,
+      "action": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur.",
+      "done_when": "The lorem tests exist and pass.",
+      "files": [
+        "crates/core/tests/task_model.rs"
+      ],
+      "status": "done",
+      "covers": [
+        "ACCEPT-01"
+      ],
+      "depends_on": [],
+      "deviation": ""
+    }
+  ],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [
+      {
+        "n": 1,
+        "kind": "self",
+        "focus": "spec-compliance",
+        "reviewer": "runner-03",
+        "verdict": "ok",
+        "at": "2026-11-09T10:00Z",
+        "notes": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+        "findings": []
+      },
+      {
+        "n": 2,
+        "kind": "external",
+        "focus": "security",
+        "reviewer": "reviewer-02",
+        "verdict": "changes-needed",
+        "at": "2026-11-09T11:00Z",
+        "notes": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+        "findings": [
+          "FIND-01"
+        ]
+      }
+    ],
+    "verdict": "changes-needed",
+    "findings": [
+      {
+        "id": "FIND-02",
+        "severity": "high",
+        "status": "open",
+        "description": "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "created": "2026-11-08T12:00Z",
+        "resolved": "",
+        "resolution": "",
+        "comments": []
+      }
+    ]
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": [
+    "TSK14"
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "TSK11",
+  "title": "Et harum quidem rerum facilis est et expedita",
+  "slug": "et-harum-quidem-rerum-facilis-est-et-expedita",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-06T11:00Z",
+  "updated": "2026-11-08T12:00Z",
+  "status": "executing",
+  "overlays": {},
+  "claim": {
+    "by": "runner-02",
+    "session": "session-runner-02",
+    "at": "2026-11-10T09:00Z",
+    "lease_expires_at": "2026-11-10T17:00Z"
+  },
+  "planned_by": "session-creator-02",
+  "meta": {
+    "priority": "normal",
+    "effort": "M",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.",
+    "problem": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet."
+  },
+  "scope": {
+    "in_scope": [
+      "Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis voluptatibus."
+    ],
+    "out_of_scope": [
+      "Nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae.",
+      "verification": "cargo test -p coding-lanes-core",
+      "status": "pending",
+      "evidence": [
+        {
+          "command": "cargo test -p coding-lanes-core",
+          "exit_code": 0,
+          "summary": "11 passed; 0 failed",
+          "at": "2026-11-10T12:00Z",
+          "by": "runner-02",
+          "session": "session-runner-02"
+        }
+      ],
+      "deferral": null,
+      "failure_reason": ""
+    },
+    {
+      "id": "ACCEPT-01",
+      "description": "Ut et voluptates repudiandae sint et molestiae non recusandae itaque earum rerum hic.",
+      "verification": "cargo test --workspace",
+      "status": "deferred",
+      "evidence": [],
+      "deferral": {
+        "reason": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium.",
+        "follow_up": "TSK03"
+      },
+      "failure_reason": ""
+    }
+  ],
+  "steps": [
+    {
+      "id": "STP-01",
+      "order": 1,
+      "action": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur.",
+      "done_when": "The lorem tests exist and pass.",
+      "files": [
+        "crates/core/tests/task_model.rs"
+      ],
+      "status": "done",
+      "covers": [
+        "ACCEPT-01"
+      ],
+      "depends_on": [],
+      "deviation": ""
+    }
+  ],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [],
+    "verdict": null,
+    "findings": []
+  },
+  "questions": [],
+  "notes": [
+    {
+      "id": "NOTE-01",
+      "author": "runner-02",
+      "body": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+      "at": "2026-11-10T13:00Z"
+    }
+  ],
+  "depends_on": [
+    "TSK08"
+  ]
+}

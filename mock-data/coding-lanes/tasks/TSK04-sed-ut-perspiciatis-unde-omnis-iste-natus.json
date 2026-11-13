@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": "TSK04",
+  "title": "Sed ut perspiciatis unde omnis iste natus",
+  "slug": "sed-ut-perspiciatis-unde-omnis-iste-natus",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-05T12:00Z",
+  "updated": "2026-11-07T13:00Z",
+  "status": "groomed",
+  "overlays": {},
+  "claim": null,
+  "planned_by": "session-creator-01",
+  "meta": {
+    "priority": "low",
+    "effort": "S",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam.",
+    "problem": "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+  },
+  "scope": {
+    "in_scope": [
+      "Sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt."
+    ],
+    "out_of_scope": [
+      "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque.",
+      "verification": "cargo test --workspace",
+      "status": "pending",
+      "evidence": [],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [],
+    "verdict": null,
+    "findings": []
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": []
+}

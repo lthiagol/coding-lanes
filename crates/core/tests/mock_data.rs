@@ -1,4 +1,5 @@
-use coding_lanes_core::{Status, Store};
+use coding_lanes_core::{Status, Store, Task};
+use std::collections::HashSet;
 use std::path::PathBuf;
 
 fn mock_store() -> Store {
@@ -8,24 +9,25 @@ fn mock_store() -> Store {
     Store::new(root)
 }
 
-#[test]
-fn every_fixture_loads() {
-    let store = mock_store();
-    let tasks = store.list().expect("listing the mock tasks");
-    assert_eq!(tasks.len(), 12);
+fn tasks() -> Vec<Task> {
+    mock_store().list().expect("listing the mock tasks")
+}
 
-    let mut ids: Vec<&str> = tasks.iter().map(|t| t.id.as_str()).collect();
-    ids.sort_unstable();
-    ids.dedup();
-    assert_eq!(ids.len(), 12, "task ids must be unique");
+fn by_status(status: Status) -> Vec<Task> {
+    tasks().into_iter().filter(|t| t.status == status).collect()
 }
 
 #[test]
-fn every_stage_is_covered() {
-    let store = mock_store();
-    let tasks = store.list().expect("listing the mock tasks");
+fn every_fixture_loads() {
+    let tasks = tasks();
+    assert_eq!(tasks.len(), 27);
 
-    let covered: Vec<Status> = tasks.iter().map(|t| t.status).collect();
+    let ids: HashSet<&str> = tasks.iter().map(|t| t.id.as_str()).collect();
+    assert_eq!(ids.len(), tasks.len(), "task ids must be unique");
+}
+
+#[test]
+fn every_phase_is_covered() {
     for status in [
         Status::Draft,
         Status::Groomed,
@@ -37,54 +39,167 @@ fn every_stage_is_covered() {
         Status::Done,
     ] {
         assert!(
-            covered.contains(&status),
+            !by_status(status).is_empty(),
             "no fixture for status {status:?}"
         );
     }
 }
 
 #[test]
-fn fixtures_keep_their_gates() {
-    let store = mock_store();
-
-    let approved = store.load("TSK03").unwrap();
-    assert!(approved.criteria_covered());
-    assert!(approved.steps_have_done_when());
-
-    let code_review = store.load("TSK05").unwrap();
-    assert!(
-        code_review.self_rounds() > 0,
-        "code-review needs a self round"
-    );
-
-    let done = store.load("TSK08").unwrap();
-    assert_eq!(done.open_findings(), 0);
-    assert!(done.external_rounds() as u32 <= done.review.max_rounds);
-
-    let needs_human = store.load("TSK07").unwrap();
+fn phase_counts_are_three_and_five_done() {
+    assert_eq!(by_status(Status::Groomed).len(), 3);
+    assert_eq!(by_status(Status::Approved).len(), 3);
+    assert_eq!(by_status(Status::Executing).len(), 3);
+    assert_eq!(by_status(Status::CodeReview).len(), 3);
+    assert_eq!(by_status(Status::Remediating).len(), 3);
+    assert_eq!(by_status(Status::NeedsHuman).len(), 3);
+    assert_eq!(by_status(Status::Done).len(), 5);
     assert_eq!(
-        needs_human.external_rounds() as u32,
-        needs_human.review.max_rounds
+        by_status(Status::Draft).len(),
+        4,
+        "three drafts plus one child"
     );
-    assert_eq!(needs_human.open_findings(), 5);
+}
+
+#[test]
+fn fixtures_keep_their_gates() {
+    for task in by_status(Status::Approved) {
+        assert!(
+            task.criteria_covered(),
+            "{} has uncovered criteria",
+            task.id
+        );
+        assert!(
+            task.steps_have_done_when(),
+            "{} has a step without done_when",
+            task.id
+        );
+    }
+
+    for task in by_status(Status::Executing) {
+        assert!(task.claim.is_some(), "{} is not claimed", task.id);
+        assert!(
+            task.acceptance_criteria
+                .iter()
+                .any(|c| !c.evidence.is_empty()),
+            "{} has no evidence",
+            task.id
+        );
+    }
+
+    for task in by_status(Status::CodeReview) {
+        assert!(task.self_rounds() > 0, "{} has no self round", task.id);
+        assert!(
+            task.steps
+                .iter()
+                .all(|s| s.status == coding_lanes_core::StepStatus::Done),
+            "{} has unsettled steps",
+            task.id
+        );
+    }
+
+    for task in by_status(Status::Remediating) {
+        assert!(task.open_findings() > 0, "{} has no open finding", task.id);
+        assert_eq!(
+            task.review.verdict,
+            Some(coding_lanes_core::Verdict::ChangesNeeded)
+        );
+    }
+
+    for task in by_status(Status::NeedsHuman) {
+        assert_eq!(
+            task.external_rounds() as u32,
+            task.review.max_rounds,
+            "{} has not exhausted the round budget",
+            task.id
+        );
+    }
+
+    for task in by_status(Status::Done) {
+        assert_eq!(task.open_findings(), 0, "{} has open findings", task.id);
+        assert_eq!(task.review.verdict, Some(coding_lanes_core::Verdict::Ok));
+    }
+}
+
+#[test]
+fn dependencies_point_to_existing_tasks_and_never_forward() {
+    let tasks = tasks();
+    let ids: HashSet<&str> = tasks.iter().map(|t| t.id.as_str()).collect();
+
+    for task in &tasks {
+        for dependency in &task.depends_on {
+            assert!(
+                ids.contains(dependency.as_str()),
+                "{} depends on unknown task {dependency}",
+                task.id
+            );
+            assert!(
+                dependency < &task.id,
+                "{} depends on a later task {dependency}",
+                task.id
+            );
+        }
+    }
+}
+
+#[test]
+fn every_phase_after_the_first_depends_on_something() {
+    for status in [
+        Status::Approved,
+        Status::Executing,
+        Status::CodeReview,
+        Status::Remediating,
+        Status::NeedsHuman,
+        Status::Done,
+    ] {
+        for task in by_status(status) {
+            assert!(!task.depends_on.is_empty(), "{} has no dependency", task.id);
+        }
+    }
 }
 
 #[test]
 fn child_task_points_at_its_parent() {
-    let store = mock_store();
-    let child = store.load("TSK11").unwrap();
-    assert_eq!(child.parent.as_deref(), Some("TSK03"));
-
-    let parent = store.load("TSK03").unwrap();
+    let tasks = tasks();
+    let child = tasks
+        .iter()
+        .find(|t| t.parent.is_some())
+        .expect("a child task");
+    let parent = tasks
+        .iter()
+        .find(|t| t.id == child.parent.clone().unwrap())
+        .expect("the parent task");
     assert!(parent.children.contains(&child.id));
 }
 
 #[test]
 fn deferred_criterion_names_its_follow_up() {
-    let store = mock_store();
-    let task = store.load("TSK10").unwrap();
-    let criterion = task.criterion("ACCEPT-02").unwrap();
-    let deferral = criterion.deferral.as_ref().unwrap();
-    assert_eq!(deferral.follow_up, "TSK12");
-    assert!(store.load("TSK12").is_ok());
+    let tasks = tasks();
+    let deferred: Vec<&Task> = tasks
+        .iter()
+        .filter(|t| t.acceptance_criteria.iter().any(|c| c.deferral.is_some()))
+        .collect();
+    assert!(!deferred.is_empty(), "no fixture with a deferred criterion");
+
+    for task in deferred {
+        for criterion in &task.acceptance_criteria {
+            if let Some(deferral) = &criterion.deferral {
+                assert!(
+                    tasks.iter().any(|t| t.id == deferral.follow_up),
+                    "{} defers to unknown task {}",
+                    task.id,
+                    deferral.follow_up
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn one_fixture_is_blocked() {
+    let blocked = tasks()
+        .into_iter()
+        .filter(|t| t.overlays.blocked.is_some())
+        .count();
+    assert_eq!(blocked, 1);
 }

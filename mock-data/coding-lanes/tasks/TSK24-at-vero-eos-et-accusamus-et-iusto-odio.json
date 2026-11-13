@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "id": "TSK24",
+  "title": "At vero eos et accusamus et iusto odio",
+  "slug": "at-vero-eos-et-accusamus-et-iusto-odio",
+  "parent": null,
+  "children": [],
+  "created": "2026-11-07T16:00Z",
+  "updated": "2026-11-09T17:00Z",
+  "status": "done",
+  "overlays": {},
+  "claim": {
+    "by": "runner-06",
+    "session": "session-runner-06",
+    "at": "2026-11-15T09:00Z",
+    "lease_expires_at": "2026-11-15T17:00Z"
+  },
+  "planned_by": "session-creator-06",
+  "meta": {
+    "priority": "low",
+    "effort": "L",
+    "tags": [
+      "mock"
+    ]
+  },
+  "intent": {
+    "outcome": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe.",
+    "problem": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium."
+  },
+  "scope": {
+    "in_scope": [
+      "Sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt."
+    ],
+    "out_of_scope": [
+      "Soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat."
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "ACCEPT-01",
+      "description": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit sed quia.",
+      "verification": "cargo clippy --all-targets -- -D warnings",
+      "status": "pending",
+      "evidence": [
+        {
+          "command": "cargo clippy --all-targets -- -D warnings",
+          "exit_code": 0,
+          "summary": "12 passed; 0 failed",
+          "at": "2026-11-15T16:00Z",
+          "by": "runner-06",
+          "session": "session-runner-06"
+        }
+      ],
+      "deferral": null,
+      "failure_reason": ""
+    }
+  ],
+  "steps": [
+    {
+      "id": "STP-01",
+      "order": 1,
+      "action": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium.",
+      "done_when": "The lorem lorem lorem is covered by a lorem test.",
+      "files": [
+        "crates/core/tests/task_model.rs"
+      ],
+      "status": "done",
+      "covers": [
+        "ACCEPT-01"
+      ],
+      "depends_on": [],
+      "deviation": ""
+    }
+  ],
+  "review": {
+    "max_rounds": 5,
+    "rounds": [
+      {
+        "n": 1,
+        "kind": "self",
+        "focus": "spec-compliance",
+        "reviewer": "runner-06",
+        "verdict": "ok",
+        "at": "2026-11-09T10:00Z",
+        "notes": "Et harum quidem rerum facilis est et expedita distinctio nam libero tempore cum.",
+        "findings": []
+      },
+      {
+        "n": 2,
+        "kind": "external",
+        "focus": "security",
+        "reviewer": "reviewer-07",
+        "verdict": "ok",
+        "at": "2026-11-09T11:00Z",
+        "notes": "Et harum quidem rerum facilis est et expedita distinctio nam libero tempore cum.",
+        "findings": []
+      }
+    ],
+    "verdict": "ok",
+    "findings": []
+  },
+  "questions": [],
+  "notes": [],
+  "depends_on": [
+    "TSK19"
+  ]
+}
