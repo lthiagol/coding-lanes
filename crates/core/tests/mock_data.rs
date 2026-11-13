@@ -196,6 +196,41 @@ fn deferred_criterion_names_its_follow_up() {
 }
 
 #[test]
+fn dependencies_fan_in_and_chain() {
+    let tasks = tasks();
+
+    let fan_in = tasks.iter().filter(|t| t.depends_on.len() >= 3).count();
+    assert!(fan_in > 0, "no task waits on three others");
+
+    let same_phase_chain = tasks.iter().any(|task| {
+        task.depends_on.iter().any(|dependency| {
+            tasks
+                .iter()
+                .any(|other| &other.id == dependency && other.status == task.status)
+        })
+    });
+    assert!(same_phase_chain, "no task waits on a task in its own phase");
+}
+
+#[test]
+fn a_task_waits_on_a_blocked_task() {
+    let tasks = tasks();
+    let blocked: Vec<&str> = tasks
+        .iter()
+        .filter(|t| t.overlays.blocked.is_some())
+        .map(|t| t.id.as_str())
+        .collect();
+    assert_eq!(blocked.len(), 1);
+
+    let waiting = tasks.iter().any(|task| {
+        task.depends_on
+            .iter()
+            .any(|dependency| blocked.contains(&dependency.as_str()))
+    });
+    assert!(waiting, "no task waits on the blocked one");
+}
+
+#[test]
 fn one_fixture_is_blocked() {
     let blocked = tasks()
         .into_iter()

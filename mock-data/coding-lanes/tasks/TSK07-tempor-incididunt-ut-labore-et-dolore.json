@@ -95,6 +95,7 @@
   "questions": [],
   "notes": [],
   "depends_on": [
-    "TSK04"
+    "TSK04",
+    "TSK05"
   ]
 }

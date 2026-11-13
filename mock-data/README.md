@@ -31,9 +31,20 @@ mock-data/
 | `needs-human` | 3 | five external rounds exhausted |
 | `done` | 5 | clean verdict, no open findings |
 
-Every fixture satisfies the gates of the phase it is in. Dependencies run
-backwards only — a task depends on tasks with lower ids — so the graph has no
-cycles and `depends_on` always points at a task that exists.
+Every fixture satisfies the gates of the phase it is in.
+
+## Dependencies
+
+Dependencies run backwards only — a task depends on tasks with lower ids — so
+the graph has no cycles and `depends_on` always points at a task that exists.
+Three shapes are covered:
+
+- **fan-in** — most tasks wait on two earlier ones; the last `done` task waits
+  on three
+- **chains** — the `done` tasks form a chain among themselves, and every
+  phase waits on the phase before it
+- **waiting on a blocked task** — `TSK07` and `TSK08` wait on `TSK05`, which
+  carries a `blocked` overlay, so they cannot start until it is unblocked
 
 ## Use in tests
 

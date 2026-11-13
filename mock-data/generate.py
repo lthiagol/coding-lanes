@@ -297,7 +297,7 @@ def build():
                 step(i, 1, "pending", ["ACCEPT-01"], ["crates/core/src/task.rs"]),
                 step(i + 1, 2, "pending", ["ACCEPT-02"], ["crates/core/tests/task_model.rs"], depends_on=["STP-01"]),
             ],
-            depends_on=[ids["groomed"][i]] if ids.get("groomed") else [],
+            depends_on=[ids["groomed"][i], ids["groomed"][(i + 1) % 3]],
         )
         tasks.append(item)
 
@@ -345,7 +345,7 @@ def build():
             ],
             review={"max_rounds": 5, "rounds": [], "verdict": None, "findings": []},
             notes=[{"id": "NOTE-01", "author": f"runner-{i + 1:02d}", "body": pick(NOTES, i), "at": ts(10, 13)}],
-            depends_on=[ids["approved"][i]],
+            depends_on=[ids["approved"][i], ids["approved"][(i + 2) % 3]],
         )
         tasks.append(item)
 
@@ -379,7 +379,7 @@ def build():
                 "verdict": None,
                 "findings": findings,
             },
-            depends_on=[ids["executing"][i]],
+            depends_on=[ids["executing"][i], ids["executing"][(i + 1) % 3]],
         )
         tasks.append(item)
 
@@ -415,7 +415,7 @@ def build():
                 "verdict": "changes-needed",
                 "findings": [finding(i + 1)],
             },
-            depends_on=[ids["code-review"][i]],
+            depends_on=[ids["code-review"][i], ids["code-review"][(i + 2) % 3]],
         )
         tasks.append(item)
 
@@ -456,11 +456,18 @@ def build():
                 "findings": [finding(n) for n in range(1, 6)],
             },
             notes=[{"id": "NOTE-01", "author": f"reviewer-{5:02d}", "body": pick(NOTES, i), "at": ts(14, 18)}],
-            depends_on=[ids["remediating"][i]],
+            depends_on=[ids["remediating"][i], ids["remediating"][(i + 1) % 3]],
         )
         tasks.append(item)
 
-    # done — clean verdict, no open findings. Five of them.
+    # done — clean verdict, no open findings. Five of them, chained.
+    done_dependencies = [
+        [ids["needs-human"][0], ids["needs-human"][1]],
+        [ids["needs-human"][2], None],  # None: filled below with done[0]
+        [None, None],  # filled below with done[0], done[1]
+        [ids["needs-human"][0], None],  # None: filled below with done[2]
+        [None, None, None],  # filled below with done[1..3]
+    ]
     for i in range(5):
         tid = next_id()
         ids.setdefault("done", []).append(tid)
@@ -492,9 +499,26 @@ def build():
                 "verdict": "ok",
                 "findings": [],
             },
-            depends_on=[ids["needs-human"][0]],
+            depends_on=[],
         )
+        item["depends_on"] = [
+            dependency
+            for dependency in done_dependencies[i]
+            if dependency is not None
+        ]
         tasks.append(item)
+
+    # The done chain: each task waits on the previous one, the last one on
+    # three at once.
+    done_ids = ids["done"]
+    done_dependencies[1] = [ids["needs-human"][2], done_ids[0]]
+    done_dependencies[2] = [done_ids[0], done_ids[1]]
+    done_dependencies[3] = [ids["needs-human"][0], done_ids[2]]
+    done_dependencies[4] = [done_ids[1], done_ids[2], done_ids[3]]
+    for index, item in enumerate(tasks):
+        if item["id"] in done_ids:
+            position = done_ids.index(item["id"])
+            item["depends_on"] = done_dependencies[position]
 
     # parent / child: the first approved task owns a draft child.
     child = next_id()

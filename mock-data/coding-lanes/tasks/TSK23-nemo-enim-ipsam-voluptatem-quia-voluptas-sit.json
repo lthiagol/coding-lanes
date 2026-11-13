@@ -102,6 +102,7 @@
   "questions": [],
   "notes": [],
   "depends_on": [
-    "TSK19"
+    "TSK21",
+    "TSK22"
   ]
 }
