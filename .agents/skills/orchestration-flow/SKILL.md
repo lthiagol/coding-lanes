@@ -46,6 +46,9 @@ All multi-agent work runs through Herdr, in the orchestrator's own workspace.
 
 | what | command |
 |---|---|
+| open the Orchestration workspace | `herdr workspace create --cwd <dir> --label "Orchestration" --no-focus` |
+| list workspaces | `herdr workspace list` |
+| close the Orchestration workspace | `herdr workspace close <ID>` |
 | open a tab | `herdr tab create --workspace <ID> --label "<label>" --cwd <dir> --no-focus` |
 | split a pane | `herdr pane split <PANE> --direction right --ratio 0.5 --cwd <dir>` |
 | start an agent in a pane | `herdr pane run <PANE> opencode mini --model <provider/model#variant>` |
@@ -53,11 +56,8 @@ All multi-agent work runs through Herdr, in the orchestrator's own workspace.
 | read a pane | `herdr pane read <PANE> --lines 40` |
 | close a tab | `herdr tab close <TAB_ID>` |
 
-**Always open agent tabs in the orchestrator's own workspace**: pass
-`--workspace <ID>` on `herdr tab create` (the ID comes from
-`herdr pane current` or `herdr agent list`). Omitting it drops the tab into
-whatever workspace was last active, scattering agent tabs across workspaces.
-`--cwd` sets the working directory, never the workspace.
+**All agent tabs live in the Orchestration workspace**, not in the
+orchestrator's own workspace. See the next section.
 
 `herdr pane send-text` types literally: a newline inside the text submits
 early and strands the rest in the input box. Send the prompt as one line, or
@@ -66,6 +66,38 @@ one line per paragraph, then send `enter` separately.
 `opencode mini` is the pane interface: interactive, takes `--model`,
 `--agent` and `--prompt`, and is lighter than the full TUI for a pane that
 only receives a kickoff.
+
+## The Orchestration workspace
+
+One workspace per loop holds every agent pane, so the human can watch the
+whole loop in one place — and so a tab can never land in the workspace that
+happened to be focused.
+
+1. At the start of a loop the orchestrator creates it:
+
+   ```sh
+   herdr workspace create --cwd <dir> --label "Orchestration" --no-focus
+   ```
+
+   The id comes from the command's output, or from `herdr workspace list`.
+2. **Every** agent tab is created there, with `--workspace <orchestration-id>`:
+
+   ```sh
+   herdr tab create --workspace <orchestration-id> --label "build-<topic>" --cwd <dir> --no-focus
+   ```
+
+   `--cwd` sets the working directory, never the workspace. Omitting
+   `--workspace` drops the tab into whatever workspace was last active, and
+   the agent ends up somewhere the human is not watching.
+3. The workspace survives the rounds of one loop — it is created once and
+   reused. At the end of the loop it is closed:
+
+   ```sh
+   herdr workspace close <orchestration-id>
+   ```
+
+The orchestrator's own session stays where it is. It receives the reports;
+the Orchestration workspace holds the work.
 
 ## Naming
 
@@ -100,7 +132,8 @@ Other active models, when a role needs a different lens:
 ## Loop mechanics
 
 1. **The orchestrator designs and decides.** It decides what the unit of work
-   is, then opens a tab in its own workspace and starts a builder in it.
+   is, creates the Orchestration workspace (once per loop), and opens a tab in
+   it for the builder.
 2. **The orchestrator submits the kickoff**, then goes idle.
    **Waking mechanism:** every working agent ends its session by prompting
    **the orchestrator pane only** — address it by pane ID
@@ -119,8 +152,19 @@ Other active models, when a role needs a different lens:
 4. **The orchestrator verifies** by re-running the gate itself — an agent's
    claim that the gate passed is not evidence.
 5. **After a clean review** the orchestrator commits and updates the project's
-   records. On findings, it opens a fresh builder pane with the findings. Close
-   the tab when the round is done.
+   records. On findings, it opens a fresh builder tab in the same workspace
+   with the findings. Close the tab when the round is done; keep the
+   workspace for the next round.
+
+**Every round is builder → reviewer.** Nothing a builder produces is reviewed
+by the builder, and nothing is committed without a review round — not a
+one-line fix, not a rename. The review is the gate, not a courtesy.
+
+**The budget is five rounds.** Round 1 is builder → reviewer. Each
+`changes-needed` verdict starts a new round. Round 5 is the last one: if it
+comes back `changes-needed`, the orchestrator stops, keeps the workspace
+open, and asks the human — with the findings, the rounds, and what it would
+change next.
 
 ## Prompt templates
 
@@ -138,8 +182,9 @@ Other active models, when a role needs a different lens:
 > Your role: reviewer.
 > Autonomous: never use the ask tool; if blocked, end with
 > `BLOCKED: <question>; options: ...; recommendation: ...` and report to the orchestrator.
-> Read AGENTS.md and the project's docs it points to. Review the change against
-> the kickoff and the project's rules — not against the builder's own summary.
+> Read AGENTS.md and the project's docs it points to. This is review round
+> <N> of at most 5. Review the change against the kickoff and the project's
+> rules — not against the builder's own summary.
 > Try to break it: different inputs, edge cases, adversarial paths. Findings
 > carry severity and location. Do not modify code. Finish with a verdict
 > (`ok` or `changes-needed`) by prompting the orchestrator pane.
@@ -174,9 +219,12 @@ ask-the-user prompt stalls the agent forever.
 
 - Never run long builds in the orchestrator pane; delegate.
 - One active builder at a time, unless the units of work are independent — then
-  parallel tabs.
-- Cap review/fix cycles at 4. If findings persist after the 4th round, stop
-  and ask the human.
+  parallel tabs, each with its own unit of work.
+- **Everything a builder produces gets a reviewer round.** No exceptions.
+- **At most 5 rounds** of builder and reviewer per unit of work. Round 5 comes
+  back `changes-needed` → stop and ask the human.
+- **The orchestrator runs the gate itself** before opening a reviewer round. An
+  agent's claim that the gate passed is not evidence.
 - No code ships unreviewed: every changed file is covered by a review round
   before the unit is done.
 - The orchestrator commits after a clean review. Agents never commit or push.
@@ -189,11 +237,12 @@ through it.
 1. **Request** — the human tells the orchestrator what they want. The
    orchestrator designs, decides, and delegates.
 2. **Orchestrator's role** — designs first (the human approves when the change
-   is architectural), opens a builder pane in a fresh tab, verifies claims
-   independently, opens a fresh-context reviewer pane on a different model and
-   reasoning effort, decides on findings (fix rounds or escalate), commits
-   after a clean review, and updates the project's records.
-3. **Escalation ladder** — review/fix capped at 4 iterations per unit;
+   is architectural), opens the Orchestration workspace, starts a builder in a
+   fresh tab there, verifies claims independently, opens a fresh-context
+   reviewer in a fresh tab on a different reasoning effort, decides on
+   findings (fix rounds, up to 5), commits after a clean review, and updates
+   the project's records.
+3. **Escalation ladder** — review/fix capped at 5 rounds per unit;
    unresolved findings after that go to the human. Ambiguous product decisions
    go to the human immediately; the orchestrator decides within the approved
    principles and records the decision.
