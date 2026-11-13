@@ -1,0 +1,18 @@
+[package]
+name = "coding-lanes-tui"
+description = "Terminal user interface for coding-lanes"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "coding-lanes-tui"
+path = "src/main.rs"
+
+[dependencies]
+coding-lanes-core.workspace = true
+anyhow.workspace = true
+crossterm.workspace = true
+ratatui.workspace = true
