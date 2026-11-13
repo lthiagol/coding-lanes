@@ -1,6 +1,6 @@
 ---
 name: Orchestration Flow
-description: Three agents, one flow — the orchestrator session takes the human's requests and decides, dispatching runner and reviewer panes through Herdr, each an opencode instance on its own model. Load this when running a build loop in this repository.
+description: Three agents, one flow — the orchestrator session takes the human's requests and decides, dispatching builder and reviewer panes through Herdr, each an opencode instance on its own model. Load this when running a build loop in this repository.
 ---
 
 # Orchestration flow
@@ -15,23 +15,24 @@ the project: the project has its own docs, and the agents read those.
 
 | Agent | Where it runs | Does | Never does |
 |---|---|---|---|
-| **Orchestrator** | the human's session — where the request is typed, and where every agent reports back | Designs; decides every transition; opens the panes; verifies claims by re-running the gate; commits after a clean review | **Edits code, tests or scripts itself** — even small ones. Any code change goes to a runner, then a reviewer. Runs no long builds |
-| **Runner** | its own pane, in its own tab | Implements exactly the kickoff; runs the project's gate; reports to the orchestrator | Commits; starts other work; prompts other agents; decides next steps |
+| **Orchestrator** | the human's session — where the request is typed, and where every agent reports back | Designs; decides every transition; opens the panes; verifies claims by re-running the gate; commits after a clean review | **Edits code, tests or scripts itself** — even small ones. Any code change goes to a builder, then a reviewer. Runs no long builds |
+| **Builder** | its own pane, in its own tab | Implements exactly the kickoff; runs the project's gate; reports to the orchestrator | Commits; starts other work; prompts other agents; decides next steps |
 | **Reviewer** | its own pane, in its own tab | Reviews the change against the kickoff and the project's rules; writes findings; gives a verdict | Modifies code or docs; commits; prompts other agents |
 
 The orchestrator is the only agent the human talks to, and the only one the
 others report to. It is the session that decides what happens next.
 
 These three mirror the project's roles — `orchestrator`, `runner`, `reviewer`
-— with the loop's spelling: the loop's **builder** is a runner, and the
-loop's **fixer** is a runner on its second round.
+— with the loop's own spelling: the loop's **builder** plays the project's
+`runner`, and there is no separate fixer: a builder on its second round is
+the fixer.
 
 ## Topology: hub-and-spoke
 
-The orchestrator session is the hub. The runner and the reviewer never talk to
+The orchestrator session is the hub. The builder and the reviewer never talk to
 each other — **every agent replies only to the orchestrator**, and the
 orchestrator alone decides what happens next (open a reviewer pane, send
-findings to a runner, ask the human). An agent must never prompt another
+findings to a builder, ask the human). An agent must never prompt another
 agent's pane.
 
 Each dispatch is a **fresh opencode session** — fresh context is intentional;
@@ -68,21 +69,21 @@ only receives a kickoff.
 
 - Tabs: `build-<topic>`, `review-<topic>` (e.g. `build-m1-engine`,
   `review-m1-engine`).
-- Agents: `[a-z][a-z0-9_-]{0,31}` — e.g. `runner-m1`, `reviewer-m1`.
+- Agents: `[a-z][a-z0-9_-]{0,31}` — e.g. `builder-m1`, `reviewer-m1`.
 
 ## Models
 
 The reviewer must not run the same model *and the same reasoning effort* as
-the runner. Different lenses surface uncorrelated bugs — the same rule the
+the builder. Different lenses surface uncorrelated bugs — the same rule the
 project's own review rounds follow.
 
 | role | model |
 |---|---|
 | Orchestrator | the session's own model |
-| Runner | `minimax-coding-plan/MiniMax-M3.1-Flash-tuned#medium` |
+| Builder | `minimax-coding-plan/MiniMax-M3.1-Flash-tuned#medium` |
 | Reviewer | `minimax-coding-plan/MiniMax-M3.1-Flash-tuned#high` |
 
-The variant is the model's reasoning effort: the runner works at `medium`,
+The variant is the model's reasoning effort: the builder works at `medium`,
 the reviewer thinks harder at `high`. The model is set when the pane starts,
 so the two panes differ by construction.
 
@@ -97,7 +98,7 @@ Other active models, when a role needs a different lens:
 ## Loop mechanics
 
 1. **The orchestrator designs and decides.** It decides what the unit of work
-   is, then opens a tab in its own workspace and starts a runner in it.
+   is, then opens a tab in its own workspace and starts a builder in it.
 2. **The orchestrator submits the kickoff**, then goes idle.
    **Waking mechanism:** every working agent ends its session by prompting
    **the orchestrator pane only** — address it by pane ID
@@ -116,14 +117,14 @@ Other active models, when a role needs a different lens:
 4. **The orchestrator verifies** by re-running the gate itself — an agent's
    claim that the gate passed is not evidence.
 5. **After a clean review** the orchestrator commits and updates the project's
-   records. On findings, it opens a fresh runner pane with the findings. Close
+   records. On findings, it opens a fresh builder pane with the findings. Close
    the tab when the round is done.
 
 ## Prompt templates
 
-**Runner kickoff:**
+**Builder kickoff:**
 
-> Your role: runner.
+> Your role: builder.
 > Autonomous: never use the ask tool; if blocked, end with
 > `BLOCKED: <question>; options: ...; recommendation: ...` and report to the orchestrator.
 > Read AGENTS.md and the project's docs it points to.
@@ -136,14 +137,14 @@ Other active models, when a role needs a different lens:
 > Autonomous: never use the ask tool; if blocked, end with
 > `BLOCKED: <question>; options: ...; recommendation: ...` and report to the orchestrator.
 > Read AGENTS.md and the project's docs it points to. Review the change against
-> the kickoff and the project's rules — not against the runner's own summary.
+> the kickoff and the project's rules — not against the builder's own summary.
 > Try to break it: different inputs, edge cases, adversarial paths. Findings
 > carry severity and location. Do not modify code. Finish with a verdict
 > (`ok` or `changes-needed`) by prompting the orchestrator pane.
 
-**Fixer kickoff** (a runner on its second round):
+**Fixer kickoff** (a builder on its second round):
 
-> Your role: runner.
+> Your role: builder.
 > Autonomous: never use the ask tool; if blocked, end with
 > `BLOCKED: <question>; options: ...; recommendation: ...` and report to the orchestrator.
 > Read AGENTS.md, the project's docs, and the open findings. Fix every finding.
@@ -170,7 +171,7 @@ ask-the-user prompt stalls the agent forever.
 ## Rules for the orchestrator
 
 - Never run long builds in the orchestrator pane; delegate.
-- One active runner at a time, unless the units of work are independent — then
+- One active builder at a time, unless the units of work are independent — then
   parallel tabs.
 - Cap review/fix cycles at 4. If findings persist after the 4th round, stop
   and ask the human.
@@ -186,7 +187,7 @@ through it.
 1. **Request** — the human tells the orchestrator what they want. The
    orchestrator designs, decides, and delegates.
 2. **Orchestrator's role** — designs first (the human approves when the change
-   is architectural), opens a runner pane in a fresh tab, verifies claims
+   is architectural), opens a builder pane in a fresh tab, verifies claims
    independently, opens a fresh-context reviewer pane on a different model and
    reasoning effort, decides on findings (fix rounds or escalate), commits
    after a clean review, and updates the project's records.
