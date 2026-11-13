@@ -63,3 +63,4 @@ points at it rather than repeating it. The vocabulary of record is
 | [0006](0006-evidence.md) | Evidence — commands, exit codes, and derived status | ✅ accepted |
 | [0007](0007-one-writer.md) | One writer — talita writes, raul reads | ✅ accepted |
 | [0008](0008-session-boundaries.md) | Session boundaries are structural | ✅ accepted |
+| [0009](0009-markdown-projection.md) | JSON for agents, markdown for humans — the record and the display | ✅ accepted |

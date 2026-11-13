@@ -160,7 +160,11 @@ until then, and says so.
 
 ## The detail pane
 
-The task, close up. Same sections as the file, in reading order.
+The task, close up — as a **document**. The record is JSON; what the human
+reads is markdown, projected from that record and rendered through leaf's
+engine ([ADR 0009](../decisions/0009-markdown-projection.md)).
+
+The document carries the task's sections, in reading order:
 
 | section | shows |
 |---|---|
@@ -174,6 +178,12 @@ The task, close up. Same sections as the file, in reading order.
 | notes | what the execution learned |
 | dependencies | what it waits on, what waits on it |
 | children | child tasks and their progress |
+
+The projection is the shape, not the wording: headings per section, tables for
+the criteria and the rounds, lists for the steps and the findings, and the
+verification commands as code. The task's own free text — the intent, the
+criterion descriptions, the notes — is markdown in its own right and is
+rendered as such; fields that must not be interpreted are escaped.
 
 Nothing in the detail pane is editable in v1. raul reads.
 
