@@ -33,6 +33,7 @@ File naming: `TSK<NN>-<slug>.json`, slug derived from the title.
   "status": "groomed",
   "overlays": { "blocked": null, "deferred": null, "cancelled": null },
   "claim": null,
+  "planned_by": null,
   "meta": { "priority": "normal", "effort": "M", "tags": [] },
 
   "intent": { "outcome": "", "problem": "" },
@@ -40,7 +41,8 @@ File naming: `TSK<NN>-<slug>.json`, slug derived from the title.
 
   "acceptance_criteria": [
     { "id": "ACCEPT-01", "description": "", "verification": "",
-      "status": "pending", "evidence": [], "deferral": null }
+      "status": "pending", "evidence": [], "deferral": null,
+      "failure_reason": "" }
   ],
   "steps": [
     { "id": "STP-01", "order": 1, "action": "", "done_when": "", "files": [],
@@ -96,6 +98,12 @@ One canonical status plus orthogonal overlays. Never combined status strings.
 
 Actors, roles, ownership, and session boundaries are defined in
 [roles/roles.md](../roles/roles.md). Humans carry no role.
+
+## Sessions
+
+The creator's session is recorded in `planned_by`; the runner's in
+`claim.session`. The gates use them: the session that planned a task never
+reviews it, and the session that executed it never remediates its findings.
 
 ## Transitions
 

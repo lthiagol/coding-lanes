@@ -1,10 +1,20 @@
 //! Shared domain model for `coding-lanes`.
 //!
-//! This crate holds the types used by both talita and raul so that the
-//! user-facing frontends stay thin.
+//! The model is specified in `docs/tasks/task-model.md`; this crate is its
+//! code. Both frontends — talita (CLI) and raul (TUI) — build on it.
 
+pub mod actor;
+pub mod clock;
+pub mod lifecycle;
 pub mod store;
 pub mod task;
 
+pub use actor::{Actor, ActorKind, Role};
+pub use clock::now_rfc3339;
+pub use lifecycle::{Event, Overlay, Overlays, Status, TransitionContext, TransitionError};
 pub use store::{Store, StoreError};
-pub use task::Task;
+pub use task::{
+    AcceptanceCriterion, Claim, Comment, CriterionStatus, Deferral, Evidence, Finding,
+    FindingStatus, Focus, Intent, Meta, Note, Question, QuestionStatus, Review, Round, RoundKind,
+    Scope, Severity, Step, StepStatus, Task, Verdict,
+};

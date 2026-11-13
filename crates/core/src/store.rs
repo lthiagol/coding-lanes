@@ -1,123 +1,157 @@
-use crate::task::Task;
-use serde::{Deserialize, Serialize};
-use std::env;
 use std::fs;
+use std::io::Write;
 use std::path::{Path, PathBuf};
+
 use thiserror::Error;
 
-/// Errors that can occur while reading or writing the task store.
+use crate::task::{Task, slugify};
+
+/// Name of the data folder inside a managed project.
+pub const DATA_DIR: &str = "coding-lanes";
+
 #[derive(Debug, Error)]
 pub enum StoreError {
-    #[error("failed to read store: {0}")]
+    #[error("failed to read: {0}")]
     Io(#[from] std::io::Error),
-    #[error("failed to parse store: {0}")]
+    #[error("failed to parse task file: {0}")]
     Parse(#[from] serde_json::Error),
+    #[error("task {0} not found")]
+    NotFound(String),
+    #[error("no coding-lanes folder found")]
+    NoDataFolder,
 }
 
-/// In-memory collection of tasks, persisted as JSON on disk.
-#[derive(Debug, Default, Serialize, Deserialize)]
+/// Task files of one project.
+///
+/// Layout:
+/// ```text
+/// <project>/coding-lanes/tasks/TSK01-<slug>.json
+/// ```
+#[derive(Debug, Clone)]
 pub struct Store {
-    #[serde(default)]
-    next_id: u64,
-    #[serde(default)]
-    pub tasks: Vec<Task>,
+    root: PathBuf,
 }
 
 impl Store {
-    /// Creates an empty store.
-    pub fn new() -> Self {
-        Self {
-            next_id: 1,
-            tasks: Vec::new(),
-        }
+    /// Store rooted at a `coding-lanes` folder.
+    pub fn new(root: impl Into<PathBuf>) -> Self {
+        Self { root: root.into() }
     }
 
-    /// Adds a task and returns a copy of it.
-    pub fn add(&mut self, title: impl Into<String>) -> Task {
-        let task = Task::new(self.next_id, title);
-        self.next_id += 1;
-        self.tasks.push(task.clone());
-        task
-    }
-
-    /// Marks a task as done. Returns `false` if no task has that id.
-    pub fn set_done(&mut self, id: u64) -> bool {
-        match self.tasks.iter_mut().find(|task| task.id == id) {
-            Some(task) => {
-                task.done = true;
-                true
+    /// Find the store of the project containing `start`, walking up.
+    pub fn discover(start: &Path) -> Result<Self, StoreError> {
+        let mut dir = start.to_path_buf();
+        loop {
+            let candidate = dir.join(DATA_DIR);
+            if candidate.is_dir() {
+                return Ok(Self::new(candidate));
             }
-            None => false,
+            if !dir.pop() {
+                return Err(StoreError::NoDataFolder);
+            }
         }
     }
 
-    /// Loads the store from `path`, returning an empty store if it is missing.
-    pub fn load(path: &Path) -> Result<Self, StoreError> {
-        if !path.exists() {
-            return Ok(Self::new());
-        }
-        let contents = fs::read_to_string(path)?;
-        let mut store: Self = serde_json::from_str(&contents)?;
-        if store.next_id == 0 {
-            store.next_id = store.tasks.iter().map(|task| task.id).max().unwrap_or(0) + 1;
-        }
-        Ok(store)
+    pub fn root(&self) -> &Path {
+        &self.root
     }
 
-    /// Writes the store to `path`, creating parent directories as needed.
-    pub fn save(&self, path: &Path) -> Result<(), StoreError> {
-        if let Some(parent) = path.parent()
-            && !parent.as_os_str().is_empty()
+    pub fn tasks_dir(&self) -> PathBuf {
+        self.root.join("tasks")
+    }
+
+    /// Path of a task file.
+    pub fn task_path(&self, task: &Task) -> PathBuf {
+        self.tasks_dir()
+            .join(format!("{}-{}.json", task.id, task.slug))
+    }
+
+    /// All tasks, ordered by id.
+    pub fn list(&self) -> Result<Vec<Task>, StoreError> {
+        let dir = self.tasks_dir();
+        if !dir.is_dir() {
+            return Ok(Vec::new());
+        }
+        let mut tasks: Vec<Task> = Vec::new();
+        for entry in fs::read_dir(&dir)? {
+            let path = entry?.path();
+            if path.extension().and_then(|e| e.to_str()) != Some("json") {
+                continue;
+            }
+            match load_path(&path) {
+                Ok(task) => tasks.push(task),
+                // A file that does not parse is skipped, not fatal.
+                Err(_) => continue,
+            }
+        }
+        tasks.sort_by(|a, b| a.id.cmp(&b.id));
+        Ok(tasks)
+    }
+
+    /// One task by id.
+    pub fn load(&self, id: &str) -> Result<Task, StoreError> {
+        let dir = self.tasks_dir();
+        if !dir.is_dir() {
+            return Err(StoreError::NotFound(id.to_string()));
+        }
+        for entry in fs::read_dir(&dir)? {
+            let path = entry?.path();
+            if path.extension().and_then(|e| e.to_str()) != Some("json") {
+                continue;
+            }
+            if let Some(name) = path.file_name().and_then(|n| n.to_str())
+                && name.starts_with(id)
+            {
+                return load_path(&path);
+            }
+        }
+        Err(StoreError::NotFound(id.to_string()))
+    }
+
+    /// Write a task file, atomically.
+    pub fn save(&self, task: &Task) -> Result<(), StoreError> {
+        let dir = self.tasks_dir();
+        fs::create_dir_all(&dir)?;
+        let path = self.task_path(task);
+        let json = serde_json::to_string_pretty(task)?;
+        let tmp = path.with_extension("json.tmp");
         {
-            fs::create_dir_all(parent)?;
+            let mut file = fs::File::create(&tmp)?;
+            file.write_all(json.as_bytes())?;
+            file.write_all(b"\n")?;
+            file.sync_all()?;
         }
-        let json = serde_json::to_string_pretty(self)?;
-        fs::write(path, json)?;
+        fs::rename(&tmp, &path)?;
         Ok(())
     }
 
-    /// Default location of the store: `$XDG_DATA_HOME/coding-lanes/tasks.json`.
-    pub fn default_path() -> PathBuf {
-        let base = env::var_os("XDG_DATA_HOME")
-            .map(PathBuf::from)
-            .or_else(|| env::var_os("HOME").map(|home| PathBuf::from(home).join(".local/share")))
-            .unwrap_or_else(|| PathBuf::from("."));
-        base.join("coding-lanes").join("tasks.json")
+    /// Create a task in `draft`.
+    pub fn create(&self, title: &str) -> Result<Task, StoreError> {
+        let task = Task::new(self.next_id()?, title);
+        self.save(&task)?;
+        Ok(task)
+    }
+
+    /// Next free task id, scanning what exists.
+    pub fn next_id(&self) -> Result<String, StoreError> {
+        let mut highest: u32 = 0;
+        for task in self.list()? {
+            if let Some(number) = task.id.strip_prefix("TSK")
+                && let Ok(number) = number.parse::<u32>()
+            {
+                highest = highest.max(number);
+            }
+        }
+        Ok(format!("TSK{:02}", highest + 1))
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+fn load_path(path: &Path) -> Result<Task, StoreError> {
+    let contents = fs::read_to_string(path)?;
+    Ok(serde_json::from_str(&contents)?)
+}
 
-    #[test]
-    fn adds_tasks_with_increasing_ids() {
-        let mut store = Store::new();
-        let first = store.add("write parser");
-        let second = store.add("write renderer");
-        assert_eq!(first.id, 1);
-        assert_eq!(second.id, 2);
-        assert_eq!(store.tasks.len(), 2);
-    }
-
-    #[test]
-    fn marks_tasks_as_done() {
-        let mut store = Store::new();
-        let task = store.add("ship it");
-        assert!(store.set_done(task.id));
-        assert!(store.tasks[0].done);
-        assert!(!store.set_done(999));
-    }
-
-    #[test]
-    fn round_trips_through_json() {
-        let dir = std::env::temp_dir().join("coding-lanes-test-roundtrip");
-        let path = dir.join("tasks.json");
-        let mut store = Store::new();
-        store.add("one");
-        store.save(&path).expect("save store");
-        let loaded = Store::load(&path).expect("load store");
-        assert_eq!(loaded.tasks.len(), 1);
-        let _ = fs::remove_dir_all(&dir);
-    }
+/// The file name a task would get.
+pub fn file_name(task: &Task) -> String {
+    format!("{}-{}.json", task.id, slugify(&task.title))
 }
