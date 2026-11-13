@@ -15,6 +15,9 @@ coding-lanes/work/
 The id prefix says which is which. raul's backlog tab lists both, so the
 storage does not split what the human sees together.
 
+The task model — statuses, gates, review — is in
+[task-model.md](task-model.md).
+
 ## Item
 
 ```json

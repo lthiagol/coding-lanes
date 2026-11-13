@@ -7,9 +7,8 @@ shows them (**R**eview, **A**pprove, **U**nderstand **L**ane).
 
 | doc | what |
 |---|---|
-| [tasks/task-model.md](tasks/task-model.md) | the unit of work: file format, ids, statuses, transitions, review, evidence, steps |
+| [tasks/task-model.md](tasks/task-model.md) | the unit of work: file format, ids, statuses, transitions, gates, review, evidence |
 | [tasks/smaller-tasks.md](tasks/smaller-tasks.md) | ideas, bugs and small features — the work that is not a task yet |
 | [roles/roles.md](roles/roles.md) | actors, roles, ownership, session boundaries |
-
-The two cross-reference each other: the task model names the roles that act,
-the roles doc names the transitions they act on.
+| [vocabulary.md](vocabulary.md) | the names we use, and the ones we rejected |
+| [decisions/](decisions/) | decision records: what we chose, and why |
