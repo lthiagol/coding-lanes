@@ -27,7 +27,7 @@ HOW TO RESUME
 WHERE WE ARE
   Unit closed: raul window shell and Overview tab. Six build and review
   rounds, the sixth clean, committed by staging by name.
-  Unit in flight: the theme - the slots, the presets and the docs. Four
+  Unit in flight: the theme - the slots, the presets and the docs. Five
   build rounds so far: round one found nine findings (the agent lane was
   ANSI blue, the terminal preset told the phases apart by nothing, the
   human lane's reasons bypassed the mapping, the slots were looked up by
@@ -98,6 +98,14 @@ OPEN
   into crates/engine with the upstream commit recorded, a VENDORED.md of
   deviations and a sync script. Still open: which fields are rendered as
   markdown and which are escaped.
+  The panes now run the regular opencode, not mini: herdr's opencode
+  integration reports the agent's own state, so herdr agent wait --until idle
+  is the wake signal and a stall is visible. The panes start with
+  OPENCODE_CONFIG=flow/builder.json or flow/reviewer.json and --standalone, so
+  the role config is read. The models are the aliases tuned-builder and
+  tuned-review in the global opencode config: the same upstream model, one
+  variant each, because a model with several variants does not carry the
+  selected effort into the TUI.
   The builders may add or edit the mock data when a finding needs data the
   fixtures do not have - through mock-data/generate.py, and the generator must
   keep reproducing the committed tree byte for byte.

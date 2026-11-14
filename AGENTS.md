@@ -28,6 +28,8 @@ superpowers.
 - `crates/core` — shared model.
 - `crates/talita` — talita; package `coding-lanes-talita`, binary `talita`.
   Off-limits until instructed.
+- `flow/` — the orchestration role configs: `builder.json` and `reviewer.json`.
+  They name the agent each pane runs and the model it runs on.
 - `crates/raul` — raul; package `coding-lanes-raul`, binary `raul`.
 - `coding-lanes/` — data folder of a managed project (not created here).
 
