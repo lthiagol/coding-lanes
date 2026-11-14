@@ -125,6 +125,11 @@ kickoff then sits in the input box, unsubmitted. The sequence that lands:
 The same check applies to a report: the agent must confirm the text left the
 box before it finishes.
 
+**A steer is a kickoff.** When the orchestrator sends a correction to a
+running agent, it is the same sequence — text, `enter`, then verify the text
+left the box. A steer sent without the `enter` sits in the input box, unread,
+and the agent finishes the work it was going to finish anyway.
+
 `opencode mini` is the pane interface: interactive, takes `--model`,
 `--agent` and `--prompt`, and is lighter than the full TUI for a pane that
 only receives a kickoff.
