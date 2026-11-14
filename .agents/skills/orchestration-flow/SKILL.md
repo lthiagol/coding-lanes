@@ -234,9 +234,12 @@ before anything was built. Only real build-and-review rounds count.
 > finding.
 > Review the change against the kickoff and the project's rules — not against
 > the builder's own summary.
-> Try to break it: different inputs, edge cases, adversarial paths. You may
-> run targeted commands to check a claim — not long builds; the orchestrator
-> runs the gate. Findings carry severity and location. Do not modify code.
+> Review the code. Try to break it by reading it and by reasoning about it —
+> different inputs, edge cases, adversarial paths.
+> Run the regular checks — the project's gate: fmt, clippy, tests. Do not build
+> ad-hoc harnesses and do not sweep the size space; a check that needs a
+> special harness belongs in the repo as its own unit, not in a review round.
+> Findings carry severity and location. Do not modify code.
 > Write the findings to `<path-to-this-round-findings>`.
 > Finish with a verdict (`ok` or `changes-needed`) by sending
 > `herdr pane send-text <orchestrator-pane> "VERDICT: <ok|changes-needed> ..."`
@@ -285,8 +288,9 @@ ask-the-user prompt stalls the agent forever.
   back `changes-needed` → stop and ask the human.
 - **The orchestrator runs the gate itself** before opening a reviewer round. An
   agent's claim that the gate passed is not evidence.
-- **The reviewer may run targeted commands** to check a claim — never long
-  builds, and never edits.
+- **The reviewer runs the project's gate** — fmt, clippy, tests — and reads the
+  code. No ad-hoc harnesses, no exhaustive sweeps, no long builds, no edits.
+  A check worth repeating belongs in the repo as its own unit.
 - No code ships unreviewed: every changed file is covered by a review round
   before the unit is done.
 - The orchestrator commits after a clean review. Agents never commit or push.
