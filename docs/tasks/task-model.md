@@ -554,6 +554,12 @@ blocked; the approved task whose dependency is done can be claimed.
 `crates/core/tests/mock_data.rs` loads the set and checks that it covers every
 phase and keeps every gate.
 
+## 13a. Where the screens are
+
+The TUI's screens are specified in [tui/screens.md](../tui/screens.md): the
+window, the six tabs, the detail pane, the derived views. The state of the
+work is in `TODO.txt`.
+
 ## 14. What this doc is not
 
 | | |
@@ -573,7 +579,6 @@ phase and keeps every gate.
 - journal event kinds (`activity.json`) and its home in the work folder
 - project config
 - talita's operation surface
-- raul's screens and views
 - autopilot
 
 **Specified here, now in `crates/core`:**
@@ -582,7 +587,7 @@ phase and keeps every gate.
 |---|---|
 | `kind` and `promoted_from` on the task | `crates/core/src/task.rs` — `TaskKind`, `Task::is_small_task` |
 | the small-task step exemption | `crates/core/src/lifecycle.rs` — `criteria.covered`, `steps.done_when_present` and `steps.settled` are skipped for a small task |
-| the claim lease | `Claim::lease_expired`; the `approved → executing` gate refuses an expired lease |
+| the claim lease | `Claim::lease_expired`; the `approved → executing` gate refuses an expired lease. **Still wrong**: it compares the timestamps as strings, and a lease written without seconds reads live for up to a minute |
 | the rename cleanup | `Store::save` removes the file the task had under an older name |
 | the work folder path | the store reads `coding-lanes/work/`, as [ADR 0002](../../decisions/0002-work-folder.md) decides |
 | smaller tasks (`ITM*`) | `crates/core/src/item.rs` — shaping, dismissal, promotion; `Store::promote_item` writes the item first |

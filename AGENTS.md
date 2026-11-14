@@ -61,8 +61,11 @@ make raul
 ## Task model
 
 - Task structure, statuses, metadata, and lane definitions are designed in
-  `docs/tasks/task-model.md`; roles in `docs/roles/roles.md`.
+  `docs/tasks/task-model.md`; roles in `docs/roles/roles.md`; the TUI's
+  screens in `docs/tui/screens.md`.
 - Do not invent them ad hoc — follow the docs.
+- `TODO.txt` at the root is the state of the work: what is done, what is open,
+  what is next. Read it before starting; update it when a unit closes.
 
 ## Naming
 

@@ -32,13 +32,16 @@ same place. A branch head drifts before anyone notices — see
 
 ## Our own skills
 
-Not vendored, and not upstream: the skills for the roles coding-lanes defines.
-They live in [docs/skills/](../../docs/skills/) until they are promoted into
-`.agents/skills/`.
+Not vendored, and not upstream: the skills coding-lanes defines.
 
-| Skill | What it covers |
-|---|---|
-| [task-authoring](../../docs/skills/task-authoring.md) | the `creator` role — writing a task through talita |
+| Skill | Where | What it covers |
+|---|---|---|
+| [orchestration-flow](orchestration-flow/SKILL.md) | `.agents/skills/` | the build loop: three agents, the Herdr workspace, the rounds, the budget |
+| [task-authoring](../../docs/skills/task-authoring.md) | `docs/skills/` | the `creator` role — writing a task through talita |
+| [task-review](../../docs/skills/task-review.md) | `docs/skills/` | the `reviewer` role — reviewing a change against its kickoff |
+
+A skill we want loaded lives in `.agents/skills/`; one that is still a draft
+lives in `docs/skills/` until it is promoted.
 | [task-review](../../docs/skills/task-review.md) | the `reviewer` role — reviewing an implementation against a task |
 
 ## One note on the vendored files
@@ -56,5 +59,6 @@ to say this — read the mapping here.
 ```
 
 The script never edits a vendored file by hand. If a skill needs changing for
-coding-lanes, it becomes **our** skill under `docs/skills/` — the vendored copy
+coding-lanes, it becomes **our** skill — under `docs/skills/` while it is a
+draft, and under `.agents/skills/` once it is ready to load. The vendored copy
 stays pristine so the diff against upstream stays readable.

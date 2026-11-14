@@ -223,9 +223,16 @@ Every view above is computed from the task files.
 | unreadable file | the file name and the error; the rest of the list still renders |
 | stale | the list is read from disk on every redraw; a changed file shows up on the next redraw |
 
+## Rendering a screen as text
+
+`raul --render --plain` prints the current screen as plain text and exits.
+It is how a prototype is captured and how a snapshot test is written — the
+sketch is the tool's own output, not a drawing of it.
+
 ## Not defined yet
 
-- the autopilot's internals — the tab is a placeholder
+- the autopilot's internals — the tab is a placeholder, and its design is
+  being settled by comparing terminal-text variants before it is built
 - the journal — *Activity* is not a tab until the event kinds exist
 - persisted sort keys and keybinds — the Settings tab is a placeholder too
 - the review's interaction: what raul can do about a finding, if anything

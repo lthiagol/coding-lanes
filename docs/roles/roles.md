@@ -54,12 +54,18 @@ sequenceDiagram
 | task section | owner |
 |---|---|
 | `intent`, `scope`, `acceptance_criteria`, `questions`, `meta` | creator |
-| `steps`, `claim`, `status`, evidence | runner |
+| `steps` | creator while grooming, runner while executing |
+| `claim`, `status`, evidence | runner |
 | `review` | reviewer |
 | `notes` | any role |
 
 The reviewer opens findings; the runner resolves them. A role may not write
 another role's section.
+
+`steps` is the one section with two owners, and the phase decides which: the
+creator writes the steps while grooming, and once the task is approved the
+runner owns them — it may add, split or drop them, and records a deviation
+when it takes a different path.
 
 ## Session boundaries
 
