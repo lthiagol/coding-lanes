@@ -236,8 +236,11 @@ happened to be focused.
    `--cwd` sets the working directory, never the workspace. Omitting
    `--workspace` drops the tab into whatever workspace was last active, and
    the agent ends up somewhere the human is not watching.
-3. The workspace survives the rounds of one loop — it is created once and
-   reused. At the end of the loop it is closed:
+3. The workspace lives as long as it has a tab: **closing the last tab
+   closes the workspace with it.** So the loop creates it with the first
+   agent pane and recreates it when the next round opens one — a round
+   whose tab is closed is not a workspace that survives to the next round.
+   At the end of the loop it is closed:
 
    ```sh
    herdr workspace close <orchestration-id>
