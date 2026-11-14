@@ -32,20 +32,45 @@ HOW TO RESUME
 WHERE WE ARE
   Unit closed: raul window shell and Overview tab. Six build and review
   rounds, the sixth clean, committed by staging by name.
-  Unit in flight: the theme - the slots, the presets and the docs. Five
-  build rounds so far: round one found nine findings (the agent lane was
-  ANSI blue, the terminal preset told the phases apart by nothing, the
-  human lane's reasons bypassed the mapping, the slots were looked up by
-  name, the render tests ran on one tab, the block titles had no slot, the
-  summary line lost the lane colours, the dark preset was recorded
-  nowhere); round two closed them and found four more (the unreadable
-  file was not painted as a failure, and three doc statements did not
-  match the code); round three closed those and found four more (the
-  text.dim row named a case nothing painted, every preset was said to
-  use the accent, the neutral was not derived for any family, and nothing
-  pinned the dark palette to the table that records it); round four is
-  in flight.
-  Next unit: the Path tab, not started.
+  Unit in flight: the theme - the slots, the presets and the docs. Six
+  build rounds done. Round one found nine findings (the agent lane was ANSI
+  blue, the terminal preset told the phases apart by nothing, the human
+  lane's reasons bypassed the mapping, the slots were looked up by name, the
+  render tests ran on one tab, the block titles had no slot, the summary
+  line lost the lane colours, the dark preset was recorded nowhere); round
+  two closed them and found four more (the unreadable file was not painted
+  as a failure, and three doc statements did not match the code); round
+  three closed those and found four more (the text.dim row named a case
+  nothing paints, every preset was said to use the accent, the neutral was
+  not derived for any family, and nothing pinned the dark palette to the
+  table that records it); round four closed those and left one low finding
+  - Nord's second foreground had been moved onto a border colour, 1.69:1 on
+  the family's own base, which is text that may be missed; round five fixed
+  it, and the review found three more, all in the two docs: a contrast
+  figure that read 9.3:1 and computes to 9.2:1, a clause that called the
+  greys below the text the polar night and then took one of them for a
+  word, and the Catppuccin and the Dracula tables naming no row for three
+  slots the mapping table promises them; round six fixed those and the
+  review found three more of the same kind.
+  Round seven is the closing round and it is a sweep, not three patches:
+  fix those, then hunt the same class of gap across both docs - a slot the
+  mapping table promises that a family table does not name, a contrast
+  figure that does not compute, a note that contradicts the table above it,
+  an example that does not match the table.
+  After round seven: one review round. If it is clean, the unit commits by
+  staging by name - crates/raul, docs/tui/theme.md, docs/tui/palettes.md
+  - and plan row 0 closes. If it is not clean, the unit escalates to the
+  human with the findings, and the workspace stays open for that.
+  The rules the rounds produced live in docs/tui/theme.md and
+  docs/tui/palettes.md, not here: the slot table, the phase and reason
+  mappings, the terminal preset's limits, the neutral derivation, the family
+  tables and the contrast figures.
+  Next unit: the Path tab, not started. Its spec is docs/tui/screens.md and
+  its rows are in docs/plan.md - the data layer and the drawing, with the
+  width rules folded into the drawing. When it is specced, pin its counts in
+  tests the way the theme unit now pins its palette: trunk 1, AWAITING
+  APPROVAL 2, BLOCKED 3, RUNNING 6, REVIEW 3, ESCALATED 3, against the
+  fixtures.
   The working tree is the review surface while a unit is in flight. On a clean
   verdict, stage by name and commit. Never use git add -A or git add .: a
   blanket stage sweeps another agent's in-flight work into the commit. That
