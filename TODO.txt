@@ -14,7 +14,8 @@ SCOPE
 
 HOW TO RESUME
   1. read AGENTS.md, then docs/
-  2. read this file
+  2. read this file, and docs/plan.md - the plan holds the small units with
+     their done-when lines, the grooming, and the open questions
   3. pick the first open item you can finish
   4. run make ci before you claim anything is done
   5. update this file when the item is closed
@@ -138,6 +139,8 @@ OPEN
   asked for explicitly. Do not start it because the other tabs are done.
 
 NEXT
+  The small units live in docs/plan.md, with their done-when lines, the
+  grooming and the open questions. In order:
   1. the Path tab, as its own unit with its own review rounds. The drawing
      technique may be ported from master-plan's crates/raul/src/tui/path_view.rs
      (MIT, ours, same ratatui): the spine, the trunk markers, the branch
