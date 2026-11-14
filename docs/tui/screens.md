@@ -71,8 +71,9 @@ not waiting on a human.
 
 ### Path
 
-A tree, not a list: a **trunk** of what can run now, with **branches** for
-what is waiting. The trunk is the agent lane; the branches are the human lane.
+Master-plan's Path tab, reproduced: a **spine** of what can run now, with
+**branches** for what is waiting, and the blocked branch forked under what
+blocks it.
 
 ```
  Path Tree 
@@ -80,68 +81,45 @@ what is waiting. The trunk is the agent lane; the branches are the human lane.
  │
  ● TSK29   Lorem ipsum dolor sit amet
  │
+ ├─ TSK09   Tempor incididunt ut labore et dolore
+ │
   ╵
+ ├─ AWAITING APPROVAL · 2
+ │   └─ TSK04   Consectetur adipiscing elit
+ ├─ BLOCKED · 3
+ │   └─ blocked-by TSK04
+ │       └─ TSK07   Tempor incididunt ut labore
  ├─ RUNNING · 6
- │   └─ TSK10   Tempor incididunt ut labore et dolore
- ├─ APPROVAL · 3
- │   └─ TSK04   Lorem ipsum dolor sit amet
+ │   └─ TSK10   Tempor incididunt ut labore
  ├─ REVIEW · 3
  │   └─ TSK13   Praesentium voluptatum deleniti
- ├─ ESCALATED · 3
- │   └─ TSK19   Quaerat voluptatem consequatur
- └─ BLOCKED · 3
-     └─ TSK08   waits on TSK05
+ └─ ESCALATED · 3
+     └─ TSK19   Quaerat voluptatem consequatur
 ```
-
-The ids above are the ones `mock-data` generates today. The generator
-renumbers when it changes, so the tree is the shape to build — not a fixture
-to assert against.
 
 | part | rule |
 |---|---|
-| trunk | claimable tasks, in dependency order. The first is marked `●` — it is what happens next |
-| RUNNING | `executing` and `remediating`, with the runner holding the claim |
-| APPROVAL | `groomed` — waiting on the human to approve |
-| REVIEW | `code-review` — waiting on the human to review |
+| spine | the claimable tasks: `approved`, every dependency `done`, no overlay, no live claim — in dependency order. The first is marked `●`: it is what happens next |
+| AWAITING APPROVAL | `groomed` — waiting on the human to approve |
+| BLOCKED | `approved` but not claimable. Forked under **the first of its dependencies that is not done**, and the row names the rest |
+| RUNNING | `executing` and `remediating` |
+| REVIEW | `code-review` |
 | ESCALATED | `needs-human` — the review budget ran out |
-| BLOCKED | everything else that is not claimable: a dependency that is not done, an overlay, or a claim held elsewhere. Each shows what blocks it, forked under its blocker |
-| order | trunk first, then the branches in the order above: RUNNING, APPROVAL, REVIEW, ESCALATED, BLOCKED |
+| order | spine, then the branches in the order above |
 
 Rules:
 
-- The tree holds tasks only. Smaller tasks and drafts are not in it — the
-  Backlog tab holds them.
-- A task that is running is not blocked and not claimable: it has its own
-  branch.
+- The tree holds the **live work**: the tasks that are neither `draft` nor
+  `done`. Drafts are the Backlog tab's, and done tasks are history.
+- An empty branch is skipped.
+- The status is not in the branch — it is the **colour** of the row, from the
+  theme's phase mapping. The branch says who the next action belongs to.
+- A row names its dependencies: `waits on TSK05, TSK06`.
+- The tree is drawn as styled lines with a spine, and it scrolls.
 
-The derivations, all of them read from the work folder and never stored:
-
-| branch | rule |
-|---|---|
-| trunk | `claimable` — `approved`, no overlay, no live claim, every dependency `done`, ordered by dependency depth |
-| RUNNING | `executing` and `remediating`, with the runner that holds the claim |
-| APPROVAL · REVIEW · ESCALATED | `groomed` · `code-review` · `needs-human` — the human lane, minus the tasks carrying an overlay |
-| BLOCKED | everything else that is not claimable and not running: a dependency that is not done, an overlay, or a claim held elsewhere. Each names its blocker and is forked under it |
-
-- A blocked task is forked under the task that blocks it, so the human sees
-  the chain, not a flat list of stuck work.
-- The trunk is empty when nothing is claimable; the tree then opens straight
-  into the branches, and says so.
-
-Interaction: the tree scrolls (`j`/`k`, `↑`/`↓`, `pgup`/`pgdn`); it is drawn as
-styled lines, not widgets. Selecting a row opens the task in the detail pane.
-
-### Where the drawing comes from
-
-The technique is ours, from another project of ours: master-plan's
-`crates/raul/src/tui/path_view.rs` (MIT) draws a tree with the same spine,
-trunk markers, branch headers and blocked-items-forked-under-their-blocker.
-That **drawing** may be ported and adapted to our lanes and our theme slots.
-
-Its **model** does not port: it speaks master-plan's lanes and reads the CLI's
-JSON envelope. Ours reads the work folder through `crates/core`. Nothing of
-master-plan's CLI or domain comes with it, and the file says where it came
-from.
+This is master-plan's shape with our statuses: its lanes were *awaiting
+approval*, *blocked*, *grooming* and *review*, and it grouped the blocked
+items under their first dependency too.
 
 ### Backlog
 

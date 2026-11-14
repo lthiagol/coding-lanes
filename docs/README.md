@@ -14,4 +14,5 @@ shows them (**R**eview, **A**pprove, **U**nderstand **L**ane).
 | [tui/theme.md](tui/theme.md) | the colour slots, the phase-to-slot mapping, the presets |
 | [tui/palettes.md](tui/palettes.md) | where the themes come from: the families, the mapping, the rules for a new one |
 | [vocabulary.md](vocabulary.md) | the names we use, and the ones we rejected |
+| [plan.md](plan.md) | the work ahead: small units with their done-when lines, the grooming, the open questions |
 | [decisions/](decisions/) | decision records: what we chose, and why |
