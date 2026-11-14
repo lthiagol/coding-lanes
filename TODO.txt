@@ -115,15 +115,20 @@ OPEN
     the crew is runtime state, and only the runtime has it.
   A pty harness in the repo, scripts/pty-sweep.py, and snapshot tests of the
   rendered screens. The render mode above is the first half of this.
+  The theme catalog: fourteen families ported from leaf, with a documented
+  mapping of source roles to our slots, the way Frond did it for the same
+  upstream. The structure and two presets are done first; the catalog is later.
   talita's own verbs. Out of scope, and it stays out of scope until it is
   asked for explicitly. Do not start it because the other tabs are done.
 
 NEXT
-  1. the Path tab, as its own unit with its own review rounds
-  2. one store-discovery rule in crates/core, and raul calls it
-  3. the Needs you and Backlog tabs
-  4. raul --render --plain, so a prototype is captured output and a snapshot
+  1. the theme: the slots, the presets and the docs, so the Path tree is
+     painted once, in its final form. The spec is docs/tui/theme.md
+  2. the Path tab, as its own unit with its own review rounds
+  3. one store-discovery rule in crates/core, and raul calls it
+  4. the Needs you and Backlog tabs
+  5. raul --render --plain, so a prototype is captured output and a snapshot
      test is a file
-  5. the Autopilot tab: sketch the variants in terminal text, pick one, build it
-  6. the markdown view: crates/engine, the projection in core, the detail pane
-  7. the lease fix in crates/core
+  6. the Autopilot tab: sketch the variants in terminal text, pick one, build it
+  7. the markdown view: crates/engine, the projection in core, the detail pane
+  8. the lease fix in crates/core
