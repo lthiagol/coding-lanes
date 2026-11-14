@@ -118,6 +118,9 @@ OPEN
   The theme catalog: fourteen families ported from leaf, with a documented
   mapping of source roles to our slots, the way Frond did it for the same
   upstream. The structure and two presets are done first; the catalog is later.
+  The source side is written down in docs/tui/palettes.md: the families, the
+  role names, the slot mapping, the theme file format, and the rules a new
+  theme has to follow.
   talita's own verbs. Out of scope, and it stays out of scope until it is
   asked for explicitly. Do not start it because the other tabs are done.
 

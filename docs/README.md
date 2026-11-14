@@ -11,5 +11,7 @@ shows them (**R**eview, **A**pprove, **U**nderstand **L**ane).
 | [tasks/smaller-tasks.md](tasks/smaller-tasks.md) | ideas, bugs and small features — the work that is not a task yet |
 | [roles/roles.md](roles/roles.md) | actors, roles, ownership, session boundaries |
 | [tui/screens.md](tui/screens.md) | raul: the window, the tabs, the detail pane, the derived views |
+| [tui/theme.md](tui/theme.md) | the colour slots, the phase-to-slot mapping, the presets |
+| [tui/palettes.md](tui/palettes.md) | where the themes come from: the families, the mapping, the rules for a new one |
 | [vocabulary.md](vocabulary.md) | the names we use, and the ones we rejected |
 | [decisions/](decisions/) | decision records: what we chose, and why |
