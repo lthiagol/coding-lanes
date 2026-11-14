@@ -278,7 +278,8 @@ before anything was built. Only real build-and-review rounds count.
 > Autonomous: never use the ask tool; if blocked, end with
 > `BLOCKED: <question>; options: ...; recommendation: ...` and report to the orchestrator.
 > Read AGENTS.md and the project's docs it points to, and the round's
-> findings at `<path-to-findings>`.
+> findings at `<path-to-findings>`. TODO.txt is the orchestrator's: read it,
+> do not write it.
 > Your task: `<the unit of work>`. Do not start other work. Finish the whole
 > unit before you report — if you are done with a part, move to the next part
 > rather than stopping. Run the project's
@@ -293,7 +294,8 @@ before anything was built. Only real build-and-review rounds count.
 > Your role: reviewer.
 > Autonomous: never use the ask tool; if blocked, end with
 > `BLOCKED: <question>; options: ...; recommendation: ...` and report to the orchestrator.
-> Read AGENTS.md and the project's docs it points to. This is review round
+> Read AGENTS.md and the project's docs it points to. TODO.txt is the
+> orchestrator's: read it, do not write it. This is review round
 > <N> of at most 5.
 > If there is a previous round, read its findings at `<path-to-previous-findings>`
 > and check that every one of them is closed — a renamed fix is not a closed
