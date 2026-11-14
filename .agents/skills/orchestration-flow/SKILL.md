@@ -98,7 +98,8 @@ All multi-agent work runs through Herdr, in the orchestrator's own workspace.
 | close the Orchestration workspace | `herdr workspace close <ID>` |
 | open a tab | `herdr tab create --workspace <ID> --label "<label>" --cwd <dir> --no-focus` |
 | split a pane | `herdr pane split <PANE> --direction right --ratio 0.5 --cwd <dir>` |
-| start an agent in a pane | `herdr pane run <PANE> opencode mini --model <provider/model#variant>` |
+| start an agent in a pane | `herdr pane run <PANE> env OPENCODE_CONFIG=<role-config> opencode --standalone` |
+| wait for an agent to settle | `herdr agent wait <PANE> --until idle --timeout 1800000` |
 | send a prompt | `herdr agent prompt <PANE> "<prompt>"` — text and Enter as one ordered submission |
 | read a pane | `herdr pane read <PANE> --lines 40` |
 | close a tab | `herdr tab close <TAB_ID>` |
@@ -122,24 +123,67 @@ reports success only after both were written. There is no enter to forget and
 no window in which the text sits unsubmitted — the two failures this
 replaces.
 
-**Do not use `--wait` here.** `--wait` waits for herdr to *observe* the agent
-go to working, and herdr detects that by matching the agent's output against a
-manifest. `opencode mini` shows `esc interrupt`, which the opencode manifest
-does not match, so herdr falls back to `idle` and the wait returns
-`agent_prompt_stalled` even though the prompt was delivered and answered.
-The wake signal is the agent's own report, not herdr's state.
+**`--wait` works here.** Herdr's opencode integration installs a pane-local
+TUI plugin (`herdr integration install opencode`), and the plugin reports the
+agent's lifecycle state authoritatively. `herdr agent explain` then says
+`screen_detection_skip_reason: full_lifecycle_hook_authority` — herdr is not
+reading the screen, the agent is telling it.
 
-The report works the same way, in the other direction:
+So the wake signal is herdr's state:
+
+```sh
+herdr agent wait <PANE> --until idle --timeout 1800000
+```
+
+The agent still reports, in the other direction, and the orchestrator reads
+the summary after the wait:
 
 ```sh
 herdr agent prompt <orchestrator-pane> "done: <one-line summary>"
 ```
 
-No `--wait`: the orchestrator is busy, and the summary must not block it.
+No `--wait` there: the orchestrator is busy, and the summary must not block it.
 
-`opencode mini` is the pane interface: interactive, takes `--model`,
-`--agent` and `--prompt`, and is lighter than the full TUI for a pane that
-only receives a kickoff.
+### The pane recipe
+
+The panes run the **regular opencode**, not `mini`. Mini does not run the TUI
+plugin, so herdr cannot see its state at all — it falls back to reading the
+screen, and the manifest's rules (`esc to interrupt`) do not match what mini
+draws (`esc interrupt`). The regular TUI is the only client that reports.
+
+The regular TUI takes no `--model` and no `--agent`. It reads them from a
+config file, so each pane gets one:
+
+```json
+{
+  "default_agent": "builder",
+  "agents": {
+    "builder": {
+      "mode": "primary",
+      "description": "Implements one unit of work",
+      "model": "minimax-coding-plan/MiniMax-M3.1-Flash-tuned"
+    }
+  }
+}
+```
+
+and the pane starts with it:
+
+```sh
+herdr pane run <PANE> env OPENCODE_CONFIG=<role-config> opencode --standalone
+```
+
+`--standalone` gives the pane its own server, so the config file is read; the
+shared server ignores a client's `OPENCODE_CONFIG`. The cost is one server
+per pane.
+
+**What this buys**: the state is authoritative, and each role runs the model
+its config names.
+
+**What it costs**: the **variant is dropped** — the regular TUI keeps the
+provider and the model, not the `#variant`, so `…-tuned#high` arrives as the
+model's default effort. Only `opencode run` honours a variant. So the roles
+differ by **model**, not by effort.
 
 ## What herdr can tell us, and what it cannot
 
@@ -157,14 +201,18 @@ it is working, waiting or finished.
 | what | use it for |
 |---|---|
 | `herdr agent prompt <PANE> "<text>"` | the way to submit — one ordered submission, text and Enter together |
-| `herdr pane read <PANE> --lines N` | what the agent is actually showing — the only reliable read |
-| `herdr agent explain <PANE>` | why herdr thinks an agent is idle; it names the rule it matched or the fallback it used |
+| `herdr agent wait <PANE> --until idle --timeout MS` | block until the agent settles — the wake signal |
+| `herdr pane read <PANE> --lines N` | what the agent is actually showing, and its report |
+| `herdr agent explain <PANE>` | why herdr thinks an agent is in that state — the rule it matched, or the fallback |
 | `herdr agent list` | the agents and their states, with a `state_change_seq` counter |
 | `herdr notification show "<title>" --body "..." --sound done` | raising a toast for the human — use it when a unit closes |
 
-**Never wait on herdr's state for these agents.** `--wait` returns
-`agent_prompt_stalled` after five seconds even though the prompt was
-delivered and answered. The wake signal is the agent's own report.
+**Herdr's state is a signal only for the regular TUI.** It runs the
+lifecycle plugin, so `working`, `idle` and `blocked` are the agent's own
+reports. A **mini** pane has no plugin: herdr reads the screen, finds no
+matching rule, and says `idle` whatever the agent is doing — so a mini pane
+never goes `working`, and `--wait` on it returns `agent_prompt_stalled` even
+though the prompt was delivered and answered.
 
 Herdr's own agent-facing documentation is `herdr --skill`.
 
@@ -215,12 +263,25 @@ project's own review rounds follow.
 | role | model |
 |---|---|
 | Orchestrator | the session's own model |
-| Builder | `minimax-coding-plan/MiniMax-M3.1-Flash-tuned#medium` |
-| Reviewer | `minimax-coding-plan/MiniMax-M3.1-Flash-tuned#high` |
+| Builder | `minimax-coding-plan/MiniMax-M3.1-Flash-tuned` |
+| Reviewer | a **different model family** — `opencode/deepseek-v4.1-flash-free` today |
 
-The variant is the model's reasoning effort: the builder works at `medium`,
-the reviewer thinks harder at `high`. The model is set when the pane starts,
-so the two panes differ by construction.
+The reviewer must not run the same model as the builder: different lenses
+surface uncorrelated bugs, and that is the same rule the theme's palette
+follows — the human lane and the agent lane never share a colour.
+
+Each pane's model comes from its role config, because the regular TUI takes no
+`--model`. The **variant is dropped** in that path — the TUI keeps the
+provider and the model, not the reasoning effort — so the roles differ by
+model, not by effort. When a role needs a specific effort, it is set inside
+the session, not at the pane.
+
+Other models are available if a role needs a different lens: the `opencode/*`
+family — `deepseek-v4.1-flash-free`, `glm-5.3-flash-free`,
+`longcat-2.5-free`, `mimo-v2.6-flash-free`, `nemotron-3.5-super-vl-free`,
+`iceman-free`, `inkling-2-small-free`, `flint-40b-free`,
+`minimax-m3.1-flash-free`, `beam-free`, `big-pickle` — and the tuned model at
+its other efforts, `low`, `xhigh` and `max`.
 
 Other active models, when a role needs a different lens:
 `minimax-coding-plan/MiniMax-M3.1-Flash-tuned#low`, `#xhigh`, `#max`,
@@ -235,7 +296,8 @@ Other active models, when a role needs a different lens:
 1. **The orchestrator designs and decides.** It decides what the unit of work
    is, creates the Orchestration workspace (once per loop), and opens a tab in
    it for the builder.
-2. **The orchestrator submits the kickoff**, then goes idle.
+2. **The orchestrator submits the kickoff**, then waits for the agent to
+   settle with `herdr agent wait <PANE> --until idle --timeout 1800000`.
    **Waking mechanism:** every working agent ends its session by prompting
    **the orchestrator pane only** — address it by pane ID
    (`herdr pane send-text <orchestrator-pane-id> "done: <one-line summary>"`
@@ -347,9 +409,8 @@ ask-the-user prompt stalls the agent forever.
   through its own ask tool — always stating its recommended option first —
   then re-prompts the same agent with the answer, or opens a fresh one with
   the answer in the kickoff.
-- **Stall check:** herdr's state is not a signal for `opencode mini` — it
-  reads `idle` whatever the agent is doing. A stall is the **absence of a
-  report**, and there are two kinds:
+- **Stall check:** a stall is the **absence of a report**, and there are two
+  kinds:
 
   | what the pane shows | what it means | what to do |
   |---|---|---|
