@@ -131,6 +131,18 @@ The derivations, all of them read from the work folder and never stored:
 Interaction: the tree scrolls (`j`/`k`, `↑`/`↓`, `pgup`/`pgdn`); it is drawn as
 styled lines, not widgets. Selecting a row opens the task in the detail pane.
 
+### Where the drawing comes from
+
+The technique is ours, from another project of ours: master-plan's
+`crates/raul/src/tui/path_view.rs` (MIT) draws a tree with the same spine,
+trunk markers, branch headers and blocked-items-forked-under-their-blocker.
+That **drawing** may be ported and adapted to our lanes and our theme slots.
+
+Its **model** does not port: it speaks master-plan's lanes and reads the CLI's
+JSON envelope. Ours reads the work folder through `crates/core`. Nothing of
+master-plan's CLI or domain comes with it, and the file says where it came
+from.
+
 ### Backlog
 
 Everything that is not a task yet, in one list — smaller tasks and draft tasks
