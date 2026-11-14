@@ -89,14 +89,34 @@ OPEN
   The journal: activity.json exists in the model but its event kinds are not
   defined, so the Overview has no activity block and there is no Activity tab.
   The autopilot: the orchestrator role has no job yet.
+  A render mode for raul: raul --render --plain prints the current screen as
+  text and exits. It is how a prototype is captured and how a snapshot test is
+  written. maitre does the same with maitre --render --plain, and it is what
+  made its prototypes honest: captured output, not a drawing.
+  The Autopilot tab is the only raul tab whose design is not settled. Pilot it
+  the way maitre did its layout: two or three variants in terminal text, the
+  winner built, the rest kept as the record of what was compared. The ideas
+  worth carrying over from maitre's Sous-Chef tab:
+    the order is policy and sits on top, the queue is progress under it, the
+    stamp at the foot says whether the automation runs - policy above,
+    progress below, and the same fact never twice;
+    the agent count is a composition, not a number: three agents means one per
+    role, two means the orchestrator reviews, one means the human reviews,
+    because an agent cannot review itself;
+    the stamp prints no number it cannot compute;
+    the order lives on the tool's side, not in the project's data;
+    the crew is runtime state, and only the runtime has it.
   A pty harness in the repo, scripts/pty-sweep.py, and snapshot tests of the
-  rendered screens.
+  rendered screens. The render mode above is the first half of this.
   talita's own verbs. Out of scope, and it stays out of scope until it is
   asked for explicitly. Do not start it because the other tabs are done.
 
 NEXT
   1. close round 6, review it, commit the unit by staging by name
   2. the Path tab, as its own unit with its own review rounds
-  3. the markdown view: crates/engine, the projection in core, the detail pane
-  4. the lease fix in crates/core
-  5. the Needs you and Backlog tabs
+  3. the Needs you and Backlog tabs
+  4. raul --render --plain, so a prototype is captured output and a snapshot
+     test is a file
+  5. the Autopilot tab: sketch the variants in terminal text, pick one, build it
+  6. the markdown view: crates/engine, the projection in core, the detail pane
+  7. the lease fix in crates/core
