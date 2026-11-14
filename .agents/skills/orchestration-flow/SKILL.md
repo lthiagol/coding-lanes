@@ -284,11 +284,19 @@ model family would separate them further — the `opencode/*` family is there
 `beam-free`, `big-pickle`) — but the same model at a higher effort is the
 cheaper separation, and it is what the flow uses today.
 
-**Two things the config does not do.** A model's own
-`options.output_config.effort` is ignored — the catalog's default wins — so
-the effort has to be named as a variant. And the provider's base-URL key in
-this config shape is `api`, not `baseURL`; the wrong key is ignored silently
-and the request goes to the real provider.
+**Three things the config does not do**, each measured on the wire through a
+logging proxy:
+
+- A model's own `options.output_config.effort` is **ignored** — the catalog's
+  default wins — so the effort has to be named as a variant.
+- **A model with several variants does not carry the selection.** With the
+  tuned model's five variants, the TUI shows `· medium` and the request sends
+  `medium`, whatever the model string says — `#high` included, in the legacy
+  map shape and in the V2 array shape alike. **One variant per model is what
+  makes it work**, and that is why the roles have aliases.
+- The provider's base-URL key in this config shape is **`api`**, not
+  `baseURL`. The wrong key is ignored silently and the request goes to the
+  real provider — which looks exactly like the variant being dropped.
 
 Other active models, when a role needs a different lens:
 `minimax-coding-plan/MiniMax-M3.1-Flash-tuned#low`, `#xhigh`, `#max`,
