@@ -113,6 +113,18 @@ Rules:
   Backlog tab holds them.
 - A task that is running is not blocked and not claimable: it has its own
   branch.
+
+The derivations, all of them read from the work folder and never stored:
+
+| branch | rule |
+|---|---|
+| trunk | `claimable` — `approved`, no overlay, no live claim, every dependency `done`, ordered by dependency depth |
+| RUNNING | `executing` and `remediating`, with the runner that holds the claim |
+| APPROVAL · REVIEW · ESCALATED | `groomed` · `code-review` · `needs-human` — the human lane, minus the tasks carrying an overlay |
+| BLOCKED | everything else that is not claimable and not running: a dependency that is not done, an overlay, or a claim held elsewhere. Each names its blocker and is forked under it |
+
+Interaction: the tree scrolls (`j`/`k`, `↑`/`↓`, `pgup`/`pgdn`); it is drawn as
+styled lines, not widgets. Selecting a row opens the task in the detail pane.
 - A blocked task is forked under the task that blocks it, so the human sees
   the chain, not a flat list of stuck work.
 - The trunk is empty when nothing is claimable; the tree then opens straight
