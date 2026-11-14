@@ -65,5 +65,8 @@ tested without a terminal, and it is the piece other surfaces will need.
 - The markdown view is a unit of its own, after the shell and the Overview.
 - `crates/engine` needs a sync script and a `VENDORED.md`, the way
   `.agents/skills/` does for its vendored skills.
-- The projection needs a decision on escaping: which fields are rendered as
-  markdown, and which are escaped.
+- The escaping rule is decided, and it is what the screens spec already
+  implies: **the free text is markdown in its own right** — the intent, the
+  criterion descriptions, the notes, the smaller task's body — and **the
+  fields that must not be interpreted are escaped**: ids, statuses, kinds,
+  timestamps, and the verification commands, which are code and not prose.
