@@ -594,6 +594,42 @@ def build():
         if item["id"] == ids["approved"][0]:
             item["children"] = [child]
 
+    # approved after the last cycle finished: its dependencies are done, so
+    # an agent can claim it right now. It is generated last, so it takes the
+    # next id and the ids of the older fixtures keep their meaning.
+    tid = next_id()
+    ids.setdefault("approved", []).append(tid)
+    tasks.append(
+        task(
+            tid,
+            pick(TITLES, 20),
+            "approved",
+            6,
+            planned_by="session-creator-05",
+            intent={"outcome": pick(OUTCOMES, 8), "problem": pick(PROBLEMS, 7)},
+            scope={
+                "in_scope": [pick(ACTIONS, 7)],
+                "out_of_scope": [pick(PROBLEMS, 3)],
+            },
+            acceptance_criteria=[
+                criterion(2, cid="ACCEPT-01"),
+                criterion(5, cid="ACCEPT-02"),
+            ],
+            steps=[
+                step(2, 1, "pending", ["ACCEPT-01"], ["crates/core/src/task.rs"]),
+                step(
+                    5,
+                    2,
+                    "pending",
+                    ["ACCEPT-02"],
+                    ["crates/core/tests/task_model.rs"],
+                    depends_on=["STP-01"],
+                ),
+            ],
+            depends_on=[done_ids[0]],
+        )
+    )
+
     return tasks, items
 
 

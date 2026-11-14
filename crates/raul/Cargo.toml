@@ -15,5 +15,7 @@ path = "src/main.rs"
 coding-lanes-core.workspace = true
 anyhow.workspace = true
 crossterm.workspace = true
-ratatui.workspace = true
+# `Paragraph::line_count` asks ratatui how tall a paragraph will be, so the
+# Overview measures its text the way ratatui draws it.
+ratatui = { workspace = true, features = ["unstable-rendered-line-info"] }
 serde_json.workspace = true

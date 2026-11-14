@@ -183,7 +183,7 @@ impl Work {
             .filter(|task| !live_claim(task, &now))
             .filter(|task| self.dependencies_done(task))
             .collect();
-        // Dependency order first: the deepest dependency comes first.
+        // Dependency order first: the shortest dependency chain comes first.
         let mut depths: HashMap<String, u32> = HashMap::new();
         claimable.sort_by_key(|task| (self.depth(task, &mut depths), task.id.clone()));
         claimable
@@ -304,7 +304,7 @@ mod tests {
     fn reads_the_mock_folder() {
         let work = mock_work();
         assert!(!work.missing);
-        assert_eq!(work.tasks.len(), 28);
+        assert_eq!(work.tasks.len(), 29);
         assert_eq!(work.items.len(), 5);
         assert!(work.errors.is_empty());
     }
@@ -315,7 +315,7 @@ mod tests {
         let counts = work.status_counts();
         assert_eq!(count_of(&counts, Status::Draft), 5);
         assert_eq!(count_of(&counts, Status::Groomed), 3);
-        assert_eq!(count_of(&counts, Status::Approved), 3);
+        assert_eq!(count_of(&counts, Status::Approved), 4);
         assert_eq!(count_of(&counts, Status::Executing), 3);
         assert_eq!(count_of(&counts, Status::CodeReview), 3);
         assert_eq!(count_of(&counts, Status::Remediating), 3);
@@ -419,12 +419,17 @@ mod tests {
     }
 
     #[test]
-    fn the_mock_data_has_no_claimable_task() {
-        // Every approved task of the mock data waits on a task that is not
-        // done, so nothing is claimable there.
+    fn the_mock_data_has_a_claimable_task() {
+        // One task was approved after the last cycle finished: its
+        // dependencies are done, so an agent can take it right now.
         let work = mock_work();
-        assert!(work.claimable().is_empty());
-        assert!(work.next().is_none());
+        let claimable: Vec<&str> = work
+            .claimable()
+            .iter()
+            .map(|task| task.id.as_str())
+            .collect();
+        assert_eq!(claimable, vec!["TSK29"]);
+        assert_eq!(work.next().map(|task| task.id.as_str()), Some("TSK29"));
     }
 
     #[test]

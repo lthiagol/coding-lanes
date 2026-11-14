@@ -30,8 +30,8 @@ build-talita: ## Build talita only
 	$(CARGO) build -p $(TALITA_PKG)
 
 .PHONY: run raul
-run raul: ## Run raul (TUI)
-	$(CARGO) run -p $(RAUL_PKG)
+run raul: ## Run raul (TUI) on the mock data
+	$(CARGO) run -p $(RAUL_PKG) -- mock-data/coding-lanes/work
 
 .PHONY: test
 test: ## Run the test suite

@@ -20,7 +20,7 @@ fn by_status(status: Status) -> Vec<Task> {
 #[test]
 fn every_fixture_loads() {
     let tasks = tasks();
-    assert_eq!(tasks.len(), 28);
+    assert_eq!(tasks.len(), 29);
 
     let ids: HashSet<&str> = tasks.iter().map(|t| t.id.as_str()).collect();
     assert_eq!(ids.len(), tasks.len(), "task ids must be unique");
@@ -46,9 +46,13 @@ fn every_phase_is_covered() {
 }
 
 #[test]
-fn phase_counts_are_three_and_five_done() {
+fn phase_counts_match_the_fixtures() {
     assert_eq!(by_status(Status::Groomed).len(), 3);
-    assert_eq!(by_status(Status::Approved).len(), 3);
+    assert_eq!(
+        by_status(Status::Approved).len(),
+        4,
+        "three in the flow, one approved after the last cycle finished"
+    );
     assert_eq!(by_status(Status::Executing).len(), 3);
     assert_eq!(by_status(Status::CodeReview).len(), 3);
     assert_eq!(by_status(Status::Remediating).len(), 3);
