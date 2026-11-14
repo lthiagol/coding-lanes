@@ -11,14 +11,18 @@ the rules that keep a new theme consistent with the others.
 | what | where it comes from | licence |
 |---|---|---|
 | the slot structure | ours, shaped by leaf's `UiTheme` | — |
-| leaf's four presets — `arctic`, `forest`, `ocean`, `solarized-dark` | leaf's `src/theme/presets.rs` | MIT |
-| the fourteen families | the user's own leaf theme files, ported to Frond's mapping | MIT, each family's own terms |
-| the role names of each family | the family's published style guide | — |
+| leaf's own presets — `arctic`, `forest`, `ocean`, `solarized-dark` | leaf's `src/theme/presets.rs` | MIT |
+| **Catppuccin** — latte, frappé, macchiato, mocha | [catppuccin.com/palette](https://catppuccin.com/palette/) — the values below are that page's | MIT |
+| **Dracula** — dracula, alucard | [draculatheme.com/spec](https://draculatheme.com/spec) — the values below are that page's | MIT |
+| **Nord** — nord, nord-light | [nordtheme.com/docs/colors-and-palettes](https://www.nordtheme.com/docs/colors-and-palettes) — the values below are that page's | MIT |
 | the mapping rules | [Frond's `COLORS.md`](https://github.com/lthiagol/Frond/blob/main/docs/COLORS.md), adapted to our slots | ours |
 
-Frond is our own other project. It did this exact work — the same upstream,
-the same slots idea — for the same reason. Where its mapping says a role comes
-from a source key, that answer is the answer here too.
+**Those three pages are the source of truth.** If a colour is disputed, the
+page wins; if we need a role the page does not have, it is derived from a
+role it does have, and the derivation is written down here.
+
+Frond is our own other project. It did this exact work for the same upstream.
+Where its mapping answers a question, that answer is the answer here.
 
 ## The slot mapping
 
@@ -46,72 +50,94 @@ key; the right is where a family's role comes from.
 | `semantic.human` | `toc_accent` | the family's accent |
 | `semantic.agent` | `status_watch_fg` | the family's second accent |
 
-The last two are ours: a human lane and an agent lane need two colours that
+The last two are ours: the human lane and the agent lane need two colours that
 are not "success" and "error". The accent and the second accent are the
 natural pair — the accent is already the focus colour, so the agent lane takes
 the other one.
 
-## The families
+## Catppuccin
 
-Fourteen built-ins, in six families. The role names are the family's own.
+Four flavours: **latte** (light), **frappé**, **macchiato**, **mocha** (dark).
+Source: [catppuccin.com/palette](https://catppuccin.com/palette/).
 
-### Catppuccin — latte, frappe, macchiato, mocha
+| role | latte | frappé | macchiato | mocha |
+|---|---|---|---|---|
+| base | `#eff1f5` | `#303446` | `#24273a` | `#1e1e2e` |
+| mantle (elevated) | `#e6e9ef` | `#292c3c` | `#1e2030` | `#181825` |
+| surface1 (border) | `#bcc0cc` | `#51576d` | `#494d64` | `#45475a` |
+| overlay0 (dimmed) | `#9ca0b0` | `#737994` | `#6e738d` | `#6c7086` |
+| text | `#4c4f69` | `#c6d0f5` | `#cad3f5` | `#cdd6f4` |
+| subtext0 | `#6c6f85` | `#a5adce` | `#a5adcb` | `#a6adc8` |
+| accent — human | `#8839ef` mauve | `#ca9ee6` | `#c6a0f6` | `#cba6f7` |
+| agent | `#179299` teal | `#81c8be` | `#8bd5ca` | `#94e2d5` |
+| ok | `#40a02b` green | `#a6d189` | `#a6da95` | `#a6e3a1` |
+| warn | `#fe640b` peach | `#ef9f76` | `#f5a97f` | `#fab387` |
+| error | `#d20f39` red | `#e78284` | `#ed8796` | `#f38ba8` |
+| key | `#df8e1d` yellow | `#e5c890` | `#eed49f` | `#f9e2af` |
+| info | `#1e66f5` blue | `#8caaee` | `#8aadf4` | `#89b4fa` |
 
-`base` · `mantle` · `surface1` · `overlay0` · `lavender`/`mauve` · `green` ·
-`peach` · `red` · `yellow`
+Mauve is the accent; teal is the second. Catppuccin's style guide selects with
+a translucent **Overlay 2** — a terminal has no alpha, so the accent is used
+whole.
 
-content = **Base**, sidebar and status = **Mantle**, borders = **Surface 1**,
-dimmed = **Overlay 0**, selection = the flavour's accent (**Lavender** or
-**Mauve**), status semantics = **Green**, **Peach**, **Red**, **Yellow**.
+## Dracula
 
-### Dracula — dracula, dracula-alucard
+Two variants: **Dracula Classic** (dark) and **Alucard Classic** (light).
+Source: [draculatheme.com/spec](https://draculatheme.com/spec).
 
-`background` · `background_darker` · `comment` · `current_line` · `purple` ·
-`green` · `orange` · `red` · `yellow`
+| role | dracula | alucard |
+|---|---|---|
+| background | `#282A36` | `#FFFBEB` |
+| background darker (elevated) | `#191A21` | `#BCBAB3` |
+| current line (border) | `#6272A4` | `#6C664B` |
+| selection | `#44475A` | `#CFCFDE` |
+| foreground | `#F8F8F2` | `#1F1F1F` |
+| comment (dimmed) | `#6272A4` | `#6C664B` |
+| accent — human | `#BD93F9` purple | `#644AC9` |
+| agent | `#8BE9FD` cyan | `#036A96` |
+| ok | `#50FA7B` green | `#14710A` |
+| warn | `#FFB86C` orange | `#A34D14` |
+| error | `#FF5555` red | `#CB3A2A` |
+| key | `#F1FA8C` yellow | `#846E15` |
+| info | `#FF79C6` pink | `#A3144D` |
 
-content = **Background**, sidebar and status = **Background Darker**, dimmed =
-**Comment**, borders from the **Current Line** family, selection = **Purple**.
 Dracula's status colours are **syntax** colours — the spec assigns
-Green/Orange/Red/Yellow to code tokens, and leaf reuses them. Faithful to
-Dracula, not an oversight.
+Green/Orange/Red/Yellow to code tokens, and a terminal theme reuses them.
+Faithful to Dracula, not an oversight. The spec also publishes *functional*
+colours for UI (`#DE5735` red, `#A39514` orange, `#089108` green, `#0081D6`
+cyan, `#815CD6` purple), marked **not for terminal applications** — we use
+the syntax ones.
 
-### Nord
+## Nord
 
-`nord0` · `nord1` · `nord3` · `nord8` · `nord11` · `nord13` · `nord14`
+One palette, sixteen colours, four named groups: **polar night** (nord0–3),
+**snow storm** (nord4–6), **frost** (nord7–10), **aurora** (nord11–15).
+Source: [nordtheme.com/docs/colors-and-palettes](https://www.nordtheme.com/docs/colors-and-palettes).
 
-content = **nord0**, sidebar and status = **nord1**, dimmed and borders =
-**nord3**, selection and accent = **nord8**, status semantics = the **aurora**
-colours: **nord14** green, **nord13** yellow, **nord11** red.
+| role | nord (dark) | nord-light |
+|---|---|---|
+| base | `#2e3440` nord0 | `#d8dee9` nord4 |
+| elevated | `#3b4252` nord1 | `#e5e9f0` nord5 |
+| border / dimmed | `#4c566a` nord3 | `#4c566a` nord3 |
+| text | `#eceff4` nord6 | `#2e3440` nord0 |
+| accent — human | `#88c0d0` nord8 | `#88c0d0` nord8 |
+| agent | `#8fbcbb` nord7 | `#8fbcbb` nord7 |
+| ok | `#a3be8c` nord14 | `#a3be8c` nord14 |
+| warn | `#ebcb8b` nord13 | `#ebcb8b` nord13 |
+| error | `#bf616a` nord11 | `#bf616a` nord11 |
+| key | `#ebcb8b` nord13 | `#ebcb8b` nord13 |
+| info | `#5e81ac` nord10 | `#5e81ac` nord10 |
 
-### Rosé Pine — main, dawn, moon
+Nord's light variant follows Nord's own **bright ambiance** style: snow storm
+as the base, polar night as the text. Nord's aurora colours work the same in
+both.
 
-`base` · `surface` · `muted` · `highlightMed` · `highlightHigh` · `overlay` ·
-`rose` · `foam` · `gold` · `love`
+## leaf's own
 
-content = **base**, sidebar and status = **surface**, dimmed = **muted**,
-borders = **highlightMed**/**highlightHigh**, selection = **rose**, status
-semantics = **foam** green, **gold** warning, **love** error.
-
-### Tokyo Night — day, night, storm
-
-`bg` · `bg_dark` · a muted blue-grey · `blue`
-
-content = **bg**, sidebar and status = **bg_dark**, dimmed = the muted
-blue-grey, selection = **blue**.
-
-### gruvbox
-
-`bg0` · `bg0_h` · `bg1` · `bg2` · `gray` · `orange` · `yellow` · `green` · `red`
-
-content = **bg0**, sidebar and status = **bg0_h** (hard dark background — the
-community convention for chrome), borders = **bg1**, dimmed = **gray**,
-selection = **orange**.
-
-### leaf's own — arctic, forest, ocean, solarized-dark
-
-Hand-tuned by leaf, not derived from a family. The values are leaf's
-constants, taken verbatim. `ocean` is leaf's default and the model for our
-own default.
+Four hand-tuned presets, not derived from a family: **arctic**, **forest**,
+**ocean**, **solarized-dark**. The values are leaf's constants, taken
+verbatim from `src/theme/presets.rs`. `ocean` is leaf's default and the model
+for ours.
 
 ## The theme file
 
@@ -139,7 +165,7 @@ text.selected = "#88c0d0"
 semantic.ok = "#a3be8c"
 semantic.warn = "#ebcb8b"
 semantic.error = "#bf616a"
-semantic.info = "#81a1c1"
+semantic.info = "#5e81ac"
 semantic.human = "#88c0d0"
 semantic.agent = "#8fbcbb"
 ```
@@ -159,18 +185,18 @@ The file format is later; the presets ship as code first.
    its muted foreground — do not reach for black.
 4. **The human lane and the agent lane are different colours.** They are the
    two halves of the product; they must never share one.
-5. **Status semantics come from the family's own semantics.** If a family
-   has no warning colour, it has no warning colour — use its accent and say
-   so in the theme's note, rather than inventing a hue.
+5. **Status semantics come from the family's own semantics.** If a family has
+   no warning colour, it has no warning colour — use its accent and say so in
+   the theme's note, rather than inventing a hue.
 6. **A theme is a palette, not a mood.** No new colours beyond the family's
    roles, except where rule 5 applies.
-7. **The preset changes nothing but colour.** The same words, the same
-   layout, the same counts. This is checked by the render tests, which run
-   against every preset.
+7. **The preset changes nothing but colour.** The same words, the same layout,
+   the same counts. This is checked by the render tests, which run against
+   every preset.
 
 ## Not yet
 
-- the fourteen families as presets — the mapping above is the work plan; the
-  values come from each family's guide and from the user's leaf theme files
+- the three families as presets — the values above are the work plan; the
+  mapping is done, the code is not
 - the theme file on disk
 - a user theme that is not one of the built-ins

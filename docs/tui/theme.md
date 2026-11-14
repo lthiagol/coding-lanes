@@ -71,10 +71,9 @@ the accent colour whole.
 
 ## Not yet
 
-- **the catalog.** Fourteen families — Catppuccin, Dracula, Nord, Rosé Pine,
-  Tokyo Night, gruvbox — ported from leaf's theme files, each with a
-  documented mapping of source roles to these slots. The mapping is
-  mechanical, and the source of truth for it is Frond's `COLORS.md`, which
-  did the same work for the same upstream.
+- **the catalog.** Catppuccin (latte, frappé, macchiato, mocha), Dracula
+  (dracula, alucard) and Nord (nord, nord-light). The values come from each
+  family's own page, and the mapping to our slots is in
+  [palettes.md](palettes.md).
 - **a theme file on disk.** The preset is a flag for now; a file comes with
   the catalog.
