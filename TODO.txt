@@ -60,13 +60,14 @@ HAPPENED
   were worth it: they found that a count could be silently cut at a width
   where the screen looked fine, that the tab bar could be cut in half, and
   that the title line could read "coding-lane".
-  Two mistakes of the orchestrator, both committed into history and both
-  repeated once: git add -A swept a builder's uncommitted work into a docs
-  commit before it was reviewed, and a kickoff prompt was left sitting in an
-  input box because enter arrived before the text finished typing. The second
-  is now a rule in the skill: send the whole kickoff as one call, wait a
-  second, send enter, then read the pane to confirm the text left the box.
-  The first is now a rule too: stage by name.
+  Three mistakes of the orchestrator, all of them committed into history: git
+  add -A swept a builder's uncommitted work into a docs commit before it was
+  reviewed; a kickoff prompt was left sitting in an input box because enter
+  arrived before the text finished typing; and a steer sent to a running agent
+  was never submitted, so the correction sat unread in the input box. All
+  three are now rules in the skill: stage by name; send the whole kickoff as
+  one call, wait a second, send enter, then read the pane to confirm the text
+  left the box; and a steer follows the same sequence.
   The reviewers ran pty sweeps over every terminal size, which is how the
   width-dependent defects were found, and which cost about fifty minutes a
   round. From now on a reviewer runs the gate and reads the code. A harness
