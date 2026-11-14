@@ -170,20 +170,18 @@ config file, so each pane gets one:
 and the pane starts with it:
 
 ```sh
-herdr pane run <PANE> env OPENCODE_CONFIG=<role-config> opencode --standalone
+herdr pane run <PANE> env OPENCODE_CONFIG=flow/builder.json opencode --standalone
 ```
 
 `--standalone` gives the pane its own server, so the config file is read; the
 shared server ignores a client's `OPENCODE_CONFIG`. The cost is one server
 per pane.
 
-**What this buys**: the state is authoritative, and each role runs the model
-its config names.
+The config **merges** with the global one, so the role file holds only the
+agent and the global file holds the models.
 
-**What it costs**: the **variant is dropped** — the regular TUI keeps the
-provider and the model, not the `#variant`, so `…-tuned#high` arrives as the
-model's default effort. Only `opencode run` honours a variant. So the roles
-differ by **model**, not by effort.
+**What this buys**: the state is authoritative, and each role runs the model
+and the effort its config names.
 
 ## What herdr can tell us, and what it cannot
 
@@ -260,28 +258,37 @@ The reviewer must not run the same model *and the same reasoning effort* as
 the builder. Different lenses surface uncorrelated bugs — the same rule the
 project's own review rounds follow.
 
-| role | model |
-|---|---|
-| Orchestrator | the session's own model |
-| Builder | `minimax-coding-plan/MiniMax-M3.1-Flash-tuned` |
-| Reviewer | a **different model family** — `opencode/deepseek-v4.1-flash-free` today |
+| role | model | effort |
+|---|---|---|
+| Orchestrator | the session's own model | — |
+| Builder | `minimax-coding-plan/tuned-builder` | `medium` |
+| Reviewer | `minimax-coding-plan/tuned-review` | `high` |
 
-The reviewer must not run the same model as the builder: different lenses
-surface uncorrelated bugs, and that is the same rule the theme's palette
-follows — the human lane and the agent lane never share a colour.
+The two aliases live in the user's global opencode config, next to the tuned
+model they came from: `tuned-builder` and `tuned-review` are both the same
+upstream model with **one variant each**, so the effort travels with the
+model and never has to be selected in a session.
 
-Each pane's model comes from its role config, because the regular TUI takes no
-`--model`. The **variant is dropped** in that path — the TUI keeps the
-provider and the model, not the reasoning effort — so the roles differ by
-model, not by effort. When a role needs a specific effort, it is set inside
-the session, not at the pane.
+The role configs that name them live in the repository, under `flow/`:
 
-Other models are available if a role needs a different lens: the `opencode/*`
-family — `deepseek-v4.1-flash-free`, `glm-5.3-flash-free`,
-`longcat-2.5-free`, `mimo-v2.6-flash-free`, `nemotron-3.5-super-vl-free`,
-`iceman-free`, `inkling-2-small-free`, `flint-40b-free`,
-`minimax-m3.1-flash-free`, `beam-free`, `big-pickle` — and the tuned model at
-its other efforts, `low`, `xhigh` and `max`.
+```
+flow/builder.json     default_agent builder  →  tuned-builder#medium
+flow/reviewer.json    default_agent reviewer →  tuned-review#high
+```
+
+The reviewer thinks harder than the builder on the same model. A different
+model family would separate them further — the `opencode/*` family is there
+(`deepseek-v4.1-flash-free`, `glm-5.3-flash-free`, `longcat-2.5-free`,
+`mimo-v2.6-flash-free`, `nemotron-3.5-super-vl-free`, `iceman-free`,
+`inkling-2-small-free`, `flint-40b-free`, `minimax-m3.1-flash-free`,
+`beam-free`, `big-pickle`) — but the same model at a higher effort is the
+cheaper separation, and it is what the flow uses today.
+
+**Two things the config does not do.** A model's own
+`options.output_config.effort` is ignored — the catalog's default wins — so
+the effort has to be named as a variant. And the provider's base-URL key in
+this config shape is `api`, not `baseURL`; the wrong key is ignored silently
+and the request goes to the real provider.
 
 Other active models, when a role needs a different lens:
 `minimax-coding-plan/MiniMax-M3.1-Flash-tuned#low`, `#xhigh`, `#max`,

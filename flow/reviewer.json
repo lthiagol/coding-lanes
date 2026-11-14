@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "reviewer",
+  "agents": {
+    "reviewer": {
+      "mode": "primary",
+      "description": "Reviews a change against its kickoff and the project's rules, finds defects by reading and reasoning, and gives a verdict. Never modifies code, never commits, never prompts another agent.",
+      "model": "minimax-coding-plan/tuned-review#high"
+    }
+  }
+}
