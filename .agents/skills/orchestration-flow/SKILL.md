@@ -141,6 +141,33 @@ No `--wait`: the orchestrator is busy, and the summary must not block it.
 `--agent` and `--prompt`, and is lighter than the full TUI for a pane that
 only receives a kickoff.
 
+## What herdr can tell us, and what it cannot
+
+Herdr recognises an agent and watches its terminal output to decide whether
+it is `working`, `idle`, `blocked` or `done`. The rules live in a per-agent
+manifest — for opencode, they look for `esc to interrupt`,
+`press esc to interrupt`, a line matching `.*opencode.*esc interrupt`, or a
+progress bar of four or more blocks.
+
+**`opencode mini` shows `esc interrupt`, and its status line never contains
+the word `opencode`, so no rule matches.** Herdr falls back to
+`default_known_agent_idle_fallback` and reports the agent as `idle` whether
+it is working, waiting or finished.
+
+| what | use it for |
+|---|---|
+| `herdr agent prompt <PANE> "<text>"` | the way to submit — one ordered submission, text and Enter together |
+| `herdr pane read <PANE> --lines N` | what the agent is actually showing — the only reliable read |
+| `herdr agent explain <PANE>` | why herdr thinks an agent is idle; it names the rule it matched or the fallback it used |
+| `herdr agent list` | the agents and their states, with a `state_change_seq` counter |
+| `herdr notification show "<title>" --body "..." --sound done` | raising a toast for the human — use it when a unit closes |
+
+**Never wait on herdr's state for these agents.** `--wait` returns
+`agent_prompt_stalled` after five seconds even though the prompt was
+delivered and answered. The wake signal is the agent's own report.
+
+Herdr's own agent-facing documentation is `herdr --skill`.
+
 ## The Orchestration workspace
 
 One workspace per loop holds every agent pane, so the human can watch the
@@ -252,7 +279,9 @@ before anything was built. Only real build-and-review rounds count.
 > `BLOCKED: <question>; options: ...; recommendation: ...` and report to the orchestrator.
 > Read AGENTS.md and the project's docs it points to, and the round's
 > findings at `<path-to-findings>`.
-> Your task: `<the unit of work>`. Do not start other work. Run the project's
+> Your task: `<the unit of work>`. Do not start other work. Finish the whole
+> unit before you report — if you are done with a part, move to the next part
+> rather than stopping. Run the project's
 > gate before you report. Finish by sending
 > `herdr pane send-text <orchestrator-pane> "done: <one-line summary>"` and then
 > `herdr pane send-keys <orchestrator-pane> enter`, and check with
@@ -312,9 +341,15 @@ ask-the-user prompt stalls the agent forever.
   the answer in the kickoff.
 - **Stall check:** herdr's state is not a signal for `opencode mini` — it
   reads `idle` whatever the agent is doing. A stall is the **absence of a
-  report**: read the pane (`herdr pane read <PANE>`), and if the work is half
-  done, answer the agent with a nudge to continue. If nothing was started at
-  all, restart it with the task.
+  report**, and there are two kinds:
+
+  | what the pane shows | what it means | what to do |
+  |---|---|---|
+  | reasoning that stops mid-thought, files half changed | the turn ended early | **nudge it to continue** — `herdr agent prompt <PANE> "Continue the unit. ... Do not stop mid-work: if you are done with a part, move to the next part before reporting."` |
+  | nothing at all, no files touched | the turn never started | restart it with the task |
+
+  A turn that ends on a design decision — "let me settle on this
+  definitively" — and then stops is the first kind, not a crash.
 
 ## Rules for the orchestrator
 
@@ -332,6 +367,9 @@ ask-the-user prompt stalls the agent forever.
 - No code ships unreviewed: every changed file is covered by a review round
   before the unit is done.
 - The orchestrator commits after a clean review. Agents never commit or push.
+- **Close a tab when its round is done.** A finished agent left open is an
+  idle process holding a slot, and it is easy to mistake for a live one.
+- **Raise a toast when a unit closes:** `herdr notification show "coding-lanes" --body "<unit> is committed" --sound done`.
 - **Stage by name.** Never `git add -A`, never `git add .` — a blanket stage
   sweeps another agent's in-flight work into the commit. Stage the paths the
   reviewed unit touched, and check `git status` before committing.
