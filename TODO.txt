@@ -5,6 +5,13 @@ branch main, remote https://github.com/lthiagol/coding-lanes.git
 gate is make ci: cargo fmt --all -- --check, cargo clippy --all-targets -- -D warnings,
 cargo test --workspace
 
+SCOPE
+  raul only: the TUI shell and its tabs, built against the mock data in
+  mock-data/. Nothing else is in scope.
+  talita is not being built. Do not write talita code, do not extend its
+  commands, do not wire raul to it, until that is said explicitly.
+  crates/core is shared and stays editable.
+
 HOW TO RESUME
   1. read AGENTS.md, then docs/
   2. read this file
@@ -84,7 +91,8 @@ OPEN
   The autopilot: the orchestrator role has no job yet.
   A pty harness in the repo, scripts/pty-sweep.py, and snapshot tests of the
   rendered screens.
-  talita's own verbs. Out of scope until explicitly asked for.
+  talita's own verbs. Out of scope, and it stays out of scope until it is
+  asked for explicitly. Do not start it because the other tabs are done.
 
 NEXT
   1. close round 6, review it, commit the unit by staging by name
