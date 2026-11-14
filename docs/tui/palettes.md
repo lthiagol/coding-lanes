@@ -200,3 +200,7 @@ The file format is later; the presets ship as code first.
   mapping is done, the code is not
 - the theme file on disk
 - a user theme that is not one of the built-ins
+
+**The light variants are deferred with the light theme**: Catppuccin Latte,
+Dracula Alucard and Nord Light wait until that changes. Their values are
+recorded above so they are ready when the time comes.

@@ -51,11 +51,15 @@ Eight phases, five colours. A phase never names a colour; it names a slot.
 | preset | what it is |
 |---|---|
 | `dark` | the default: the dark palette |
-| `light` | the same slots on a light background |
 | `terminal` | no colours of our own — the terminal's palette is used |
 
-The preset is chosen with a flag for now: `raul --theme dark|light|terminal`.
+The preset is chosen with a flag for now: `raul --theme dark|terminal`.
 A theme file on disk is later.
+
+**The light themes are deferred.** No light preset is built until that changes:
+not ours, and not the light variants of the families — Catppuccin Latte,
+Dracula Alucard and Nord Light wait with them. The slots are shaped so a light
+preset drops in without touching anything else.
 
 **Selection is the accent at full opacity.** A terminal has no alpha
 compositing, so a translucent selection is not available; every preset uses
