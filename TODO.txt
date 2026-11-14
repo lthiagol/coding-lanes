@@ -16,13 +16,18 @@ HOW TO RESUME
   1. read AGENTS.md, then docs/
   2. read this file, and docs/plan.md - the plan holds the small units with
      their done-when lines, the grooming, and the open questions
-  3. pick the first open item you can finish
-  4. run make ci before you claim anything is done
-  5. update this file when the item is closed
+  3. read the last review's findings - the path is at the end of this section
+  4. pick the first open item you can finish
+  5. run make ci before you claim anything is done
+  6. update this file when the item is closed
 
-  The findings of the last review round are in
-  /tmp/opencode/review<N>/round<N>-findings.md. That path is not durable; copy
-  what matters into this file before the /tmp is cleared.
+  The build loop itself is .agents/skills/orchestration-flow/SKILL.md - the
+  three agents, the Orchestration workspace, the pane recipe, the rounds, the
+  budget.
+
+  The findings of the review rounds are not durable - /tmp does not survive.
+  Copy what matters into this file before the round is closed. This unit's
+  rounds are in /tmp/opencode/review-theme/round<N>-findings.md.
 
 WHERE WE ARE
   Unit closed: raul window shell and Overview tab. Six build and review
