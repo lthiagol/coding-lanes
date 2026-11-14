@@ -13,6 +13,31 @@ points here instead of restating them.
 This is the flow for **building** this repository. It is not a description of
 the project: the project has its own docs, and the agents read those.
 
+## The state file
+
+`TODO.txt` at the repository root is the orchestrator's memory. It is plain
+text on purpose — no markup, so it stays readable in a terminal and in a diff.
+
+It records three things: **what was done**, **what happened**, and **what is
+open**. It exists so the work survives a session: a fresh orchestrator reads
+`AGENTS.md`, the docs, and this file, and continues.
+
+The orchestrator reads it at the start of a session and updates it when a unit
+closes. It is committed, so the next session finds it.
+
+```
+TODO.txt
+  HOW TO RESUME   the order to read things, and where the last findings are
+  WHERE WE ARE    the unit in flight and the state of its rounds
+  DONE            what is built
+  HAPPENED        what went wrong, and the rule that came out of it
+  OPEN            what is not built, each with enough detail to start
+  NEXT            the order to do it in
+```
+
+The findings of a review round live in `/tmp`, which is not durable. What
+matters from them is copied into `TODO.txt` before the round is closed.
+
 ## The three agents
 
 | Agent | Where it runs | Does | Never does |
@@ -301,6 +326,8 @@ ask-the-user prompt stalls the agent forever.
   after a clean verdict, so the change under review is uncommitted.
 - **Every dispatch is a fresh session.** Continuity is the findings file and the
   diff. No agent is reused across the rounds of one unit of work.
+- **`TODO.txt` is the orchestrator's memory.** Read it when a session starts,
+  update it when a unit closes. No agent edits it.
 
 ## Human workflow
 
@@ -321,9 +348,10 @@ through it.
    principles and records the decision.
 4. **Batching** — human-reported friction is batched into one loop per batch,
    not one agent per annoyance.
-5. **Resumption** — any fresh session reads `AGENTS.md` and the docs it points
-   to, and continues from the current unit of work. Herdr runtime state is
-   ephemeral and rebuilt from these documents.
+5. **Resumption** — any fresh session reads `AGENTS.md`, the docs it points to,
+   and `TODO.txt`, and continues from the current unit of work. Herdr runtime
+   state is ephemeral and rebuilt from these documents; `TODO.txt` is the part
+   that survives.
 6. **Commit policy** — the orchestrator commits locally after a clean review;
    pushing is the human's decision.
 
