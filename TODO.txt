@@ -26,6 +26,13 @@ HOW TO RESUME
 WHERE WE ARE
   Unit closed: raul window shell and Overview tab. Six build and review
   rounds, the sixth clean, committed by staging by name.
+  Unit in flight: the theme - the slots, the presets and the docs. Two
+  build rounds; round one found nine findings (the agent lane was ANSI
+  blue, the terminal preset told the phases apart by nothing, the human
+  lane's reasons bypassed the mapping, the slots were looked up by name,
+  the render tests ran on one tab, the block titles had no slot, the
+  summary line lost the lane colours, the dark preset was recorded
+  nowhere); round two fixed all of them.
   Next unit: the Path tab, not started.
   The working tree is the review surface while a unit is in flight. On a clean
   verdict, stage by name and commit. Never use git add -A or git add .: a
@@ -84,6 +91,9 @@ OPEN
   into crates/engine with the upstream commit recorded, a VENDORED.md of
   deviations and a sync script. Still open: which fields are rendered as
   markdown and which are escaped.
+  The builders may add or edit the mock data when a finding needs data the
+  fixtures do not have - through mock-data/generate.py, and the generator must
+  keep reproducing the committed tree byte for byte.
   The store is discovered twice, with two rules that disagree: raul walks the
   ancestors itself and stops at the first coding-lanes/work folder, while
   core stops at the first coding-lanes folder whether or not work is inside
@@ -122,24 +132,22 @@ OPEN
   family's own page - catppuccin.com/palette, draculatheme.com/spec,
   nordtheme.com/docs/colors-and-palettes - and the mapping to our slots, the
   theme file format and the rules a new theme has to follow are written down
-  in docs/tui/palettes.md. The structure and two presets are done first; the
-  catalog is later.
+  in docs/tui/palettes.md. The structure and the dark and terminal presets
+  are done; the catalog is later.
   talita's own verbs. Out of scope, and it stays out of scope until it is
   asked for explicitly. Do not start it because the other tabs are done.
 
 NEXT
-  1. the theme: the slots, the presets and the docs, so the Path tree is
-     painted once, in its final form. The spec is docs/tui/theme.md
-  2. the Path tab, as its own unit with its own review rounds. The drawing
+  1. the Path tab, as its own unit with its own review rounds. The drawing
      technique may be ported from master-plan's crates/raul/src/tui/path_view.rs
      (MIT, ours, same ratatui): the spine, the trunk markers, the branch
      headers, and the blocked items forked under their blocker. Its model does
      not port - it speaks master-plan lanes and reads its CLI output - and
      nothing of its CLI or domain comes with it
-  3. one store-discovery rule in crates/core, and raul calls it
-  4. the Needs you and Backlog tabs
-  5. raul --render --plain, so a prototype is captured output and a snapshot
+  2. one store-discovery rule in crates/core, and raul calls it
+  3. the Needs you and Backlog tabs
+  4. raul --render --plain, so a prototype is captured output and a snapshot
      test is a file
-  6. the Autopilot tab: sketch the variants in terminal text, pick one, build it
-  7. the markdown view: crates/engine, the projection in core, the detail pane
-  8. the lease fix in crates/core
+  5. the Autopilot tab: sketch the variants in terminal text, pick one, build it
+  6. the markdown view: crates/engine, the projection in core, the detail pane
+  7. the lease fix in crates/core

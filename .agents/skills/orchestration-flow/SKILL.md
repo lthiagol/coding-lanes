@@ -280,6 +280,10 @@ before anything was built. Only real build-and-review rounds count.
 > Read AGENTS.md and the project's docs it points to, and the round's
 > findings at `<path-to-findings>`. TODO.txt is the orchestrator's: read it,
 > do not write it.
+> If a finding needs data the mock data does not have, you may add or edit
+> it: change mock-data/generate.py, regenerate with
+> `python3 mock-data/generate.py`, and keep the tree reproducible - the
+> generator must write the same bytes the committed fixtures hold.
 > Your task: `<the unit of work>`. Do not start other work. Finish the whole
 > unit before you report — if you are done with a part, move to the next part
 > rather than stopping. Run the project's
@@ -307,6 +311,8 @@ before anything was built. Only real build-and-review rounds count.
 > Run the regular checks — the project's gate: fmt, clippy, tests. Do not build
 > ad-hoc harnesses and do not sweep the size space; a check that needs a
 > special harness belongs in the repo as its own unit, not in a review round.
+> If a finding is about how the screen behaves on data the fixtures do not
+> cover, say so and name the fixture that would cover it.
 > Findings carry severity and location. Do not modify code.
 > Write the findings to `<path-to-this-round-findings>`.
 > Finish with a verdict (`ok` or `changes-needed`) by sending
