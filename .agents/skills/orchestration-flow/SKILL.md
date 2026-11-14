@@ -99,7 +99,7 @@ All multi-agent work runs through Herdr, in the orchestrator's own workspace.
 | open a tab | `herdr tab create --workspace <ID> --label "<label>" --cwd <dir> --no-focus` |
 | split a pane | `herdr pane split <PANE> --direction right --ratio 0.5 --cwd <dir>` |
 | start an agent in a pane | `herdr pane run <PANE> opencode mini --model <provider/model#variant>` |
-| send a prompt | `herdr pane send-text <PANE> "<prompt>"` then `herdr pane send-keys <PANE> enter` |
+| send a prompt | `herdr agent prompt <PANE> "<prompt>"` — text and Enter as one ordered submission |
 | read a pane | `herdr pane read <PANE> --lines 40` |
 | close a tab | `herdr tab close <TAB_ID>` |
 
@@ -111,24 +111,31 @@ early and strands the rest in the input box.
 
 ### A kickoff that lands
 
-Text types asynchronously, so `enter` can arrive before the text does — the
-kickoff then sits in the input box, unsubmitted. The sequence that lands:
+Use `herdr agent prompt`:
 
-1. Send the **whole kickoff as one `send-text` call**, one line.
-2. **Wait a second.** The text is still typing.
-3. `herdr pane send-keys <PANE> enter`
-4. **Verify**: `herdr pane read <PANE> --lines 8`
-   - the kickoff text is still in the input line → send `enter` again (up to
-     twice)
-   - the pane shows the agent working → it landed
+```sh
+herdr agent prompt <PANE> "<the kickoff, one line>"
+```
 
-The same check applies to a report: the agent must confirm the text left the
-box before it finishes.
+Text and the encoded Enter go as **one ordered submission**, and herdr
+reports success only after both were written. There is no enter to forget and
+no window in which the text sits unsubmitted — the two failures this
+replaces.
 
-**A steer is a kickoff.** When the orchestrator sends a correction to a
-running agent, it is the same sequence — text, `enter`, then verify the text
-left the box. A steer sent without the `enter` sits in the input box, unread,
-and the agent finishes the work it was going to finish anyway.
+**Do not use `--wait` here.** `--wait` waits for herdr to *observe* the agent
+go to working, and herdr detects that by matching the agent's output against a
+manifest. `opencode mini` shows `esc interrupt`, which the opencode manifest
+does not match, so herdr falls back to `idle` and the wait returns
+`agent_prompt_stalled` even though the prompt was delivered and answered.
+The wake signal is the agent's own report, not herdr's state.
+
+The report works the same way, in the other direction:
+
+```sh
+herdr agent prompt <orchestrator-pane> "done: <one-line summary>"
+```
+
+No `--wait`: the orchestrator is busy, and the summary must not block it.
 
 `opencode mini` is the pane interface: interactive, takes `--model`,
 `--agent` and `--prompt`, and is lighter than the full TUI for a pane that
@@ -303,10 +310,11 @@ ask-the-user prompt stalls the agent forever.
   through its own ask tool — always stating its recommended option first —
   then re-prompts the same agent with the answer, or opens a fresh one with
   the answer in the kickoff.
-- **Stall check:** a pane that shows `idle` with no completion signal (or
-  `working` for far longer than its task should take) is read first
-  (`herdr pane read <PANE>`); if it is waiting on a prompt, the orchestrator
-  answers it, otherwise it is restarted with the task.
+- **Stall check:** herdr's state is not a signal for `opencode mini` — it
+  reads `idle` whatever the agent is doing. A stall is the **absence of a
+  report**: read the pane (`herdr pane read <PANE>`), and if the work is half
+  done, answer the agent with a nudge to continue. If nothing was started at
+  all, restart it with the task.
 
 ## Rules for the orchestrator
 
