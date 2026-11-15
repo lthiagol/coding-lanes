@@ -11,6 +11,7 @@ use ratatui::widgets::{Block, Clear, Paragraph, Wrap};
 
 use crate::data::Work;
 use crate::overview;
+use crate::path;
 use crate::tabs::Tab;
 use crate::theme::{Theme, block_title_style};
 
@@ -95,6 +96,7 @@ impl App {
         frame.render_widget(self.tab_bar(rows[1].width), rows[1]);
         match self.tab {
             Tab::Overview => overview::render(frame, rows[2], work, &self.theme),
+            Tab::Path => path::render(frame, rows[2], work, &self.theme),
             tab => frame.render_widget(placeholder(tab, &self.theme), rows[2]),
         }
         frame.render_widget(self.footer(rows[3].width), rows[3]);

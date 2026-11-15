@@ -5,6 +5,7 @@
 mod app;
 mod data;
 mod overview;
+mod path;
 mod tabs;
 mod theme;
 

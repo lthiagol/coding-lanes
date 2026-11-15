@@ -22,9 +22,9 @@ mock-data/
 
 | phase | count | shape |
 |---|---|---|
-| `draft` | 4 | title only — three plus one child of an approved task |
+| `draft` | 5 | title only — three, one child of an approved task, one promoted bug |
 | `groomed` | 3 | intent, scope, criteria; one carries a `blocked` overlay |
-| `approved` | 3 | criteria covered by steps, every step has `done_when` |
+| `approved` | 4 | criteria covered by steps, every step has `done_when`; one carries a `blocked` overlay, one a claim held elsewhere |
 | `executing` | 3 | claimed with a lease, evidence attached; one defers a criterion |
 | `code-review` | 3 | steps settled, self round filed, one open finding |
 | `remediating` | 3 | external round, `changes-needed`, findings open |
@@ -45,6 +45,16 @@ Three shapes are covered:
   phase waits on the phase before it
 - **waiting on a blocked task** — `TSK07` and `TSK08` wait on `TSK05`, which
   carries a `blocked` overlay, so they cannot start until it is unblocked
+
+## The reasons a task is not claimable
+
+An `approved` task can be held by three things, and one fixture covers each:
+
+| reason | fixture | what holds it |
+|---|---|---|
+| a dependency that is not done | `TSK07` | it waits on `TSK04` and `TSK05` |
+| an overlay | `TSK08` | it carries a `blocked` overlay |
+| a claim held elsewhere | `TSK09` | another session holds the claim; its lease is empty, so it never expires |
 
 ## Use in tests
 

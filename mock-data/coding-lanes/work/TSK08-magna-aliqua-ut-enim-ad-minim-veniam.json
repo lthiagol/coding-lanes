@@ -8,7 +8,13 @@
   "created": "2026-11-03T16:00Z",
   "updated": "2026-11-05T17:00Z",
   "status": "approved",
-  "overlays": {},
+  "overlays": {
+    "blocked": {
+      "reason": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium.",
+      "by": "creator-02",
+      "at": "2026-11-13T15:00Z"
+    }
+  },
   "claim": null,
   "planned_by": "session-creator-02",
   "meta": {

@@ -299,6 +299,26 @@ def build():
             ],
             depends_on=[ids["groomed"][i], ids["groomed"][(i + 1) % 3]],
         )
+        if i == 1:
+            # An overlay holds the task: this is the case of a task blocked
+            # by something other than a dependency.
+            item["overlays"] = {
+                "blocked": {
+                    "reason": pick(PROBLEMS, 2),
+                    "by": "creator-02",
+                    "at": ts(13, 15),
+                }
+            }
+        if i == 2:
+            # A claim another session holds: the case of a task blocked by
+            # a live claim. The lease is empty, so it never expires and the
+            # claim is still held whenever the fixtures are read.
+            item["claim"] = {
+                "by": "runner-09",
+                "session": "session-runner-09",
+                "at": ts(14, 9),
+                "lease_expires_at": "",
+            }
         tasks.append(item)
 
     # executing — claimed, evidence on the first criterion; one defers a criterion.

@@ -9,7 +9,12 @@
   "updated": "2026-11-06T10:00Z",
   "status": "approved",
   "overlays": {},
-  "claim": null,
+  "claim": {
+    "by": "runner-09",
+    "session": "session-runner-09",
+    "at": "2026-11-14T09:00Z",
+    "lease_expires_at": ""
+  },
   "planned_by": "session-creator-03",
   "meta": {
     "priority": "urgent",

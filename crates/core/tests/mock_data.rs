@@ -224,7 +224,9 @@ fn a_task_waits_on_a_blocked_task() {
         .filter(|t| t.overlays.blocked.is_some())
         .map(|t| t.id.as_str())
         .collect();
-    assert_eq!(blocked.len(), 1);
+    // One groomed task and one approved task: the approved one is held by
+    // an overlay rather than by a dependency that is not done.
+    assert_eq!(blocked.len(), 2);
 
     let waiting = tasks.iter().any(|task| {
         task.depends_on
@@ -235,12 +237,27 @@ fn a_task_waits_on_a_blocked_task() {
 }
 
 #[test]
-fn one_fixture_is_blocked() {
+fn the_fixtures_are_blocked() {
     let blocked = tasks()
         .into_iter()
         .filter(|t| t.overlays.blocked.is_some())
         .count();
-    assert_eq!(blocked, 1);
+    assert_eq!(blocked, 2);
+}
+
+#[test]
+fn a_claim_is_held_by_another_session() {
+    // The case of a task that cannot be claimed because another session
+    // holds the claim: the lease is empty, so the claim never expires.
+    let held = tasks()
+        .into_iter()
+        .filter(|task| {
+            task.claim
+                .as_ref()
+                .is_some_and(|claim| claim.lease_expires_at.is_empty())
+        })
+        .count();
+    assert_eq!(held, 1, "no fixture for a claim held elsewhere");
 }
 
 #[test]
