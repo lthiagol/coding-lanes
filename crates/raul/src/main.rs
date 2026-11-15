@@ -6,6 +6,7 @@ mod app;
 mod data;
 mod overview;
 mod tabs;
+mod theme;
 
 use std::io::Stdout;
 use std::path::{Path, PathBuf};
@@ -22,35 +23,67 @@ use ratatui::backend::CrosstermBackend;
 use app::{Action, App};
 use coding_lanes_core::store::{DATA_DIR, WORK_DIR};
 use data::Work;
+use theme::{Preset, Theme};
 
-const USAGE: &str = "usage: raul [work-folder]";
+const USAGE: &str = "usage: raul [--theme dark|terminal] [work-folder]";
 
 fn main() -> Result<()> {
-    let root = parse_args(std::env::args().skip(1))?;
+    let options = parse_args(std::env::args().skip(1))?;
 
     let mut terminal = setup()?;
-    let result = run(&mut terminal, root);
+    let result = run(&mut terminal, options);
     restore(&mut terminal)?;
     result
 }
 
-/// The work folder to read.
+/// What the command line asks for.
+#[derive(Debug)]
+struct Options {
+    /// The work folder to read.
+    root: PathBuf,
+    /// The colours of the window.
+    theme: Theme,
+}
+
+/// The work folder to read and the colours to paint it with.
 ///
-/// Given on the command line, or discovered from the current directory: the
-/// store is discovered, not configured.
-fn parse_args(args: impl Iterator<Item = String>) -> Result<PathBuf> {
+/// The folder is given on the command line, or discovered from the current
+/// directory: the store is discovered, not configured. The theme is chosen
+/// with a flag.
+fn parse_args(mut args: impl Iterator<Item = String>) -> Result<Options> {
     let mut root: Option<PathBuf> = None;
-    for arg in args {
+    let mut preset = Preset::Dark;
+    while let Some(arg) = args.next() {
         match arg.as_str() {
             "-h" | "--help" => {
                 println!("{USAGE}");
                 std::process::exit(0);
             }
+            "--theme" => {
+                let Some(name) = args.next() else {
+                    bail!("--theme needs a name\n{USAGE}");
+                };
+                preset = preset_of(&name)?;
+            }
+            other if other.starts_with("--theme=") => {
+                preset = preset_of(&other["--theme=".len()..])?;
+            }
             other if other.starts_with('-') => bail!("unknown option {other}\n{USAGE}"),
             other => root = Some(PathBuf::from(other)),
         }
     }
-    Ok(root.unwrap_or_else(discover))
+    Ok(Options {
+        root: root.unwrap_or_else(discover),
+        theme: Theme::preset(preset),
+    })
+}
+
+/// The preset of a name.
+fn preset_of(name: &str) -> Result<Preset> {
+    Preset::parse(name).ok_or_else(|| {
+        let names: Vec<&str> = Preset::ALL.iter().map(|preset| preset.name()).collect();
+        anyhow::anyhow!("unknown theme {name}: the themes are {}", names.join(", "))
+    })
 }
 
 /// The work folder of the project in the current directory.
@@ -81,8 +114,8 @@ fn discover_from(start: &Path) -> Option<PathBuf> {
 }
 
 /// The window loop. The folder is read again on every redraw.
-fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>, root: PathBuf) -> Result<()> {
-    let mut app = App::new(root);
+fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>, options: Options) -> Result<()> {
+    let mut app = App::new(options.root, options.theme);
     loop {
         let work = Work::load(&app.root);
         terminal.draw(|frame| app.draw(frame, &work))?;
@@ -150,5 +183,32 @@ mod tests {
     fn without_a_store_the_folder_that_was_looked_for_is_used() {
         let dir = scratch_dir("discovery-none");
         assert_eq!(discover_from(&dir), None, "there is no work folder here");
+    }
+
+    #[test]
+    fn the_theme_is_the_dark_one_by_default() {
+        let options = parse_args(std::iter::empty()).expect("the options");
+        assert_eq!(options.theme, Theme::preset(Preset::Dark));
+    }
+
+    #[test]
+    fn the_theme_is_chosen_with_a_flag() {
+        for args in [
+            vec!["--theme".to_string(), "terminal".to_string()],
+            vec!["--theme=terminal".to_string()],
+        ] {
+            let options = parse_args(args.into_iter()).expect("the options");
+            assert_eq!(options.theme, Theme::preset(Preset::Terminal));
+        }
+    }
+
+    #[test]
+    fn an_unknown_theme_is_refused() {
+        let error = parse_args(["--theme".to_string(), "light".to_string()].into_iter())
+            .expect_err("light is not a theme yet");
+        assert!(error.to_string().contains("light"), "{error}");
+        let error =
+            parse_args(["--theme".to_string()].into_iter()).expect_err("a theme needs a name");
+        assert!(error.to_string().contains("--theme"), "{error}");
     }
 }

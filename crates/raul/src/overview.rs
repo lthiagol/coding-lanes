@@ -4,19 +4,14 @@
 
 use ratatui::Frame;
 use ratatui::layout::{Constraint, Layout, Rect};
-use ratatui::style::{Color, Modifier, Style};
+use ratatui::style::Style;
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Paragraph, Wrap};
 
 use coding_lanes_core::Status;
 
 use crate::data::{Reason, Work};
-
-const LABEL: Style = Style::new().fg(Color::Gray);
-const DIM: Style = Style::new().fg(Color::DarkGray);
-const VALUE: Style = Style::new().fg(Color::White).add_modifier(Modifier::BOLD);
-const HEADING: Style = Style::new().fg(Color::Cyan).add_modifier(Modifier::BOLD);
-const ALERT: Style = Style::new().fg(Color::Red).add_modifier(Modifier::BOLD);
+use crate::theme::{Theme, block_title_style, phase_style, reason_style};
 
 /// Below this width the blocks are stacked in one column.
 const NARROW: u16 = 58;
@@ -26,42 +21,54 @@ const BORDER: u16 = 2;
 const LABEL_WIDTH: usize = 12;
 
 /// Draw the tab.
-pub fn render(frame: &mut Frame, area: Rect, work: &Work) {
+pub fn render(frame: &mut Frame, area: Rect, work: &Work, theme: &Theme) {
     if work.missing {
-        render_missing(frame, area, work);
+        render_missing(frame, area, work, theme);
         return;
     }
     if work.is_empty() {
-        render_empty(frame, area, work);
+        render_empty(frame, area, work, theme);
         return;
     }
     if area.width < NARROW {
-        render_stacked(frame, area, work);
+        render_stacked(frame, area, work, theme);
     } else {
-        render_wide(frame, area, work);
+        render_wide(frame, area, work, theme);
     }
 }
 
 /// There is no work folder.
-fn render_missing(frame: &mut Frame, area: Rect, work: &Work) {
+fn render_missing(frame: &mut Frame, area: Rect, work: &Work, theme: &Theme) {
     frame.render_widget(
         Paragraph::new(vec![
-            Line::from(Span::styled("no coding-lanes folder found", ALERT)),
+            Line::from(Span::styled(
+                "no coding-lanes folder found",
+                theme.semantic.error,
+            )),
             Line::from(Span::styled(
                 format!("looked in {}", work.root.display()),
-                DIM,
+                theme.text.dim,
             )),
         ])
         .wrap(Wrap { trim: true })
-        .block(Block::bordered().title("overview")),
+        .block(
+            Block::bordered()
+                .title("overview")
+                .title_style(block_title_style(theme))
+                .border_style(theme.chrome.border),
+        ),
         area,
     );
 }
 
 /// There is nothing to read — but a file that does not parse still shows.
-fn render_empty(frame: &mut Frame, area: Rect, work: &Work) {
-    let empty = Paragraph::new(Line::from(Span::styled("no tasks yet", DIM)))
-        .block(Block::bordered().title("overview"));
+fn render_empty(frame: &mut Frame, area: Rect, work: &Work, theme: &Theme) {
+    let empty = Paragraph::new(Line::from(Span::styled("no tasks yet", theme.text.dim))).block(
+        Block::bordered()
+            .title("overview")
+            .title_style(block_title_style(theme))
+            .border_style(theme.chrome.border),
+    );
     if work.errors.is_empty() {
         frame.render_widget(
             empty,
@@ -74,7 +81,7 @@ fn render_empty(frame: &mut Frame, area: Rect, work: &Work) {
         );
         return;
     }
-    let panel = errors_panel(work);
+    let panel = errors_panel(work, theme);
     let width = area.width.saturating_sub(BORDER);
     let needed = panel.rows(width) + BORDER;
     // The empty state in its box, and the files that could not be read.
@@ -89,7 +96,7 @@ fn render_empty(frame: &mut Frame, area: Rect, work: &Work) {
             },
         );
         frame.render_widget(
-            errors_block(&panel),
+            errors_block(&panel, theme),
             Rect {
                 x: area.x,
                 y: area.y + 3,
@@ -104,7 +111,7 @@ fn render_empty(frame: &mut Frame, area: Rect, work: &Work) {
     let empty_rows = u16::from(area.height >= 2);
     if empty_rows == 1 {
         frame.render_widget(
-            Paragraph::new(Line::from(Span::styled("no tasks yet", DIM))),
+            Paragraph::new(Line::from(Span::styled("no tasks yet", theme.text.dim))),
             Rect {
                 x: area.x,
                 y: area.y,
@@ -117,7 +124,7 @@ fn render_empty(frame: &mut Frame, area: Rect, work: &Work) {
     let height = area.height - empty_rows;
     if height >= needed {
         frame.render_widget(
-            errors_block(&panel),
+            errors_block(&panel, theme),
             Rect {
                 x: area.x,
                 y,
@@ -128,7 +135,7 @@ fn render_empty(frame: &mut Frame, area: Rect, work: &Work) {
     } else if height >= 1 {
         // The block does not fit: the file is named on one row.
         frame.render_widget(
-            Paragraph::new(error_marker(work, area.width)),
+            Paragraph::new(error_marker(work, area.width, theme)),
             Rect {
                 x: area.x,
                 y,
@@ -140,39 +147,47 @@ fn render_empty(frame: &mut Frame, area: Rect, work: &Work) {
 }
 
 /// The files that could not be read, in a box.
-fn errors_block(panel: &Panel) -> Paragraph<'static> {
+fn errors_block(panel: &Panel, theme: &Theme) -> Paragraph<'static> {
     Paragraph::new(panel.lines.clone())
         .wrap(Wrap { trim: true })
-        .block(Block::bordered().title(panel.title))
+        .block(
+            Block::bordered()
+                .title(panel.title)
+                .title_style(block_title_style(theme))
+                .border_style(theme.chrome.border),
+        )
 }
 
 /// The line that names a file that could not be read, when the block does
 /// not fit.
-fn error_marker(work: &Work, width: u16) -> Line<'static> {
+fn error_marker(work: &Work, width: u16, theme: &Theme) -> Line<'static> {
     let first = &work.errors[0];
     let mut text = format!("{}: {}", first.file, first.error);
     if work.errors.len() > 1 {
         text.push_str(&format!(" (+{} more)", work.errors.len() - 1));
     }
-    Line::from(Span::styled(cut_to(&text, usize::from(width)), DIM))
+    Line::from(Span::styled(
+        cut_to(&text, usize::from(width)),
+        theme.semantic.error,
+    ))
 }
 
 /// Two columns: the counts on the left, the numbers that ask for a decision
 /// on the right.
-fn render_wide(frame: &mut Frame, area: Rect, work: &Work) {
+fn render_wide(frame: &mut Frame, area: Rect, work: &Work, theme: &Theme) {
     let columns =
         Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)]).split(area);
     // The unreadable block outranks the kinds: a file that could not be read
     // matters more than how many smaller tasks there are.
-    let mut left = vec![counts_panel(work, columns[0].width)];
+    let mut left = vec![counts_panel(work, columns[0].width, theme)];
     if !work.errors.is_empty() {
-        left.push(errors_panel(work));
+        left.push(errors_panel(work, theme));
     }
-    left.push(kinds_panel(work, columns[0].width));
+    left.push(kinds_panel(work, columns[0].width, theme));
     let right = vec![
-        needs_you_panel(work, columns[1].width),
-        claimable_panel(work),
-        next_panel(work),
+        needs_you_panel(work, columns[1].width, theme),
+        claimable_panel(work, theme),
+        next_panel(work, theme),
     ];
     let fits = column_fits(
         &left,
@@ -183,42 +198,42 @@ fn render_wide(frame: &mut Frame, area: Rect, work: &Work) {
         columns[1].width.saturating_sub(BORDER),
         columns[1].height,
     );
-    let area = summary_area(frame, area, work, fits);
+    let area = summary_area(frame, area, work, fits, theme);
     let columns =
         Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)]).split(area);
-    draw_panels(frame, columns[0], &left);
-    draw_panels(frame, columns[1], &right);
+    draw_panels(frame, columns[0], &left, theme);
+    draw_panels(frame, columns[1], &right, theme);
 }
 
 /// One column, for a narrow terminal.
-fn render_stacked(frame: &mut Frame, area: Rect, work: &Work) {
+fn render_stacked(frame: &mut Frame, area: Rect, work: &Work, theme: &Theme) {
     let mut panels = vec![
-        needs_you_panel(work, area.width),
-        claimable_panel(work),
-        next_panel(work),
+        needs_you_panel(work, area.width, theme),
+        claimable_panel(work, theme),
+        next_panel(work, theme),
     ];
-    panels.push(counts_panel(work, area.width));
+    panels.push(counts_panel(work, area.width, theme));
     // The unreadable block outranks the kinds: a file that could not be read
     // matters more than how many smaller tasks there are.
     if !work.errors.is_empty() {
-        panels.push(errors_panel(work));
+        panels.push(errors_panel(work, theme));
     }
-    panels.push(kinds_panel(work, area.width));
+    panels.push(kinds_panel(work, area.width, theme));
     let width = area.width.saturating_sub(BORDER);
     let fits = column_fits(&panels, width, area.height);
-    let area = summary_area(frame, area, work, fits);
-    draw_panels(frame, area, &panels);
+    let area = summary_area(frame, area, work, fits, theme);
+    draw_panels(frame, area, &panels, theme);
 }
 
 /// The area the blocks get, and the summary line above them.
 ///
 /// The key numbers stay visible, whatever the height and the width: when a
 /// block does not fit, the numbers go on top of the blocks.
-fn summary_area(frame: &mut Frame, area: Rect, work: &Work, fits: bool) -> Rect {
+fn summary_area(frame: &mut Frame, area: Rect, work: &Work, fits: bool, theme: &Theme) -> Rect {
     if fits || area.height == 0 {
         return area;
     }
-    let Some(summary) = summary_line(work, area.width) else {
+    let Some(summary) = summary_line(work, area.width, theme) else {
         return area;
     };
     frame.render_widget(
@@ -252,61 +267,65 @@ fn column_fits(panels: &[Panel], width: u16, height: u16) -> bool {
 /// is no summary line: a cut number is worse than none. Every form keeps
 /// the qualifier of its number, so a number on this line is never read as
 /// the number of tasks in the project.
-fn summary_line(work: &Work, width: u16) -> Option<Line<'static>> {
+///
+/// The lane facts are painted with the lane slots, the same as in the
+/// blocks: the same fact is never painted two ways on one screen.
+fn summary_line(work: &Work, width: u16, theme: &Theme) -> Option<Line<'static>> {
     let (approve, review, escalated) = work.needs_you_counts();
     let total = approve + review + escalated;
     let claimable = work.claimable().len();
-    let human = format!(
-        "{total} {} {} on a human",
-        task_word(total),
-        wait_word(total)
-    );
-    // The short forms keep the qualifier: a bare number would be read as
-    // the number of tasks in the project.
-    let brief = format!("{total} {} a human", need_word(total));
-    let shortest = format!("{total} {}", wait_word(total));
-    let claim = format!("{claimable} claimable");
-    let short_claim = format!("{claimable} claim");
-    let separator = || Span::styled(" · ", DIM);
+    // The long forms of the two lane facts, and the short ones.
+    let human_long = format!("{} {} on a human", task_word(total), wait_word(total));
+    let human_brief = format!("{} a human", need_word(total));
+    let human_short = wait_word(total).to_string();
+    let claim_long = "claimable".to_string();
+    let claim_short = "claim".to_string();
+    let separator = || Span::styled(" · ", theme.text.dim);
     let mut forms: Vec<Vec<Span<'static>>> = Vec::new();
     if let Some(task) = work.next() {
-        forms.push(vec![
-            Span::styled(human.clone(), VALUE),
-            separator(),
-            Span::styled(claim.clone(), VALUE),
-            separator(),
-            Span::styled(format!("next {}", task.id), VALUE),
-        ]);
+        forms.push(
+            [
+                lane_span(total, &human_long, theme.semantic.human, theme),
+                vec![separator()],
+                lane_span(claimable, &claim_long, theme.semantic.agent, theme),
+                vec![separator()],
+                vec![Span::styled(format!("next {}", task.id), theme.text.strong)],
+            ]
+            .concat(),
+        );
     }
-    forms.push(vec![
-        Span::styled(human.clone(), VALUE),
-        separator(),
-        Span::styled(claim.clone(), VALUE),
-    ]);
-    forms.push(vec![
-        Span::styled(brief.clone(), VALUE),
-        separator(),
-        Span::styled(claim.clone(), VALUE),
-    ]);
-    forms.push(vec![
-        Span::styled(brief, VALUE),
-        separator(),
-        Span::styled(short_claim.clone(), VALUE),
-    ]);
-    forms.push(vec![
-        Span::styled(shortest.clone(), VALUE),
-        separator(),
-        Span::styled(claim, VALUE),
-    ]);
-    forms.push(vec![
-        Span::styled(shortest, VALUE),
-        separator(),
-        Span::styled(short_claim, VALUE),
-    ]);
+    for (human, claim) in [
+        (&human_long, &claim_long),
+        (&human_brief, &claim_long),
+        (&human_brief, &claim_short),
+        (&human_short, &claim_long),
+        (&human_short, &claim_short),
+    ] {
+        forms.push(
+            [
+                lane_span(total, human, theme.semantic.human, theme),
+                vec![separator()],
+                lane_span(claimable, claim, theme.semantic.agent, theme),
+            ]
+            .concat(),
+        );
+    }
     forms
         .into_iter()
         .find(|form| width_of(form) <= usize::from(width))
         .map(Line::from)
+}
+
+/// A lane fact on the summary line: the count, and the words that name the
+/// lane it belongs to.
+///
+/// The count is a count and the words are the lane, the same way the
+/// blocks paint them.
+fn lane_span(count: usize, words: &str, lane: Style, theme: &Theme) -> Vec<Span<'static>> {
+    vec![
+        Span::styled(count.to_string(), theme.text.strong),
+        Span::styled(format!(" {words}"), lane),
+    ]
 }
 
 /// The columns a line takes.
@@ -344,7 +363,13 @@ struct Panel {
     /// What the hidden lines are called.
     more: &'static str,
     /// What the marker says when the block is left out.
-    marker: Option<String>,
+    marker: Option<Marker>,
+}
+
+/// A marker: what a left-out block says, and how it is painted.
+struct Marker {
+    text: String,
+    style: Style,
 }
 
 impl Panel {
@@ -352,7 +377,7 @@ impl Panel {
     ///
     /// A block that cannot show everything says how much is hidden, so a
     /// count is never shown as if it were the whole count.
-    fn shown(&self, width: u16, content: u16) -> Vec<Line<'static>> {
+    fn shown(&self, width: u16, content: u16, theme: &Theme) -> Vec<Line<'static>> {
         if fits(&self.lines, width, content) {
             return self.lines.clone();
         }
@@ -371,7 +396,7 @@ impl Panel {
         if content < 2 {
             return Vec::new();
         }
-        cut(&self.lines, width, content, self.more)
+        cut(&self.lines, width, content, self.more, theme)
     }
 
     /// The dense form, when it is worth using.
@@ -415,7 +440,13 @@ fn fits(lines: &[Line<'static>], width: u16, content: u16) -> bool {
 }
 
 /// The lines that fit, and a line saying how many do not.
-fn cut(lines: &[Line<'static>], width: u16, content: u16, more: &str) -> Vec<Line<'static>> {
+fn cut(
+    lines: &[Line<'static>],
+    width: u16,
+    content: u16,
+    more: &str,
+    theme: &Theme,
+) -> Vec<Line<'static>> {
     let mut shown: Vec<Line<'static>> = Vec::new();
     let mut used = 0u16;
     for line in lines {
@@ -430,7 +461,7 @@ fn cut(lines: &[Line<'static>], width: u16, content: u16, more: &str) -> Vec<Lin
     if hidden > 0 {
         shown.push(Line::from(Span::styled(
             format!("+{hidden} more {more}"),
-            DIM,
+            theme.text.dim,
         )));
     }
     shown
@@ -480,7 +511,7 @@ fn reduce(panel: &Panel, content: &mut u16, width: u16) -> bool {
 }
 
 /// Draw the blocks of a column, top to bottom.
-fn draw_panels(frame: &mut Frame, area: Rect, panels: &[Panel]) {
+fn draw_panels(frame: &mut Frame, area: Rect, panels: &[Panel], theme: &Theme) {
     let width = area.width.saturating_sub(BORDER);
     let content = layout_of(panels, width, area.height);
     let mut y = area.y;
@@ -489,7 +520,7 @@ fn draw_panels(frame: &mut Frame, area: Rect, panels: &[Panel]) {
             // The block was left out: say so, where it was.
             if y < area.y + area.height {
                 frame.render_widget(
-                    Paragraph::new(marker(panel, area.width)),
+                    Paragraph::new(marker(panel, area.width, theme)),
                     Rect {
                         x: area.x,
                         y,
@@ -501,13 +532,13 @@ fn draw_panels(frame: &mut Frame, area: Rect, panels: &[Panel]) {
             y += 1;
             continue;
         }
-        let lines = panel.shown(width, content[index]);
+        let lines = panel.shown(width, content[index], theme);
         if lines.is_empty() {
             // The block has nothing that fits: say so rather than show
             // nothing at all.
             if y < area.y + area.height {
                 frame.render_widget(
-                    Paragraph::new(marker(panel, area.width)),
+                    Paragraph::new(marker(panel, area.width, theme)),
                     Rect {
                         x: area.x,
                         y,
@@ -521,9 +552,12 @@ fn draw_panels(frame: &mut Frame, area: Rect, panels: &[Panel]) {
         }
         let rows = rows_of(&lines, width);
         frame.render_widget(
-            Paragraph::new(lines)
-                .wrap(Wrap { trim: true })
-                .block(Block::bordered().title(panel.title)),
+            Paragraph::new(lines).wrap(Wrap { trim: true }).block(
+                Block::bordered()
+                    .title(panel.title)
+                    .title_style(block_title_style(theme))
+                    .border_style(theme.chrome.border),
+            ),
             Rect {
                 x: area.x,
                 y,
@@ -541,12 +575,12 @@ fn dropped_markers(content: &[u16]) -> u16 {
 }
 
 /// The line that says a block was left out.
-fn marker(panel: &Panel, width: u16) -> Line<'static> {
-    let text = panel
-        .marker
-        .clone()
-        .unwrap_or_else(|| format!("{} not shown", panel.title));
-    Line::from(Span::styled(cut_to(&text, usize::from(width)), DIM))
+fn marker(panel: &Panel, width: u16, theme: &Theme) -> Line<'static> {
+    let (text, style) = match &panel.marker {
+        Some(marker) => (marker.text.clone(), marker.style),
+        None => (format!("{} not shown", panel.title), theme.text.dim),
+    };
+    Line::from(Span::styled(cut_to(&text, usize::from(width)), style))
 }
 
 /// What the marker of the unreadable block says: the files it holds and
@@ -570,10 +604,10 @@ fn total(content: &[u16]) -> u16 {
 }
 
 /// Tasks per status.
-fn counts_panel(work: &Work, width: u16) -> Panel {
+fn counts_panel(work: &Work, width: u16, theme: &Theme) -> Panel {
     let counts = work.status_counts();
     let total: usize = counts.iter().map(|(_, count)| count).sum();
-    let heading = counts_heading(total);
+    let heading = counts_heading(total, theme);
     let inner = width.saturating_sub(BORDER);
     let label_width = counts
         .iter()
@@ -585,7 +619,7 @@ fn counts_panel(work: &Work, width: u16) -> Panel {
     let cell = label_width + 1 + digits;
     let mut lines = vec![heading];
     // The dense form: the statuses in pairs, each count with its status.
-    let dense = dense_counts(&counts, total, inner);
+    let dense = dense_counts(&counts, total, inner, theme);
     // Two statuses per row, when the column is wide enough for it.
     if usize::from(inner) > 2 * cell {
         for pair in counts.chunks(2) {
@@ -596,9 +630,12 @@ fn counts_panel(work: &Work, width: u16) -> Panel {
                 }
                 spans.push(Span::styled(
                     format!("{:<label_width$}", status.as_str()),
-                    LABEL,
+                    phase_style(theme, *status),
                 ));
-                spans.push(Span::styled(format!(" {count:>digits$}"), VALUE));
+                spans.push(Span::styled(
+                    format!(" {count:>digits$}"),
+                    theme.text.strong,
+                ));
             }
             lines.push(Line::from(spans));
         }
@@ -607,7 +644,7 @@ fn counts_panel(work: &Work, width: u16) -> Panel {
         // longest status, and the row fits the column, so a count stays on
         // the row of its label.
         for (status, count) in &counts {
-            lines.push(status_line(status.as_str(), *count, label_width, digits));
+            lines.push(status_line(*status, *count, label_width, digits, theme));
         }
     } else {
         // The padded label does not fit the column. The dense form keeps
@@ -630,10 +667,13 @@ fn counts_panel(work: &Work, width: u16) -> Panel {
 }
 
 /// The heading of the counts block.
-fn counts_heading(total: usize) -> Line<'static> {
+fn counts_heading(total: usize, theme: &Theme) -> Line<'static> {
     Line::from(vec![
-        Span::styled(format!("{total} "), VALUE),
-        Span::styled(format!("{} by status", task_word(total)), HEADING),
+        Span::styled(format!("{total} "), theme.text.strong),
+        Span::styled(
+            format!("{} by status", task_word(total)),
+            theme.semantic.info,
+        ),
     ])
 }
 
@@ -646,6 +686,7 @@ fn dense_counts(
     counts: &[(Status, usize)],
     total: usize,
     inner: u16,
+    theme: &Theme,
 ) -> Option<Vec<Line<'static>>> {
     let inner = usize::from(inner);
     let mut rows: Vec<Vec<Span<'static>>> = Vec::new();
@@ -666,15 +707,15 @@ fn dense_counts(
                 used += 1;
             }
         }
-        row.push(Span::styled(label.to_string(), LABEL));
+        row.push(Span::styled(label.to_string(), phase_style(theme, *status)));
         row.push(Span::raw(" "));
-        row.push(Span::styled(count.to_string(), VALUE));
+        row.push(Span::styled(count.to_string(), theme.text.strong));
         used += width;
     }
     if !row.is_empty() {
         rows.push(row);
     }
-    let mut lines = vec![counts_heading(total)];
+    let mut lines = vec![counts_heading(total, theme)];
     lines.extend(rows.into_iter().map(Line::from));
     Some(lines)
 }
@@ -683,10 +724,19 @@ fn dense_counts(
 ///
 /// The row is exactly as wide as the label column plus the count, so the
 /// count stays on the row of its label.
-fn status_line(status: &str, count: usize, label_width: usize, digits: usize) -> Line<'static> {
+fn status_line(
+    status: Status,
+    count: usize,
+    label_width: usize,
+    digits: usize,
+    theme: &Theme,
+) -> Line<'static> {
     Line::from(vec![
-        Span::styled(format!("{status:<label_width$}"), LABEL),
-        Span::styled(format!(" {count:>digits$}"), VALUE),
+        Span::styled(
+            format!("{:<label_width$}", status.as_str()),
+            phase_style(theme, status),
+        ),
+        Span::styled(format!(" {count:>digits$}"), theme.text.strong),
     ])
 }
 
@@ -695,7 +745,7 @@ fn status_line(status: &str, count: usize, label_width: usize, digits: usize) ->
 /// The label is padded to the width of the column, so a count stays on the
 /// row of its label. A kind whose label and count do not fit on one row
 /// leaves the block out whole.
-fn kinds_panel(work: &Work, width: u16) -> Panel {
+fn kinds_panel(work: &Work, width: u16, theme: &Theme) -> Panel {
     let kinds = work.kind_counts();
     let inner = usize::from(width.saturating_sub(BORDER));
     let digits = count_width(kinds.iter().map(|(_, count)| *count));
@@ -706,12 +756,15 @@ fn kinds_panel(work: &Work, width: u16) -> Panel {
         .unwrap_or(0);
     // The label is padded as far as the column allows.
     let pad = LABEL_WIDTH.min(inner.saturating_sub(digits));
-    let mut lines = vec![Line::from(Span::styled("smaller tasks by kind", HEADING))];
+    let mut lines = vec![Line::from(Span::styled(
+        "smaller tasks by kind",
+        theme.semantic.info,
+    ))];
     if label_width <= pad {
         for (kind, count) in &kinds {
             lines.push(Line::from(vec![
-                Span::styled(format!("{:<pad$}", kind.as_str()), LABEL),
-                Span::styled(count.to_string(), VALUE),
+                Span::styled(format!("{:<pad$}", kind.as_str()), theme.text.normal),
+                Span::styled(count.to_string(), theme.text.strong),
             ]));
         }
     } else {
@@ -732,14 +785,14 @@ fn kinds_panel(work: &Work, width: u16) -> Panel {
 }
 
 /// What waits on a human.
-fn needs_you_panel(work: &Work, width: u16) -> Panel {
+fn needs_you_panel(work: &Work, width: u16, theme: &Theme) -> Panel {
     let (approve, review, escalated) = work.needs_you_counts();
     let total = approve + review + escalated;
     let headline = Line::from(vec![
-        Span::styled(format!("{total} "), VALUE),
+        Span::styled(format!("{total} "), theme.text.strong),
         Span::styled(
             format!("{} {} on a human", task_word(total), wait_word(total)),
-            LABEL,
+            theme.semantic.human,
         ),
     ]);
     let inner = width.saturating_sub(BORDER);
@@ -754,7 +807,7 @@ fn needs_you_panel(work: &Work, width: u16) -> Panel {
         (Reason::Review, review),
         (Reason::Escalated, escalated),
     ] {
-        let line = reason_line(reason, count, column);
+        let line = reason_line(reason, count, column, theme);
         // The reason and its count share a row: when they do not fit, the
         // reason is left out rather than parted from its count.
         if rows_of(std::slice::from_ref(&line), inner) == 1 {
@@ -766,7 +819,7 @@ fn needs_you_panel(work: &Work, width: u16) -> Panel {
     if hidden > 0 {
         lines.push(Line::from(Span::styled(
             format!("+{hidden} more reasons"),
-            DIM,
+            theme.text.dim,
         )));
     }
     // The dense form: the three reasons on one row.
@@ -782,7 +835,15 @@ fn needs_you_panel(work: &Work, width: u16) -> Panel {
         if index > 0 {
             spans.push(Span::raw("  "));
         }
-        spans.push(Span::styled(format!("{} {}", reason.label(), count), LABEL));
+        // The reason and its count are painted apart, as the wide form
+        // paints them: the count is a count, and every other count on the
+        // screen is `text.strong`.
+        spans.push(Span::styled(
+            reason.label().to_string(),
+            reason_style(theme, reason),
+        ));
+        spans.push(Span::raw(" "));
+        spans.push(Span::styled(count.to_string(), theme.text.strong));
     }
     Panel {
         title: "needs you",
@@ -799,15 +860,15 @@ fn needs_you_panel(work: &Work, width: u16) -> Panel {
 }
 
 /// One reason and its count.
-fn reason_line(reason: Reason, count: usize, column: bool) -> Line<'static> {
+fn reason_line(reason: Reason, count: usize, column: bool, theme: &Theme) -> Line<'static> {
     let label = if column {
         format!("  {:<LABEL_WIDTH$}", reason.label())
     } else {
         format!("  {} ", reason.label())
     };
     Line::from(vec![
-        Span::styled(label, LABEL),
-        Span::styled(count.to_string(), VALUE),
+        Span::styled(label, reason_style(theme, reason)),
+        Span::styled(count.to_string(), theme.text.strong),
     ])
 }
 
@@ -821,17 +882,20 @@ fn count_width(counts: impl IntoIterator<Item = usize>) -> usize {
 }
 
 /// How many tasks an agent could claim right now.
-fn claimable_panel(work: &Work) -> Panel {
+fn claimable_panel(work: &Work, theme: &Theme) -> Panel {
     let count = work.claimable().len();
     let lines = vec![
         Line::from(vec![
-            Span::styled(format!("{count} "), VALUE),
+            Span::styled(format!("{count} "), theme.text.strong),
             Span::styled(
                 format!("{} an agent could claim right now", task_word(count)),
-                LABEL,
+                theme.semantic.agent,
             ),
         ]),
-        Line::from(Span::styled("  approved, free, dependencies done", DIM)),
+        Line::from(Span::styled(
+            "  approved, free, dependencies done",
+            theme.text.dim,
+        )),
     ];
     Panel {
         title: "claimable",
@@ -846,20 +910,23 @@ fn claimable_panel(work: &Work) -> Panel {
 }
 
 /// What happens next: the first claimable task.
-fn next_panel(work: &Work) -> Panel {
+fn next_panel(work: &Work, theme: &Theme) -> Panel {
     let lines = match work.next() {
         Some(task) => vec![
             Line::from(vec![
-                Span::styled(format!("{} ", task.id), VALUE),
-                Span::styled(task.title.clone(), LABEL),
+                Span::styled(format!("{} ", task.id), theme.text.strong),
+                Span::styled(task.title.clone(), theme.text.normal),
             ]),
-            Line::from(Span::styled("  the first task of the path", DIM)),
+            Line::from(Span::styled("  the first task of the path", theme.text.dim)),
         ],
         None => vec![
-            Line::from(Span::styled("nothing is claimable right now", LABEL)),
+            Line::from(Span::styled(
+                "nothing is claimable right now",
+                theme.text.normal,
+            )),
             Line::from(Span::styled(
                 "  no approved task has its dependencies done",
-                DIM,
+                theme.text.dim,
             )),
         ],
     };
@@ -876,14 +943,16 @@ fn next_panel(work: &Work) -> Panel {
 }
 
 /// The files that could not be read.
-fn errors_panel(work: &Work) -> Panel {
+fn errors_panel(work: &Work, theme: &Theme) -> Panel {
     let lines = work
         .errors
         .iter()
         .map(|error| {
             Line::from(vec![
-                Span::styled(format!("{}: ", error.file), VALUE),
-                Span::styled(error.error.clone(), DIM),
+                Span::styled(format!("{}: ", error.file), theme.text.strong),
+                // The message of a file that could not be read is a
+                // failure, not secondary text.
+                Span::styled(error.error.clone(), theme.semantic.error),
             ])
         })
         .collect();
@@ -895,7 +964,11 @@ fn errors_panel(work: &Work) -> Panel {
         optional: 0,
         atomic: false,
         more: "files",
-        marker: Some(hidden_files(work)),
+        marker: Some(Marker {
+            text: hidden_files(work),
+            // The block is left out, but what it holds is still a failure.
+            style: theme.semantic.error,
+        }),
     }
 }
 
@@ -934,18 +1007,25 @@ mod tests {
 
     use ratatui::Terminal;
     use ratatui::backend::TestBackend;
+    use ratatui::style::Color;
 
     use super::*;
+    use crate::theme::Preset;
 
     fn mock_work() -> Work {
         Work::load(&Path::new(env!("CARGO_MANIFEST_DIR")).join("../../mock-data/coding-lanes/work"))
+    }
+
+    /// The theme the screen is drawn with.
+    fn theme() -> Theme {
+        Theme::preset(Preset::Dark)
     }
 
     /// Draw the Overview and return the rows it shows.
     fn draw(work: &Work, width: u16, height: u16) -> Vec<String> {
         let mut terminal = Terminal::new(TestBackend::new(width, height)).expect("a test terminal");
         terminal
-            .draw(|frame| render(frame, frame.area(), work))
+            .draw(|frame| render(frame, frame.area(), work, &theme()))
             .expect("drawing the overview");
         let buffer = terminal.backend().buffer();
         let area = *buffer.area();
@@ -956,6 +1036,37 @@ mod tests {
                     .collect::<String>()
             })
             .collect()
+    }
+
+    /// Draw the Overview and return every cell, with its colour.
+    fn draw_cells(work: &Work, width: u16, height: u16) -> Vec<Vec<(char, Color)>> {
+        let mut terminal = Terminal::new(TestBackend::new(width, height)).expect("a test terminal");
+        terminal
+            .draw(|frame| render(frame, frame.area(), work, &theme()))
+            .expect("drawing the overview");
+        let buffer = terminal.backend().buffer();
+        let area = *buffer.area();
+        (0..area.height)
+            .map(|y| {
+                (0..area.width)
+                    .map(|x| {
+                        let cell = buffer.cell((x, y)).expect("a cell");
+                        (cell.symbol().chars().next().unwrap_or(' '), cell.fg)
+                    })
+                    .collect()
+            })
+            .collect()
+    }
+
+    /// The colour of the first cell of `needle`, on the row that holds it.
+    fn colour_of(cells: &[Vec<(char, Color)>], needle: &str) -> Option<Color> {
+        for row in cells {
+            let text: String = row.iter().map(|(symbol, _)| *symbol).collect();
+            if let Some(start) = text.find(needle) {
+                return row.get(start).map(|(_, colour)| *colour);
+            }
+        }
+        None
     }
 
     fn scratch_dir(name: &str) -> std::path::PathBuf {
@@ -1121,7 +1232,7 @@ mod tests {
     fn the_dense_counts_keep_a_count_with_its_status() {
         let work = mock_work();
         let counts = work.status_counts();
-        let dense = dense_counts(&counts, 29, 38).expect("a dense form");
+        let dense = dense_counts(&counts, 29, 38, &theme()).expect("a dense form");
         for line in &dense {
             let text = text_of(std::slice::from_ref(line));
             assert!(text.chars().count() <= 38, "{text}");
@@ -1181,7 +1292,7 @@ mod tests {
     fn a_short_summary_keeps_the_qualifier_of_its_number() {
         let work = mock_work();
         for width in 8..=60 {
-            let Some(line) = summary_line(&work, width) else {
+            let Some(line) = summary_line(&work, width, &theme()) else {
                 continue;
             };
             let text = text_of(std::slice::from_ref(&line));
@@ -1198,7 +1309,7 @@ mod tests {
     fn a_narrow_terminal_does_not_part_a_reason_from_its_count() {
         let work = mock_work();
         for width in 1..=40 {
-            let panel = needs_you_panel(&work, width);
+            let panel = needs_you_panel(&work, width, &theme());
             for line in &panel.lines {
                 let text = text_of(std::slice::from_ref(line));
                 for (reason, count) in [("approve", "2"), ("review", "3"), ("escalated", "3")] {
@@ -1213,6 +1324,31 @@ mod tests {
         let text = draw(&work, 9, 21).join("\n");
         assert!(!text.contains("approve"), "{text}");
         assert!(text.contains("+3 more"), "{text}");
+    }
+
+    #[test]
+    fn the_dense_reason_line_paints_its_count_as_a_count() {
+        // The wide form splits the reason from its count; the dense form
+        // paints them on one row, and the count is still a count: it takes
+        // `text.strong`, as every other count on the screen does.
+        let work = mock_work();
+        let theme = theme();
+        let panel = needs_you_panel(&work, 100, &theme);
+        let compact = panel.compact.as_deref().expect("a dense form");
+        let line = compact.last().expect("the dense reasons");
+        let counts: Vec<&str> = line
+            .spans
+            .iter()
+            .filter(|span| span.style == theme.text.strong)
+            .map(|span| span.content.as_ref())
+            .collect();
+        assert_eq!(counts.len(), 3, "three reasons, three counts: {line:?}");
+        for count in counts {
+            assert!(
+                count.chars().all(|c| c.is_ascii_digit()),
+                "{count} is not a count"
+            );
+        }
     }
 
     #[test]
@@ -1235,6 +1371,39 @@ mod tests {
         // The name of the file and the error, not only the name.
         assert!(marker.contains("TSK98-broken.json"), "{marker}");
         assert!(marker.contains("key must"), "{marker}");
+    }
+
+    #[test]
+    fn an_unreadable_file_is_painted_as_a_failure() {
+        let dir = scratch_dir("unreadable-paint");
+        fs::write(dir.join("TSK98-broken.json"), "{ not json").expect("writing a broken file");
+        let work = Work::load(&dir);
+        let message = work.errors[0].error.clone();
+        let error = theme().semantic.error.fg.expect("the error colour");
+        let cells = draw_cells(&work, 100, 20);
+        // The message of a file that could not be read is a failure, not
+        // secondary text.
+        assert_eq!(
+            colour_of(&cells, &message),
+            Some(error),
+            "the message of the unreadable file is not painted as a failure"
+        );
+    }
+
+    #[test]
+    fn the_marker_of_an_unreadable_file_is_painted_as_a_failure() {
+        let dir = scratch_dir("unreadable-marker-paint");
+        fs::write(dir.join("TSK98-broken.json"), "{ not json").expect("writing a broken file");
+        let work = Work::load(&dir);
+        let error = theme().semantic.error.fg.expect("the error colour");
+        // The block does not fit: the file is named on one row, and the row
+        // is painted as the failure it is.
+        let cells = draw_cells(&work, 80, 2);
+        assert_eq!(
+            colour_of(&cells, "TSK98-broken.json"),
+            Some(error),
+            "the marker of the unreadable file is not painted as a failure"
+        );
     }
 
     /// The text of some lines.
@@ -1266,7 +1435,7 @@ mod tests {
         let work = mock_work();
         let counts = work.status_counts();
         for width in 1..=60 {
-            let panel = counts_panel(&work, width);
+            let panel = counts_panel(&work, width, &theme());
             if panel.lines.is_empty() {
                 // The block is left out whole: the marker says so.
                 continue;
@@ -1295,7 +1464,7 @@ mod tests {
     fn a_count_stays_with_its_kind_at_every_width() {
         let work = mock_work();
         for width in 1..=60 {
-            let panel = kinds_panel(&work, width);
+            let panel = kinds_panel(&work, width, &theme());
             if panel.lines.is_empty() {
                 // The block is left out whole: the marker says so.
                 continue;
@@ -1345,7 +1514,7 @@ mod tests {
         let work = Work::load(&dir);
         let mut seen = false;
         for width in 1..=60 {
-            let Some(line) = summary_line(&work, width) else {
+            let Some(line) = summary_line(&work, width, &theme()) else {
                 continue;
             };
             let text = text_of(std::slice::from_ref(&line));

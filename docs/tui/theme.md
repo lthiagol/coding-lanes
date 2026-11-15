@@ -21,14 +21,14 @@ differently.
 | `chrome.footer` | the footer's text |
 | `chrome.key` | a key label in the footer and in the help overlay |
 | `text.normal` | ordinary text |
-| `text.dim` | secondary text: the empty state, a marker, a hint under a line, the path in the title line |
+| `text.dim` | secondary text: the empty state, a marker, a hint under a line, a separator, a path, a tab that is not built yet |
 | `text.strong` | a count, a title that matters |
 | `text.selected` | the selected row |
 | `semantic.ok` | a clean result, a finished task |
 | `semantic.warn` | something wants attention and is not broken |
 | `semantic.error` | a failure: an unreadable file, a failed criterion, an escalation, no coding-lanes folder found |
 | `semantic.info` | neutral information |
-| `semantic.human` | the human lane: approve, review, and the words that name it |
+| `semantic.human` | the human lane: approve, review, and the facts that wait on it — "wait on a human" |
 | `semantic.agent` | the agent lane: claimable, running |
 
 The words that name a lane take the lane's slot: "wait on a human" is
@@ -37,7 +37,8 @@ is never painted two ways on one screen.
 
 ## The phases and their slots
 
-Eight phases, five colours. A phase never names a colour; it names a slot.
+Eight phases, six slots: five semantic ones and the dim. A phase never names
+a colour; it names a slot.
 
 | phase | slot | why |
 |---|---|---|
@@ -62,6 +63,7 @@ they stand for:
 | `escalated` | `semantic.error` | the review budget ran out; a person has to step in |
 
 An escalation is the one reason that is a failure, and it is painted like one.
+The count beside a reason is `text.strong`, as every other count is.
 
 ## The titles of the blocks
 
@@ -128,8 +130,10 @@ can and cannot do:
   enough for the eight phases and not enough for the eighteen slots: the
   weak chrome slots — the muted foreground, the dimmed foreground, the
   border, the footer and the inactive tab — all hold DIM, and the title,
-  the strong text and the focused border all hold BOLD. The terminal preset
-  tells the phases apart; it does not tell the chrome apart.
+  the strong text and the focused border all hold BOLD. The showing tab
+  and every key label hold BOLD and REVERSED together, so those two paint
+  alike. The terminal preset tells the phases apart; it does not tell the
+  chrome apart.
 
 The preset exists for terminals whose palette the reader has chosen. Where
 the paint matters, the `dark` preset is the one.

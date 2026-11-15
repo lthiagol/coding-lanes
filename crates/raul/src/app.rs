@@ -5,13 +5,14 @@ use std::path::PathBuf;
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::Frame;
 use ratatui::layout::{Constraint, Layout, Rect};
-use ratatui::style::{Color, Modifier, Style};
+use ratatui::style::Style;
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Clear, Paragraph, Wrap};
 
 use crate::data::Work;
 use crate::overview;
 use crate::tabs::Tab;
+use crate::theme::{Theme, block_title_style};
 
 /// What a key asks the window to do.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -28,14 +29,18 @@ pub struct App {
     pub tab: Tab,
     /// The help overlay is open.
     pub help: bool,
+    /// The colours of the window.
+    pub theme: Theme,
 }
 
 impl App {
-    pub fn new(root: PathBuf) -> Self {
+    /// A window with a theme of its own.
+    pub fn new(root: PathBuf, theme: Theme) -> Self {
         Self {
             root,
             tab: Tab::Overview,
             help: false,
+            theme,
         }
     }
 
@@ -89,13 +94,13 @@ impl App {
         frame.render_widget(self.title_line(rows[0].width), rows[0]);
         frame.render_widget(self.tab_bar(rows[1].width), rows[1]);
         match self.tab {
-            Tab::Overview => overview::render(frame, rows[2], work),
-            tab => frame.render_widget(placeholder(tab), rows[2]),
+            Tab::Overview => overview::render(frame, rows[2], work, &self.theme),
+            tab => frame.render_widget(placeholder(tab, &self.theme), rows[2]),
         }
         frame.render_widget(self.footer(rows[3].width), rows[3]);
 
         if self.help {
-            render_help(frame, area);
+            render_help(frame, area, &self.theme);
         }
     }
 
@@ -105,14 +110,8 @@ impl App {
     /// folder: a part of the line is never cut in half.
     fn title_line(&self, width: u16) -> Line<'static> {
         const NAME: &str = " coding-lanes ";
-        let name = Span::styled(
-            NAME,
-            Style::default()
-                .fg(Color::Black)
-                .bg(Color::Cyan)
-                .add_modifier(Modifier::BOLD),
-        );
-        let folder = Style::default().fg(Color::DarkGray);
+        let name = Span::styled(NAME, self.theme.chrome.title);
+        let folder = self.theme.text.dim;
         let name_width = NAME.chars().count() as u16;
         if width < name_width {
             // The name does not fit: the folder it reads takes its place.
@@ -174,7 +173,7 @@ impl App {
         let parts = [
             (marked, self.tab_style(self.tab)),
             (plain, self.tab_style(self.tab)),
-            (index, Style::default().fg(Color::DarkGray)),
+            (index, self.theme.chrome.tab_index),
         ];
         for (part, style) in parts {
             if part.chars().count() <= width as usize {
@@ -187,12 +186,9 @@ impl App {
     /// The style of a tab in the bar.
     fn tab_style(&self, tab: Tab) -> Style {
         if tab == self.tab {
-            Style::default()
-                .fg(Color::Black)
-                .bg(Color::Cyan)
-                .add_modifier(Modifier::BOLD)
+            self.theme.chrome.tab_active
         } else {
-            Style::default().fg(Color::Gray)
+            self.theme.chrome.tab_inactive
         }
     }
 
@@ -201,11 +197,8 @@ impl App {
     /// A terminal too narrow for every key keeps the keys that matter most,
     /// and no key is ever cut in half.
     fn footer(&self, width: u16) -> Line<'static> {
-        let key = Style::default()
-            .fg(Color::Black)
-            .bg(Color::Cyan)
-            .add_modifier(Modifier::BOLD);
-        let label = Style::default().fg(Color::DarkGray);
+        let key = self.theme.chrome.key;
+        let label = self.theme.chrome.footer;
         let space = || Span::raw("   ");
         // (where it sits in the line, its spans, whether it matters most)
         let mut parts: Vec<(usize, Vec<Span<'static>>, bool)> = vec![
@@ -284,17 +277,22 @@ impl App {
 }
 
 /// The tabs that are not built yet.
-fn placeholder(tab: Tab) -> Paragraph<'static> {
+fn placeholder(tab: Tab, theme: &Theme) -> Paragraph<'static> {
     Paragraph::new(Line::from(Span::styled(
         format!("the {} tab is not built yet", tab.label()),
-        Style::default().fg(Color::DarkGray),
+        theme.text.dim,
     )))
     .wrap(Wrap { trim: true })
-    .block(Block::bordered().title(tab.label()))
+    .block(
+        Block::bordered()
+            .title(tab.label())
+            .title_style(block_title_style(theme))
+            .border_style(theme.chrome.border),
+    )
 }
 
 /// The help overlay.
-fn render_help(frame: &mut Frame, area: Rect) {
+fn render_help(frame: &mut Frame, area: Rect, theme: &Theme) {
     let width = area.width.saturating_mul(3) / 5;
     let height = area.height.saturating_mul(3) / 5;
     let popup = Rect {
@@ -303,11 +301,8 @@ fn render_help(frame: &mut Frame, area: Rect) {
         width,
         height,
     };
-    let key = Style::default()
-        .fg(Color::Black)
-        .bg(Color::Cyan)
-        .add_modifier(Modifier::BOLD);
-    let label = Style::default().fg(Color::Gray);
+    let key = theme.chrome.key;
+    let label = theme.text.normal;
     let lines = vec![
         Line::from(vec![
             Span::styled(" 1-6 ", key),
@@ -337,9 +332,12 @@ fn render_help(frame: &mut Frame, area: Rect) {
     ];
     frame.render_widget(Clear, popup);
     frame.render_widget(
-        Paragraph::new(lines)
-            .wrap(Wrap { trim: true })
-            .block(Block::bordered().title("keys")),
+        Paragraph::new(lines).wrap(Wrap { trim: true }).block(
+            Block::bordered()
+                .title("keys")
+                .title_style(block_title_style(theme))
+                .border_style(theme.chrome.border_focus),
+        ),
         popup,
     );
 }
@@ -350,17 +348,45 @@ mod tests {
 
     use ratatui::Terminal;
     use ratatui::backend::TestBackend;
+    // The colour type is named here to read the paint back: no colour is
+    // written outside the theme.
+    use ratatui::style::{Color, Modifier};
 
     use super::*;
     use crate::data::Work;
+    use crate::theme::Preset;
 
     fn mock_work() -> Work {
         Work::load(&Path::new(env!("CARGO_MANIFEST_DIR")).join("../../mock-data/coding-lanes/work"))
     }
 
-    /// Draw the window and return the rows it shows.
-    fn draw(width: u16, height: u16) -> Vec<String> {
-        let app = App::new(PathBuf::from("/tmp/coding-lanes/work"));
+    /// A window on the mock data, with the default theme.
+    fn app() -> App {
+        App::new(
+            PathBuf::from("/tmp/coding-lanes/work"),
+            Theme::preset(Preset::Dark),
+        )
+    }
+
+    /// The window as it is drawn: a theme, a tab, and the help overlay.
+    fn window(theme: &Theme, tab: Tab, help: bool) -> App {
+        let mut app = App::new(PathBuf::from("/tmp/coding-lanes/work"), *theme);
+        app.tab = tab;
+        app.help = help;
+        app
+    }
+
+    /// The paint of one cell: its colours and its attributes.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+    struct Paint {
+        fg: Color,
+        bg: Color,
+        modifier: Modifier,
+    }
+
+    /// Draw the window and return what it shows: the rows, and the paint
+    /// of every cell.
+    fn render(app: &App, width: u16, height: u16) -> (Vec<String>, Vec<Vec<Paint>>) {
         let work = mock_work();
         let mut terminal = Terminal::new(TestBackend::new(width, height)).expect("a test terminal");
         terminal
@@ -368,18 +394,45 @@ mod tests {
             .expect("drawing the window");
         let buffer = terminal.backend().buffer();
         let area = *buffer.area();
-        (0..area.height)
+        let rows = (0..area.height)
             .map(|y| {
                 (0..area.width)
                     .map(|x| buffer.cell((x, y)).map(|cell| cell.symbol()).unwrap_or(" "))
                     .collect::<String>()
             })
-            .collect()
+            .collect();
+        let paint = (0..area.height)
+            .map(|y| {
+                (0..area.width)
+                    .map(|x| {
+                        buffer
+                            .cell((x, y))
+                            .map(|cell| Paint {
+                                fg: cell.fg,
+                                bg: cell.bg,
+                                modifier: cell.modifier,
+                            })
+                            .unwrap_or_default()
+                    })
+                    .collect()
+            })
+            .collect();
+        (rows, paint)
     }
 
+    /// Draw the window with a theme and return the rows it shows.
+    fn draw_with(theme: &Theme, width: u16, height: u16) -> Vec<String> {
+        let app = window(theme, Tab::Overview, false);
+        render(&app, width, height).0
+    }
+
+    /// Draw the window and return the rows it shows.
+    fn draw(width: u16, height: u16) -> Vec<String> {
+        draw_with(&Theme::preset(Preset::Dark), width, height)
+    }
     #[test]
     fn a_narrow_title_drops_whole_parts() {
-        let app = App::new(PathBuf::from("/tmp/coding-lanes/work"));
+        let app = app();
         for width in 0..=24 {
             let title = app.title_line(width);
             let text = title
@@ -397,7 +450,7 @@ mod tests {
 
     #[test]
     fn a_narrow_tab_bar_drops_whole_parts() {
-        let app = App::new(PathBuf::from("/tmp/coding-lanes/work"));
+        let app = app();
         for width in 0..=24 {
             let bar = app.tab_bar(width);
             let text = bar
@@ -443,5 +496,69 @@ mod tests {
             assert!(text.contains(tab.label()), "{tab:?} is missing");
         }
         assert!(text.contains("switch tab"), "{text}");
+    }
+
+    /// Every screen the window can show.
+    fn screens() -> Vec<(Tab, bool)> {
+        let mut screens: Vec<(Tab, bool)> = Tab::ALL.iter().map(|tab| (*tab, false)).collect();
+        // The help overlay is a screen of its own.
+        screens.push((Tab::Overview, true));
+        screens
+    }
+
+    #[test]
+    fn the_presets_say_the_same_thing() {
+        for (tab, help) in screens() {
+            for (width, height) in [(100, 20), (60, 16), (40, 12)] {
+                let dark = render(
+                    &window(&Theme::preset(Preset::Dark), tab, help),
+                    width,
+                    height,
+                )
+                .0;
+                let terminal = render(
+                    &window(&Theme::preset(Preset::Terminal), tab, help),
+                    width,
+                    height,
+                )
+                .0;
+                // A theme changes the paint, never the words.
+                assert_eq!(dark, terminal, "{tab:?} help={help} {width}x{height}");
+            }
+        }
+    }
+
+    #[test]
+    fn the_presets_differ_in_paint() {
+        for (tab, help) in screens() {
+            let dark = render(&window(&Theme::preset(Preset::Dark), tab, help), 100, 20).1;
+            let terminal = render(
+                &window(&Theme::preset(Preset::Terminal), tab, help),
+                100,
+                20,
+            )
+            .1;
+            assert_ne!(
+                dark, terminal,
+                "{tab:?} help={help}: the presets paint the same"
+            );
+        }
+    }
+
+    #[test]
+    fn the_terminal_preset_paints_with_attributes() {
+        // In the terminal preset the colours are the terminal's: what
+        // tells the presets apart is the attributes.
+        let terminal = render(
+            &window(&Theme::preset(Preset::Terminal), Tab::Overview, false),
+            100,
+            20,
+        )
+        .1;
+        let attributes = terminal
+            .iter()
+            .flatten()
+            .any(|paint| paint.modifier != Modifier::empty());
+        assert!(attributes, "the terminal preset paints no attributes");
     }
 }
