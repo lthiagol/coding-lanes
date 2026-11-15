@@ -17,7 +17,7 @@ A unit without one is not ready, and belongs under **Grooming** instead.
 
 | # | unit | size | done when |
 |---|---|---|---|
-| 0 | **Close the theme unit** | ● | six build rounds done, round 7 is a sweep of the two docs; then one review round, and the unit commits by staging by name — `crates/raul`, `docs/tui/theme.md`, `docs/tui/palettes.md` — and `TODO.txt` is updated |
+| 0 | **Close the theme unit** | ✓ | done: eight build and review rounds, committed by staging by name — `crates/raul`, `docs/tui/theme.md`, `docs/tui/palettes.md`. The slots, the phase and reason mappings, the dark and terminal presets, the family tables and the figures are in the code, and five tests read the docs to keep them honest |
 | 1 | **`raul --render --plain`** | S | the current screen prints as text without a terminal, exits 0, and prints the same bytes twice in a row; the Overview's text is a snapshot file in the repo, and the snapshot test fails when the file and the output differ. ratatui has no plain-text backend, so the unit captures the `TestBackend` buffer |
 | 2 | **The lease fix in core** | S | a lease written without seconds expires on the minute it says, and a test holds it. The rule stops comparing timestamps as strings |
 | 3 | **The store discovery in core** ? | S | `crates/core` holds one rule — the nearest ancestor holding `coding-lanes/work` — and `crates/raul` calls it; the second copy in `crates/raul/src/main.rs` is gone; a test in core covers a project whose `coding-lanes/` holds no `work/`; `crates/talita` is untouched |
