@@ -44,11 +44,24 @@ WHERE WE ARE
   not agreeing with themselves or with each other. The unit ended with five
   tests that read the tables and the figures, so the drift is now the gate's
   problem rather than a reviewer's.
-  Next unit: the Path tab, not started. Its spec is docs/tui/screens.md and
-  its rows are in docs/plan.md - the data layer and the drawing, with the
-  width rules folded into the drawing. Pin its counts in tests from the start,
-  the way the theme unit ended: trunk 1, AWAITING APPROVAL 2, BLOCKED 3,
-  RUNNING 6, REVIEW 3, ESCALATED 3, against the fixtures.
+  Unit closed: the Path tab - the tree of the work. Two rounds, and the
+  counts were pinned by tests from the start, so the review spent its round
+  on the drawing - the geometry did not match the spec sketch, the next task
+  could vanish unnamed on a short pane, and the width test could not fail
+  because it measured the rendered buffer, which is the width wide by
+  construction. All three are fixed, and the tree is the shape of
+  docs/tui/screens.md. The lesson held: pin the numbers before the first
+  review round, and check that the check can fail.
+  Next unit: the Needs you tab, then the Backlog tab, then the markdown view.
+  Follow-ups the Path tab left, all low, none blocking:
+    - the blocked row names every dependency instead of only the ones after
+      the fork parent
+    - the claim-held-elsewhere fixture leans on an empty lease meaning never
+      expires, which nothing in the model says
+    - the overlay and the claim fixtures are not isolated - one task is held
+      by more than one thing
+    - a one-row pane cuts the announcement and leaves a count unnamed
+    - the tree does not scroll yet, which the spec says it does
   The working tree is the review surface while a unit is in flight. On a clean
   verdict, stage by name and commit. Never use git add -A or git add .: a
   blanket stage sweeps another agent's in-flight work into the commit. That
