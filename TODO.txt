@@ -52,7 +52,11 @@ WHERE WE ARE
   construction. All three are fixed, and the tree is the shape of
   docs/tui/screens.md. The lesson held: pin the numbers before the first
   review round, and check that the check can fail.
-  Next unit: the Needs you tab, then the Backlog tab, then the markdown view.
+  Unit in flight: the Needs you tab - the human lane. The builder is writing
+  it now; the working tree holds the unreviewed change (crates/raul/src/needs.rs
+  is new, with app.rs, data.rs, main.rs and docs/tui/screens.md changed). The
+  next step is the review round, then the commit by name.
+  Next unit after that: the Backlog tab, then the markdown view.
   Follow-ups the Path tab left, all low, none blocking:
     - the blocked row names every dependency instead of only the ones after
       the fork parent
