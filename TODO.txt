@@ -52,12 +52,18 @@ WHERE WE ARE
   construction. All three are fixed, and the tree is the shape of
   docs/tui/screens.md. The lesson held: pin the numbers before the first
   review round, and check that the check can fail.
-  Unit in flight: the Needs you tab - the human lane. The builder is done:
-  crates/raul/src/needs.rs is new, with app.rs, data.rs, main.rs and
-  docs/tui/screens.md changed, and the gate was green at 115 raul tests when
-  it reported. The review round was still running when this session ended; its
-  findings will be at /tmp/opencode/review-needs/round1-findings.md if it got
-  that far.
+  Unit in flight: the Needs you tab - the human lane. Round one reviewed
+  changes-needed with four findings: the age column measured the tasks last
+  write rather than the wait, and the builder had added a sentence to the
+  spec asserting an equivalence the model does not support; the not-shown
+  announcement could cut a count off from its reason and used the opposite
+  count order to every other count in raul; the wait test read the wall clock
+  twice and could fail spuriously; and an empty announcement rendered a blank
+  line while a reason with a zero count vanished.
+  The decision on the age column: measure the wait. The task gains a
+  status_since, set on every transition, and the spec sentence goes. The
+  builder may not write the replacement - the spec is the orchestrators.
+  Round two is fixing all four.
   IMPORTANT for the next session: the working tree holds this unreviewed
   change. Do not commit it until a review says ok, and stage it by name -
   crates/raul, crates/core/tests/mock_data.rs, mock-data. Never git add -A:
