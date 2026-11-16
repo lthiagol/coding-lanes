@@ -63,7 +63,32 @@ WHERE WE ARE
   The decision on the age column: measure the wait. The task gains a
   status_since, set on every transition, and the spec sentence goes. The
   builder may not write the replacement - the spec is the orchestrators.
-  Round two is fixing all four.
+  Round two closed F1 to F4 and the review found four more:
+    N1 the fixtures carry no status_since, so every row falls back and the
+    column shows the age of the task rather than the wait
+    N2 the announcement count and the header count share a shape and mean
+    different things - escalated · 3 beside escalated · 2
+    N3 nothing pinned status_since across a save and a load
+    N4 parse_timestamp reads fixed byte positions and ignores the zone, so
+    a stamp with an offset is read as UTC
+  The decision on N1 was made: the fixtures carry status_since, and the
+  model doc now states the fallback rule - a file written before the field
+  existed falls back to created, and the wait it names is a lower bound.
+  ROUND THREE IS STOPPED MID-WAY, and the working tree holds it. The
+  session ended there because the round was too big. Where it got to:
+    DONE - N4: crates/core/src/clock.rs grew a parse_rfc3339 that reads
+      the zone, with the day arithmetic
+    DONE - N3: crates/core/tests/task_model.rs asserts status_since across
+      the save and the load
+    HALF - N2: the announcement was being rewritten to take counts
+      instead of the missing rows, and the tree does not compile - one
+      error, crates/raul/src/needs.rs:180, where the call site still
+      passes &[Missing; 3] and the new signature wants &[usize; 3]
+    NOT STARTED - N1: mock-data/generate.py has no status_since yet, so
+      the fixtures still carry no wait
+  The next session starts here: one builder round for N2 alone - finish
+  the announcement and get the tree compiling - then N1, then the review.
+  The tree does not compile now. That is the one thing to fix first.
   IMPORTANT for the next session: the working tree holds this unreviewed
   change. Do not commit it until a review says ok, and stage it by name -
   crates/raul, crates/core/tests/mock_data.rs, mock-data. Never git add -A:

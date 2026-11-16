@@ -447,6 +447,11 @@ ask-the-user prompt stalls the agent forever.
 - One active builder at a time, unless the units of work are independent — then
   parallel tabs, each with its own unit of work.
 - **Everything a builder produces gets a reviewer round.** No exceptions.
+- **One finding per round when the findings touch different layers.** A round
+  that changes the fixtures, the model, a test and a rendering at once is
+  three rounds wearing one coat — the builder spends the round arguing with
+  its own half-finished refactor and lands the unit broken. Give it the
+  smallest finding first.
 - **At most 5 rounds** of builder and reviewer per unit of work. Round 5 comes
   back `changes-needed` → stop and ask the human.
 - **The orchestrator runs the gate itself** before opening a reviewer round. An
