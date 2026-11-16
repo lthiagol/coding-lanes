@@ -364,6 +364,9 @@ before anything was built. Only real build-and-review rounds count.
 > it: change mock-data/generate.py, regenerate with
 > `python3 mock-data/generate.py`, and keep the tree reproducible - the
 > generator must write the same bytes the committed fixtures hold.
+> The spec is the orchestrator's. If the implementation needs a rule the spec
+> does not have, say so in your report - do not add or change a normative
+> sentence in the spec yourself.
 > Your task: `<the unit of work>`. Do not start other work. Finish the whole
 > unit before you report — if you are done with a part, move to the next part
 > rather than stopping. Run the project's
