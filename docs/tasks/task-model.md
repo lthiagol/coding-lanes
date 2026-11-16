@@ -42,7 +42,7 @@ checklist the domain must satisfy.
 ```
 Task
 ├── identity      id · title · slug · parent · children · created · updated · kind · promoted_from
-├── status        status · overlays · claim · planned_by
+├── status        status · status_since · overlays · claim · planned_by
 ├── meta          priority · effort · tags
 ├── intent        outcome · problem
 ├── scope         in_scope[] · out_of_scope[]
@@ -73,6 +73,7 @@ A role may not write another role's section.
   "kind": "task",
   "promoted_from": null,
   "status": "groomed",
+  "status_since": "2026-11-13T12:00:00Z",
   "overlays": { "blocked": null, "deferred": null, "cancelled": null },
   "claim": null,
   "planned_by": "s-creator-1",
@@ -114,6 +115,7 @@ A role may not write another role's section.
 | `kind` | `task` \| `bug` \| `feature` | `bug`/`feature` is a **small task**: the step rules do not apply to it. See [smaller-tasks.md](smaller-tasks.md) |
 | `promoted_from` | id or null | the smaller task this task became |
 | `status` | enum | one canonical status. Never a combined string |
+| `status_since` | timestamp | RFC 3339. When the task entered the status it is in. Moves on every status transition; it does not move on any other write. A file written before the field existed falls back to `created` — the wait it names is then a **lower bound**, not the wait |
 | `overlays` | three slots | orthogonal to the status. Each slot holds `{reason, by, at}` or null |
 | `claim` | object or null | `{by, session, at, lease_expires_at}` — who holds the task and in which session |
 | `planned_by` | session or null | the creator session that wrote the task. Used by the review-independence gate |
@@ -155,7 +157,7 @@ not plain numbers and are skipped by the scan.
 | `acceptance_criteria[].evidence` | Append-only | runner |
 | `acceptance_criteria[].status` | Derived from the latest evidence; the stored value mirrors it | runner (mirrors), domain (derives) |
 | `steps` | Mutable, always. A different path is recorded, not hidden | runner |
-| `claim`, `status` | Written by transitions only | domain |
+| `claim`, `status`, `status_since` | Written by transitions only | domain |
 | `review` | Append-only for rounds and findings; `verdict` moves | reviewer |
 | `notes`, `questions` | Append-only | any role |
 | `meta` | Mutable, pre-approval | creator |
